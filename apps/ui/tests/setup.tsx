@@ -58,7 +58,7 @@ const { createApiProxy } = vi.hoisted(() => {
   return { createApiProxy };
 });
 
-vi.mock('@jx3/api-client', () => ({
+vi.mock('@sidui/api-client', () => ({
   createApiClient: vi.fn(() => createApiProxy()),
 }));
 

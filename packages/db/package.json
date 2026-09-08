@@ -1,5 +1,5 @@
 {
-  "name": "@jx3/db",
+  "name": "@sidui/db",
   "module": "index.ts",
   "type": "module",
   "private": true,

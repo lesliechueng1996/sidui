@@ -1,8 +1,8 @@
-export * from '@jx3/db';
+export * from '@sidui/db';
 
 import { env } from '@api/infrastructure/config/env';
-import { createClient } from '@jx3/db';
 import { getLogger } from '@logtape/drizzle-orm';
+import { createClient } from '@sidui/db';
 
 export const db = createClient(env.DATABASE_URL, getLogger());
 

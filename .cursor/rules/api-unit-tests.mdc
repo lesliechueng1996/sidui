@@ -6,7 +6,7 @@ alwaysApply: false
 
 # API unit tests
 
-Use `bun test` (`@jx3/api` scripts `test` / `test:cov`). Coverage config is in `apps/api/bunfig.toml` and the repo-root `bunfig.toml` (Bun may treat either as the project root).
+Use `bun test` (`@sidui/api` scripts `test` / `test:cov`). Coverage config is in `apps/api/bunfig.toml` and the repo-root `bunfig.toml` (Bun may treat either as the project root).
 
 ## Layout
 
@@ -38,7 +38,7 @@ Keep `--isolate` (already in `package.json`) so mocks do not leak across files.
 
 Each **reported** file must be ≥90% functions and lines (`coverageThreshold = 0.9`, per-file). Cover both branches of `?.` / `??` / ternaries. Untested source is omitted from the Bun report — add a test (or keep the file on the exclude list).
 
-After adding or changing tests, run `bun run --filter @jx3/api test:cov`.
+After adding or changing tests, run `bun run --filter @sidui/api test:cov`.
 
 ## Write tests for
 

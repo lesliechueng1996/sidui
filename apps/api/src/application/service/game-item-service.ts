@@ -16,7 +16,7 @@ import {
   NotFoundException,
 } from '@api/shared/exception';
 import { formatDateTime } from '@api/shared/util/date';
-import { searchItem } from '@jx3/jx3api';
+import { searchItem } from '@sidui/jx3api';
 
 type GameItemRow = NonNullable<
   Awaited<ReturnType<typeof gameItemRepository.findById>>

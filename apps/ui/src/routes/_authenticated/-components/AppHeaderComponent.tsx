@@ -108,7 +108,7 @@ export function AppHeaderComponent({ user }: { user: AppHeaderUser }) {
         />
         <div className="flex min-w-0 flex-col leading-none">
           <span className="font-heading text-sm font-medium tracking-[0.22em] text-foreground">
-            JX3
+            四堆
           </span>
           <span className="mt-1 text-[0.65rem] tracking-wide text-muted-foreground">
             控制台

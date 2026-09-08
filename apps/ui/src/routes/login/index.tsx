@@ -68,7 +68,7 @@ function LoginComponent() {
         <BrandedMarkComponent />
         <h1>
           <BrandedBlurTextComponent
-            text="JX3"
+            text="四堆"
             className="font-heading justify-center text-[2.75rem] font-light tracking-[0.28em] text-white/95"
           />
         </h1>

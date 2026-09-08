@@ -22,7 +22,7 @@ import {
   getServerStates,
   type GameServerDetail as Jx3apiGameServerDetail,
   trySearchGameServer,
-} from '@jx3/jx3api';
+} from '@sidui/jx3api';
 
 type GameServerRow = NonNullable<
   Awaited<ReturnType<typeof gameServerRepository.findById>>

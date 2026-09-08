@@ -1,5 +1,5 @@
 {
-  "name": "@jx3/jx3api",
+  "name": "@sidui/jx3api",
   "private": true,
   "type": "module",
   "exports": {

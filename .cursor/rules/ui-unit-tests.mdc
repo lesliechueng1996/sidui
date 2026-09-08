@@ -6,7 +6,7 @@ alwaysApply: false
 
 # UI unit tests
 
-Use Vitest (`@jx3/ui` scripts `test` / `test:cov`). Coverage config is in `apps/ui/vitest.config.ts`.
+Use Vitest (`@sidui/ui` scripts `test` / `test:cov`). Coverage config is in `apps/ui/vitest.config.ts`.
 
 ## Layout
 
@@ -17,7 +17,7 @@ Mirror `src/` under `tests/`. One test file per source file:
 
 ## Mock every external dependency
 
-The file under test must not load real collaborators. `vi.mock` every runtime import of API wrappers, `authClient`, `toast`, and `@jx3/api-client`. `import type` is fine.
+The file under test must not load real collaborators. `vi.mock` every runtime import of API wrappers, `authClient`, `toast`, and `@sidui/api-client`. `import type` is fine.
 
 Do not call a real HTTP API, boot Better Auth, or read real `VITE_*` secrets.
 
@@ -39,7 +39,7 @@ Mock `components/react-bits/*` (WebGL) and `toast` when imported. Do **not** moc
 
 Each **reported** file must be ≥90% functions and lines (per-file). Cover both branches of `?.` / `??` / ternaries. Untested source is omitted from the report — add a test (or keep the file on the exclude list).
 
-After adding or changing tests, run `bun run --filter @jx3/ui test:cov`.
+After adding or changing tests, run `bun run --filter @sidui/ui test:cov`.
 
 ## Write tests for
 

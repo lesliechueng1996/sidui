@@ -8,7 +8,7 @@ alwaysApply: false
 
 | Folder / file | Role |
 |---------------|------|
-| `api-client.ts` | `createApiClient` from `@jx3/api-client`, `handleApiError` |
+| `api-client.ts` | `createApiClient` from `@sidui/api-client`, `handleApiError` |
 | `api/admin/admin-<resource>-api.ts` | Admin CRUD wrappers (`auth: roleAdmin`) |
 | `api/<feature>-api.ts` | User-facing wrappers (`auth: roleUser`) |
 | `auth-client.ts` | Better Auth React client |
@@ -19,7 +19,7 @@ alwaysApply: false
 
 ## Eden wrappers
 
-Pages import wrappers, never `apiClient` / `fetch` / `@jx3/api`.
+Pages import wrappers, never `apiClient` / `fetch` / `@sidui/api`.
 
 ```typescript
 const { data, error } = await apiClient.api.v1.idiom.get({ query: { page, pageSize, text } });

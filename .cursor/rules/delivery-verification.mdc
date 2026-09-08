@@ -19,11 +19,11 @@ bun run typecheck
 When changes are scoped to a single package, you may run filtered checks instead:
 
 ```bash
-bun run --filter @jx3/api check
-bun run --filter @jx3/api typecheck
+bun run --filter @sidui/api check
+bun run --filter @sidui/api typecheck
 ```
 
-Replace `@jx3/api` with the package you touched (`@jx3/ui`, `@jx3/db`, etc.).
+Replace `@sidui/api` with the package you touched (`@sidui/ui`, `@sidui/db`, etc.).
 
 ## When to run
 

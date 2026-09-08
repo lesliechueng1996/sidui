@@ -9,7 +9,7 @@ Treat **idiom** as the reference when adding a feature. Copy its layers, not ad-
 
 ## Call chain
 
-UI route → `apps/ui/src/lib/api/*` Eden wrapper → `@jx3/api-client` → `apps/api` `interface/endpoint` → `application/service` → `infrastructure/repository` → `@jx3/db`
+UI route → `apps/ui/src/lib/api/*` Eden wrapper → `@sidui/api-client` → `apps/api` `interface/endpoint` → `application/service` → `infrastructure/repository` → `@sidui/db`
 
 Do not skip those layers: route handlers stay thin; pages never call Eden/`fetch` directly; services never return Elysia `status()`.
 
@@ -19,10 +19,10 @@ Do not skip those layers: route handlers stay thin; pages never call Eden/`fetch
 
 | Path | Package | Role |
 |------|---------|------|
-| `apps/api` | `@jx3/api` | Elysia HTTP API (`@api/*` → `src/*`) |
-| `apps/ui` | `@jx3/ui` | TanStack Router + React Query (`@/*` → `src/*`) |
-| `packages/db` | `@jx3/db` | Drizzle schema and `createClient` |
-| `packages/api-client` | `@jx3/api-client` | Eden Treaty client typed from `App` |
+| `apps/api` | `@sidui/api` | Elysia HTTP API (`@api/*` → `src/*`) |
+| `apps/ui` | `@sidui/ui` | TanStack Router + React Query (`@/*` → `src/*`) |
+| `packages/db` | `@sidui/db` | Drizzle schema and `createClient` |
+| `packages/api-client` | `@sidui/api-client` | Eden Treaty client typed from `App` |
 
 ## New feature checklist
 

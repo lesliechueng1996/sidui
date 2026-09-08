@@ -149,7 +149,7 @@ mock.module('@api/infrastructure/logger', () => ({
   logger,
 }));
 
-mock.module('@jx3/jx3api', () => ({
+mock.module('@sidui/jx3api', () => ({
   searchItem,
 }));
 

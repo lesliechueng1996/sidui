@@ -1,5 +1,5 @@
 ---
-description: Internal workspace packages @jx3/db and @jx3/api-client
+description: Internal workspace packages @sidui/db and @sidui/api-client
 globs: packages/**
 alwaysApply: false
 ---
@@ -8,16 +8,16 @@ alwaysApply: false
 
 Do not add a new `packages/*` lib unless several apps need the same runtime code. Feature logic stays in `apps/api` / `apps/ui`.
 
-## `@jx3/db`
+## `@sidui/db`
 
 - Tables live in `packages/db/schema/*.ts`, barrel-exported from `schema/index.ts`.
 - `index.ts` exports `createClient` and re-exports `drizzle-orm` plus schema.
 - API uses one app-level client: `apps/api/src/shared/util/db.ts` (`db`, query helpers, `isUniqueViolationError`). Do not construct extra Drizzle clients in repositories.
 - Follow `db-schema-conventions.mdc` and `db-migrations.mdc`. Auth tables (`schema/auth.ts`) are Better Auth-owned — do not restyle them to match business tables.
 
-## `@jx3/api-client`
+## `@sidui/api-client`
 
 - Thin Eden Treaty factory: `treaty<App>(baseUrl, { fetch: { credentials: 'include' } })`.
-- `App` is `typeof server` from `@jx3/api` (`apps/api/src/index.ts`). Mount new route groups **before** `export type App`.
+- `App` is `typeof server` from `@sidui/api` (`apps/api/src/index.ts`). Mount new route groups **before** `export type App`.
 - UI calls `createApiClient` once in `apps/ui/src/lib/api-client.ts`. Never `fetch` REST paths by hand.
 - Keep this package free of feature wrappers and React.

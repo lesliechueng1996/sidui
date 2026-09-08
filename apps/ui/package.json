@@ -1,5 +1,5 @@
 {
-  "name": "@jx3/ui",
+  "name": "@sidui/ui",
   "private": true,
   "type": "module",
   "imports": {
@@ -20,7 +20,7 @@
     "@base-ui/react": "^1.7.0",
     "@dnd-kit/react": "^0.5.0",
     "@fontsource-variable/geist": "^5.3.0",
-    "@jx3/api-client": "workspace:*",
+    "@sidui/api-client": "workspace:*",
     "@schedule-x/calendar": "^4.7.0",
     "@schedule-x/events-service": "^4.7.0",
     "@schedule-x/react": "^4.1.0",

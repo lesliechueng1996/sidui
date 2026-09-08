@@ -1,5 +1,5 @@
 {
-  "name": "jx3",
+  "name": "sidui",
   "private": true,
   "scripts": {
     "dev": "turbo dev",

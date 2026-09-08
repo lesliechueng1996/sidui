@@ -1,5 +1,5 @@
 {
-  "name": "@jx3/api-client",
+  "name": "@sidui/api-client",
   "module": "index.ts",
   "type": "module",
   "private": true,
@@ -21,6 +21,6 @@
   },
   "dependencies": {
     "@elysia/eden": "^1.4.10",
-    "@jx3/api": "workspace:*"
+    "@sidui/api": "workspace:*"
   }
 }

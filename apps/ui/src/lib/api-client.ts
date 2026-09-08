@@ -1,4 +1,4 @@
-import { createApiClient } from '@jx3/api-client';
+import { createApiClient } from '@sidui/api-client';
 import { toast } from '@/components/ui/toast';
 
 export const apiBaseUrl =

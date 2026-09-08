@@ -1,5 +1,7 @@
 import { screen } from '@testing-library/react';
+import { Temporal } from 'temporal-polyfill';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { formatRaidDateTime } from '@/routes/_authenticated/-lib/raid-calendar';
 import { renderWithProviders } from '../../../helpers/render';
 
 const { listRaidRunCalendar } = vi.hoisted(() => ({
@@ -44,15 +46,19 @@ describe('UpcomingRaidsComponent', () => {
   });
 
   it('lists upcoming raids and links to their pages', async () => {
+    const gatherTime = Temporal.Now.instant().add({ hours: 24 }).toString();
+    const startTime = Temporal.Now.instant().add({ hours: 25 }).toString();
+    const laterStart = Temporal.Now.instant().add({ hours: 48 }).toString();
+
     listRaidRunCalendar.mockResolvedValue({
       items: [
         {
           id: 'run-1',
           name: '周六团',
           status: 'recruiting',
-          gatherTime: '2026-09-05T12:00:00.000Z',
-          startTime: '2026-09-05T13:00:00.000Z',
-          endTime: '2026-09-05T16:00:00.000Z',
+          gatherTime,
+          startTime,
+          endTime: Temporal.Now.instant().add({ hours: 28 }).toString(),
           dungeonName: '25人英雄河阳之战',
         },
         {
@@ -60,7 +66,7 @@ describe('UpcomingRaidsComponent', () => {
           name: '补刀团',
           status: 'ongoing',
           gatherTime: null,
-          startTime: '2026-09-06T13:00:00.000Z',
+          startTime: laterStart,
           endTime: null,
           dungeonName: null,
         },
@@ -74,7 +80,7 @@ describe('UpcomingRaidsComponent', () => {
 
     expect(await screen.findByText('周六团')).toBeInTheDocument();
     expect(
-      screen.getByText('25人英雄河阳之战 · 9月5日 20:00'),
+      screen.getByText(`25人英雄河阳之战 · ${formatRaidDateTime(gatherTime)}`),
     ).toBeInTheDocument();
     expect(screen.getByText('招募中')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /周六团/ })).toHaveAttribute(
@@ -83,7 +89,9 @@ describe('UpcomingRaidsComponent', () => {
     );
 
     expect(screen.getByText('补刀团')).toBeInTheDocument();
-    expect(screen.getByText('9月6日 21:00')).toBeInTheDocument();
+    expect(
+      screen.getByText(formatRaidDateTime(laterStart)),
+    ).toBeInTheDocument();
     expect(screen.getByText('进行中')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /补刀团/ })).toHaveAttribute(
       'href',

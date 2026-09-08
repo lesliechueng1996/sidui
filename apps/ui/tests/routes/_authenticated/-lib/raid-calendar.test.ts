@@ -224,7 +224,13 @@ describe('raid-calendar', () => {
     expect(
       selectUpcomingRaids([later, sooner], now).map((raid) => raid.id),
     ).toEqual(['sooner', 'later']);
-    expect(selectUpcomingRaids([later]).map((raid) => raid.id)).toEqual([
+
+    const future = item({
+      id: 'later',
+      gatherTime: Temporal.Now.instant().add({ hours: 1 }).toString(),
+      startTime: Temporal.Now.instant().add({ hours: 2 }).toString(),
+    });
+    expect(selectUpcomingRaids([future]).map((raid) => raid.id)).toEqual([
       'later',
     ]);
   });

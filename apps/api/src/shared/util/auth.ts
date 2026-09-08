@@ -1,5 +1,5 @@
 import { env } from '@api/infrastructure/config/env';
-import { account, session, user, verification } from '@jx3/db';
+import { account, session, user, verification } from '@sidui/db';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { admin, openAPI } from 'better-auth/plugins';

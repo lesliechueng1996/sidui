@@ -5,7 +5,7 @@ const { createApiClient } = vi.hoisted(() => ({
   createApiClient: vi.fn(() => ({ api: { v1: {} } })),
 }));
 
-vi.mock('@jx3/api-client', () => ({
+vi.mock('@sidui/api-client', () => ({
   createApiClient,
 }));
 

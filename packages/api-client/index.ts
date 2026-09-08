@@ -1,5 +1,5 @@
 import { treaty } from '@elysia/eden';
-import type { App } from '@jx3/api';
+import type { App } from '@sidui/api';
 
 export const createApiClient = (apiHost?: string) => {
   const baseUrl = apiHost ?? 'http://localhost:3001';

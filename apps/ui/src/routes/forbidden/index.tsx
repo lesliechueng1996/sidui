@@ -19,7 +19,7 @@ function ForbiddenComponent() {
       <div className="flex flex-col items-center gap-4">
         <BrandedMarkComponent />
         <p className="font-heading text-sm font-light tracking-[0.32em] text-white/55">
-          JX3
+          四堆
         </p>
       </div>
 
