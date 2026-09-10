@@ -9,6 +9,7 @@ import {
   gameExpansion,
   gameSeason,
   ilike,
+  inArray,
   raidRun,
   type SQL,
   sql,
@@ -130,6 +131,19 @@ export class GameDungeonRepository {
       .where(eq(gameDungeon.id, id))
       .limit(1);
     return result[0] ?? null;
+  }
+
+  async findByIds(ids: string[]) {
+    if (ids.length === 0) {
+      return [];
+    }
+
+    return db
+      .select(dungeonSelect)
+      .from(gameDungeon)
+      .innerJoin(gameExpansion, eq(gameDungeon.expansionId, gameExpansion.id))
+      .innerJoin(gameSeason, eq(gameDungeon.seasonId, gameSeason.id))
+      .where(inArray(gameDungeon.id, ids));
   }
 
   async findByUniqueKey(

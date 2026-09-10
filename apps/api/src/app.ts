@@ -2,6 +2,7 @@ import { openapi } from '@elysia/openapi';
 import { cors } from '@elysiajs/cors';
 import { Elysia } from 'elysia';
 import { env } from './infrastructure/config/env';
+import { appSettingTag } from './interface/endpoint/app-setting-route';
 import { gameDungeonTag } from './interface/endpoint/game-dungeon-route';
 import { gameExpansionTag } from './interface/endpoint/game-expansion-route';
 import { gameItemTag } from './interface/endpoint/game-item-route';
@@ -32,6 +33,7 @@ export const app = new Elysia()
         components: await OpenAPI.components,
         paths: await OpenAPI.getPaths(),
         tags: [
+          appSettingTag,
           gameDungeonTag,
           gameExpansionTag,
           gameItemTag,

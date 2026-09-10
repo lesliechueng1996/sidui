@@ -59,6 +59,7 @@ describe('nav-items', () => {
     expect(getActiveNavTitle('/game-assist/guess-idiom')).toBe('猜成语');
     expect(getActiveNavTitle('/game-assist/minesweeper')).toBe('扫雷');
     expect(getActiveNavTitle('/admin/idioms')).toBe('成语管理');
+    expect(getActiveNavTitle('/admin/app-settings')).toBe('应用配置');
     expect(getActiveNavTitle('/admin/raid-runs')).toBe('开团管理');
     expect(getActiveNavTitle('/admin/raid-signups')).toBe('报名管理');
     expect(getActiveNavTitle('/login')).toBeUndefined();

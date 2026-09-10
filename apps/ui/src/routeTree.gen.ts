@@ -16,6 +16,7 @@ import { Route as ForbiddenIndexRouteImport } from './routes/forbidden/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as AuthenticatedRaidRunIndexRouteImport } from './routes/_authenticated/raid-run/index'
 import { Route as AuthenticatedRaidRunIdRouteImport } from './routes/_authenticated/raid-run/$id'
+import { Route as AuthenticatedAdminAppSettingsIndexRouteImport } from './routes/_authenticated/admin/app-settings/index'
 import { Route as AuthenticatedAdminGameDungeonsIndexRouteImport } from './routes/_authenticated/admin/game-dungeons/index'
 import { Route as AuthenticatedAdminGameExpansionsIndexRouteImport } from './routes/_authenticated/admin/game-expansions/index'
 import { Route as AuthenticatedAdminGameItemsIndexRouteImport } from './routes/_authenticated/admin/game-items/index'
@@ -64,6 +65,12 @@ const AuthenticatedRaidRunIdRoute = AuthenticatedRaidRunIdRouteImport.update({
   path: '/raid-run/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminAppSettingsIndexRoute =
+  AuthenticatedAdminAppSettingsIndexRouteImport.update({
+    id: '/app-settings/',
+    path: '/app-settings/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminGameDungeonsIndexRoute =
   AuthenticatedAdminGameDungeonsIndexRouteImport.update({
     id: '/game-dungeons/',
@@ -144,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/login/': typeof LoginIndexRoute
   '/raid-run/$id': typeof AuthenticatedRaidRunIdRoute
   '/raid-run/': typeof AuthenticatedRaidRunIndexRoute
+  '/admin/app-settings/': typeof AuthenticatedAdminAppSettingsIndexRoute
   '/admin/game-dungeons/': typeof AuthenticatedAdminGameDungeonsIndexRoute
   '/admin/game-expansions/': typeof AuthenticatedAdminGameExpansionsIndexRoute
   '/admin/game-items/': typeof AuthenticatedAdminGameItemsIndexRoute
@@ -164,6 +172,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginIndexRoute
   '/raid-run/$id': typeof AuthenticatedRaidRunIdRoute
   '/raid-run': typeof AuthenticatedRaidRunIndexRoute
+  '/admin/app-settings': typeof AuthenticatedAdminAppSettingsIndexRoute
   '/admin/game-dungeons': typeof AuthenticatedAdminGameDungeonsIndexRoute
   '/admin/game-expansions': typeof AuthenticatedAdminGameExpansionsIndexRoute
   '/admin/game-items': typeof AuthenticatedAdminGameItemsIndexRoute
@@ -186,6 +195,7 @@ export interface FileRoutesById {
   '/login/': typeof LoginIndexRoute
   '/_authenticated/raid-run/$id': typeof AuthenticatedRaidRunIdRoute
   '/_authenticated/raid-run/': typeof AuthenticatedRaidRunIndexRoute
+  '/_authenticated/admin/app-settings/': typeof AuthenticatedAdminAppSettingsIndexRoute
   '/_authenticated/admin/game-dungeons/': typeof AuthenticatedAdminGameDungeonsIndexRoute
   '/_authenticated/admin/game-expansions/': typeof AuthenticatedAdminGameExpansionsIndexRoute
   '/_authenticated/admin/game-items/': typeof AuthenticatedAdminGameItemsIndexRoute
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/login/'
     | '/raid-run/$id'
     | '/raid-run/'
+    | '/admin/app-settings/'
     | '/admin/game-dungeons/'
     | '/admin/game-expansions/'
     | '/admin/game-items/'
@@ -228,6 +239,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/raid-run/$id'
     | '/raid-run'
+    | '/admin/app-settings'
     | '/admin/game-dungeons'
     | '/admin/game-expansions'
     | '/admin/game-items'
@@ -249,6 +261,7 @@ export interface FileRouteTypes {
     | '/login/'
     | '/_authenticated/raid-run/$id'
     | '/_authenticated/raid-run/'
+    | '/_authenticated/admin/app-settings/'
     | '/_authenticated/admin/game-dungeons/'
     | '/_authenticated/admin/game-expansions/'
     | '/_authenticated/admin/game-items/'
@@ -319,6 +332,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/raid-run/$id'
       preLoaderRoute: typeof AuthenticatedRaidRunIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/app-settings/': {
+      id: '/_authenticated/admin/app-settings/'
+      path: '/app-settings'
+      fullPath: '/admin/app-settings/'
+      preLoaderRoute: typeof AuthenticatedAdminAppSettingsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/game-dungeons/': {
       id: '/_authenticated/admin/game-dungeons/'
@@ -408,6 +428,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminAppSettingsIndexRoute: typeof AuthenticatedAdminAppSettingsIndexRoute
   AuthenticatedAdminGameDungeonsIndexRoute: typeof AuthenticatedAdminGameDungeonsIndexRoute
   AuthenticatedAdminGameExpansionsIndexRoute: typeof AuthenticatedAdminGameExpansionsIndexRoute
   AuthenticatedAdminGameItemsIndexRoute: typeof AuthenticatedAdminGameItemsIndexRoute
@@ -422,6 +443,8 @@ interface AuthenticatedAdminRouteRouteChildren {
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminAppSettingsIndexRoute:
+      AuthenticatedAdminAppSettingsIndexRoute,
     AuthenticatedAdminGameDungeonsIndexRoute:
       AuthenticatedAdminGameDungeonsIndexRoute,
     AuthenticatedAdminGameExpansionsIndexRoute:

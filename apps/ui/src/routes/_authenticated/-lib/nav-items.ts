@@ -10,6 +10,7 @@ import {
   LayoutDashboardIcon,
   PackageIcon,
   ServerIcon,
+  Settings2Icon,
   SwordIcon,
   SwordsIcon,
   UsersIcon,
@@ -98,6 +99,12 @@ export const navItems: NavItem[] = [
     title: '成语管理',
     icon: BookOpenTextIcon,
     to: '/admin/idioms',
+    requiredRole: ROLE_ADMIN,
+  },
+  {
+    title: '应用配置',
+    icon: Settings2Icon,
+    to: '/admin/app-settings',
     requiredRole: ROLE_ADMIN,
   },
   {

@@ -1,5 +1,6 @@
 import { app } from './app';
 import { initializeLogger, logger } from './infrastructure/logger';
+import { appSettingRoute } from './interface/endpoint/app-setting-route';
 import { gameDungeonRoute } from './interface/endpoint/game-dungeon-route';
 import { gameExpansionRoute } from './interface/endpoint/game-expansion-route';
 import { gameItemRoute } from './interface/endpoint/game-item-route';
@@ -15,6 +16,7 @@ import { userRoute } from './interface/endpoint/user-route';
 await initializeLogger();
 
 const server = app
+  .use(appSettingRoute)
   .use(gameDungeonRoute)
   .use(gameExpansionRoute)
   .use(gameItemRoute)
