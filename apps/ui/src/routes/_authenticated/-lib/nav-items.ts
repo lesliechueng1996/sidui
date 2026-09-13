@@ -6,6 +6,7 @@ import {
   ClipboardListIcon,
   FlameIcon,
   Gamepad2Icon,
+  LanguagesIcon,
   LayersIcon,
   LayoutDashboardIcon,
   PackageIcon,
@@ -106,6 +107,14 @@ export const navItems: NavItem[] = [
     icon: Settings2Icon,
     to: '/admin/app-settings',
     requiredRole: ROLE_ADMIN,
+  },
+  {
+    title: '日语歌词',
+    icon: LanguagesIcon,
+    children: [
+      { title: '五十音图', to: '/jp-lyrics/kana' },
+      { title: '歌曲', to: '/jp-lyrics' },
+    ],
   },
   {
     title: '游戏辅助',

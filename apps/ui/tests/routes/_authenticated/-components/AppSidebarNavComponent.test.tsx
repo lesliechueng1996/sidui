@@ -42,6 +42,12 @@ describe('AppSidebarNavComponent', () => {
       '/admin/idioms',
     );
 
+    await user.click(screen.getByText('日语歌词'));
+    expect(await screen.findByRole('link', { name: '歌曲' })).toHaveAttribute(
+      'href',
+      '/jp-lyrics',
+    );
+
     await user.click(screen.getByText('游戏辅助'));
     expect(await screen.findByRole('link', { name: '猜成语' })).toHaveAttribute(
       'href',

@@ -58,6 +58,10 @@ describe('nav-items', () => {
     expect(getActiveNavTitle('/raid-run/run-1')).toBe('开团');
     expect(getActiveNavTitle('/game-assist/guess-idiom')).toBe('猜成语');
     expect(getActiveNavTitle('/game-assist/minesweeper')).toBe('扫雷');
+    expect(getActiveNavTitle('/jp-lyrics')).toBe('歌曲');
+    expect(getActiveNavTitle('/jp-lyrics/kana')).toBe('五十音图');
+    expect(getActiveNavTitle('/jp-lyrics/song-1')).toBe('歌曲');
+    expect(getActiveNavTitle('/jp-lyrics/song-1/edit')).toBe('歌曲');
     expect(getActiveNavTitle('/admin/idioms')).toBe('成语管理');
     expect(getActiveNavTitle('/admin/app-settings')).toBe('应用配置');
     expect(getActiveNavTitle('/admin/raid-runs')).toBe('开团管理');
@@ -69,6 +73,7 @@ describe('nav-items', () => {
     expect(visibleNavItems(ROLE_USER).map((item) => item.title)).toEqual([
       '概览',
       '开团',
+      '日语歌词',
       '游戏辅助',
     ]);
     expect(visibleNavItems(ROLE_ADMIN).map((item) => item.title)).toEqual(
@@ -77,6 +82,7 @@ describe('nav-items', () => {
     expect(visibleNavItems(undefined).map((item) => item.title)).toEqual([
       '概览',
       '开团',
+      '日语歌词',
       '游戏辅助',
     ]);
   });

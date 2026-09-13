@@ -34,6 +34,7 @@ class ResizeObserverMock {
 }
 
 vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+HTMLElement.prototype.scrollIntoView = vi.fn();
 
 const { createApiProxy } = vi.hoisted(() => {
   function createApiProxy(): object {

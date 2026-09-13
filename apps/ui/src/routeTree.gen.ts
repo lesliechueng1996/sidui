@@ -14,6 +14,7 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as ForbiddenIndexRouteImport } from './routes/forbidden/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
+import { Route as AuthenticatedJpLyricsIndexRouteImport } from './routes/_authenticated/jp-lyrics/index'
 import { Route as AuthenticatedRaidRunIndexRouteImport } from './routes/_authenticated/raid-run/index'
 import { Route as AuthenticatedRaidRunIdRouteImport } from './routes/_authenticated/raid-run/$id'
 import { Route as AuthenticatedAdminAppSettingsIndexRouteImport } from './routes/_authenticated/admin/app-settings/index'
@@ -29,6 +30,9 @@ import { Route as AuthenticatedAdminSchoolsIndexRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminUsersIndexRouteImport } from './routes/_authenticated/admin/users/index'
 import { Route as AuthenticatedGameAssistGuessIdiomIndexRouteImport } from './routes/_authenticated/game-assist/guess-idiom/index'
 import { Route as AuthenticatedGameAssistMinesweeperIndexRouteImport } from './routes/_authenticated/game-assist/minesweeper/index'
+import { Route as AuthenticatedJpLyricsSongIdIndexRouteImport } from './routes/_authenticated/jp-lyrics/$songId/index'
+import { Route as AuthenticatedJpLyricsKanaIndexRouteImport } from './routes/_authenticated/jp-lyrics/kana/index'
+import { Route as AuthenticatedJpLyricsSongIdEditIndexRouteImport } from './routes/_authenticated/jp-lyrics/$songId/edit/index'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -54,6 +58,12 @@ const LoginIndexRoute = LoginIndexRouteImport.update({
   path: '/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedJpLyricsIndexRoute =
+  AuthenticatedJpLyricsIndexRouteImport.update({
+    id: '/jp-lyrics/',
+    path: '/jp-lyrics/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedRaidRunIndexRoute =
   AuthenticatedRaidRunIndexRouteImport.update({
     id: '/raid-run/',
@@ -143,6 +153,24 @@ const AuthenticatedGameAssistMinesweeperIndexRoute =
     path: '/game-assist/minesweeper/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedJpLyricsSongIdIndexRoute =
+  AuthenticatedJpLyricsSongIdIndexRouteImport.update({
+    id: '/jp-lyrics/$songId/',
+    path: '/jp-lyrics/$songId/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedJpLyricsKanaIndexRoute =
+  AuthenticatedJpLyricsKanaIndexRouteImport.update({
+    id: '/jp-lyrics/kana/',
+    path: '/jp-lyrics/kana/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedJpLyricsSongIdEditIndexRoute =
+  AuthenticatedJpLyricsSongIdEditIndexRouteImport.update({
+    id: '/jp-lyrics/$songId/edit/',
+    path: '/jp-lyrics/$songId/edit/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -150,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/forbidden/': typeof ForbiddenIndexRoute
   '/login/': typeof LoginIndexRoute
   '/raid-run/$id': typeof AuthenticatedRaidRunIdRoute
+  '/jp-lyrics/': typeof AuthenticatedJpLyricsIndexRoute
   '/raid-run/': typeof AuthenticatedRaidRunIndexRoute
   '/admin/app-settings/': typeof AuthenticatedAdminAppSettingsIndexRoute
   '/admin/game-dungeons/': typeof AuthenticatedAdminGameDungeonsIndexRoute
@@ -164,6 +193,9 @@ export interface FileRoutesByFullPath {
   '/admin/users/': typeof AuthenticatedAdminUsersIndexRoute
   '/game-assist/guess-idiom/': typeof AuthenticatedGameAssistGuessIdiomIndexRoute
   '/game-assist/minesweeper/': typeof AuthenticatedGameAssistMinesweeperIndexRoute
+  '/jp-lyrics/$songId/': typeof AuthenticatedJpLyricsSongIdIndexRoute
+  '/jp-lyrics/kana/': typeof AuthenticatedJpLyricsKanaIndexRoute
+  '/jp-lyrics/$songId/edit/': typeof AuthenticatedJpLyricsSongIdEditIndexRoute
 }
 export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
@@ -171,6 +203,7 @@ export interface FileRoutesByTo {
   '/forbidden': typeof ForbiddenIndexRoute
   '/login': typeof LoginIndexRoute
   '/raid-run/$id': typeof AuthenticatedRaidRunIdRoute
+  '/jp-lyrics': typeof AuthenticatedJpLyricsIndexRoute
   '/raid-run': typeof AuthenticatedRaidRunIndexRoute
   '/admin/app-settings': typeof AuthenticatedAdminAppSettingsIndexRoute
   '/admin/game-dungeons': typeof AuthenticatedAdminGameDungeonsIndexRoute
@@ -185,6 +218,9 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AuthenticatedAdminUsersIndexRoute
   '/game-assist/guess-idiom': typeof AuthenticatedGameAssistGuessIdiomIndexRoute
   '/game-assist/minesweeper': typeof AuthenticatedGameAssistMinesweeperIndexRoute
+  '/jp-lyrics/$songId': typeof AuthenticatedJpLyricsSongIdIndexRoute
+  '/jp-lyrics/kana': typeof AuthenticatedJpLyricsKanaIndexRoute
+  '/jp-lyrics/$songId/edit': typeof AuthenticatedJpLyricsSongIdEditIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -194,6 +230,7 @@ export interface FileRoutesById {
   '/forbidden/': typeof ForbiddenIndexRoute
   '/login/': typeof LoginIndexRoute
   '/_authenticated/raid-run/$id': typeof AuthenticatedRaidRunIdRoute
+  '/_authenticated/jp-lyrics/': typeof AuthenticatedJpLyricsIndexRoute
   '/_authenticated/raid-run/': typeof AuthenticatedRaidRunIndexRoute
   '/_authenticated/admin/app-settings/': typeof AuthenticatedAdminAppSettingsIndexRoute
   '/_authenticated/admin/game-dungeons/': typeof AuthenticatedAdminGameDungeonsIndexRoute
@@ -208,6 +245,9 @@ export interface FileRoutesById {
   '/_authenticated/admin/users/': typeof AuthenticatedAdminUsersIndexRoute
   '/_authenticated/game-assist/guess-idiom/': typeof AuthenticatedGameAssistGuessIdiomIndexRoute
   '/_authenticated/game-assist/minesweeper/': typeof AuthenticatedGameAssistMinesweeperIndexRoute
+  '/_authenticated/jp-lyrics/$songId/': typeof AuthenticatedJpLyricsSongIdIndexRoute
+  '/_authenticated/jp-lyrics/kana/': typeof AuthenticatedJpLyricsKanaIndexRoute
+  '/_authenticated/jp-lyrics/$songId/edit/': typeof AuthenticatedJpLyricsSongIdEditIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -217,6 +257,7 @@ export interface FileRouteTypes {
     | '/forbidden/'
     | '/login/'
     | '/raid-run/$id'
+    | '/jp-lyrics/'
     | '/raid-run/'
     | '/admin/app-settings/'
     | '/admin/game-dungeons/'
@@ -231,6 +272,9 @@ export interface FileRouteTypes {
     | '/admin/users/'
     | '/game-assist/guess-idiom/'
     | '/game-assist/minesweeper/'
+    | '/jp-lyrics/$songId/'
+    | '/jp-lyrics/kana/'
+    | '/jp-lyrics/$songId/edit/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/admin'
@@ -238,6 +282,7 @@ export interface FileRouteTypes {
     | '/forbidden'
     | '/login'
     | '/raid-run/$id'
+    | '/jp-lyrics'
     | '/raid-run'
     | '/admin/app-settings'
     | '/admin/game-dungeons'
@@ -252,6 +297,9 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/game-assist/guess-idiom'
     | '/game-assist/minesweeper'
+    | '/jp-lyrics/$songId'
+    | '/jp-lyrics/kana'
+    | '/jp-lyrics/$songId/edit'
   id:
     | '__root__'
     | '/_authenticated'
@@ -260,6 +308,7 @@ export interface FileRouteTypes {
     | '/forbidden/'
     | '/login/'
     | '/_authenticated/raid-run/$id'
+    | '/_authenticated/jp-lyrics/'
     | '/_authenticated/raid-run/'
     | '/_authenticated/admin/app-settings/'
     | '/_authenticated/admin/game-dungeons/'
@@ -274,6 +323,9 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/users/'
     | '/_authenticated/game-assist/guess-idiom/'
     | '/_authenticated/game-assist/minesweeper/'
+    | '/_authenticated/jp-lyrics/$songId/'
+    | '/_authenticated/jp-lyrics/kana/'
+    | '/_authenticated/jp-lyrics/$songId/edit/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -318,6 +370,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/login/'
       preLoaderRoute: typeof LoginIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/jp-lyrics/': {
+      id: '/_authenticated/jp-lyrics/'
+      path: '/jp-lyrics'
+      fullPath: '/jp-lyrics/'
+      preLoaderRoute: typeof AuthenticatedJpLyricsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/raid-run/': {
       id: '/_authenticated/raid-run/'
@@ -424,6 +483,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGameAssistMinesweeperIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/jp-lyrics/$songId/': {
+      id: '/_authenticated/jp-lyrics/$songId/'
+      path: '/jp-lyrics/$songId'
+      fullPath: '/jp-lyrics/$songId/'
+      preLoaderRoute: typeof AuthenticatedJpLyricsSongIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/jp-lyrics/kana/': {
+      id: '/_authenticated/jp-lyrics/kana/'
+      path: '/jp-lyrics/kana'
+      fullPath: '/jp-lyrics/kana/'
+      preLoaderRoute: typeof AuthenticatedJpLyricsKanaIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/jp-lyrics/$songId/edit/': {
+      id: '/_authenticated/jp-lyrics/$songId/edit/'
+      path: '/jp-lyrics/$songId/edit'
+      fullPath: '/jp-lyrics/$songId/edit/'
+      preLoaderRoute: typeof AuthenticatedJpLyricsSongIdEditIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -471,20 +551,29 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedRaidRunIdRoute: typeof AuthenticatedRaidRunIdRoute
+  AuthenticatedJpLyricsIndexRoute: typeof AuthenticatedJpLyricsIndexRoute
   AuthenticatedRaidRunIndexRoute: typeof AuthenticatedRaidRunIndexRoute
   AuthenticatedGameAssistGuessIdiomIndexRoute: typeof AuthenticatedGameAssistGuessIdiomIndexRoute
   AuthenticatedGameAssistMinesweeperIndexRoute: typeof AuthenticatedGameAssistMinesweeperIndexRoute
+  AuthenticatedJpLyricsSongIdIndexRoute: typeof AuthenticatedJpLyricsSongIdIndexRoute
+  AuthenticatedJpLyricsKanaIndexRoute: typeof AuthenticatedJpLyricsKanaIndexRoute
+  AuthenticatedJpLyricsSongIdEditIndexRoute: typeof AuthenticatedJpLyricsSongIdEditIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedRaidRunIdRoute: AuthenticatedRaidRunIdRoute,
+  AuthenticatedJpLyricsIndexRoute: AuthenticatedJpLyricsIndexRoute,
   AuthenticatedRaidRunIndexRoute: AuthenticatedRaidRunIndexRoute,
   AuthenticatedGameAssistGuessIdiomIndexRoute:
     AuthenticatedGameAssistGuessIdiomIndexRoute,
   AuthenticatedGameAssistMinesweeperIndexRoute:
     AuthenticatedGameAssistMinesweeperIndexRoute,
+  AuthenticatedJpLyricsSongIdIndexRoute: AuthenticatedJpLyricsSongIdIndexRoute,
+  AuthenticatedJpLyricsKanaIndexRoute: AuthenticatedJpLyricsKanaIndexRoute,
+  AuthenticatedJpLyricsSongIdEditIndexRoute:
+    AuthenticatedJpLyricsSongIdEditIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
