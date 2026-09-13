@@ -12,6 +12,7 @@ import {
   incomeChartTickLabel,
   incomeChartTooltipTitle,
   incomeChartTooltipTitleFromPayload,
+  incomeChartWageAxisMax,
   isIncomeChartTickActivateKey,
   nextIncomeChartDungeonId,
   selectedIncomeChartDungeonId,
@@ -44,6 +45,14 @@ describe('raid-income-chart helpers', () => {
     expect(formatIncomeChartAxis(800)).toBe('800');
     expect(formatIncomeChartAxis(20_000)).toBe('2砖');
     expect(formatIncomeChartAxis(15_000)).toBe('1.5砖');
+  });
+
+  it('doubles the wage axis maximum so the series sits lower', () => {
+    expect(incomeChartWageAxisMax(800)).toBe(1600);
+    expect(incomeChartWageAxisMax(0)).toBe(0);
+    expect(incomeChartWageAxisMax(-10)).toBe(0);
+    expect(incomeChartWageAxisMax(Number.NaN)).toBe(0);
+    expect(incomeChartWageAxisMax(Number.POSITIVE_INFINITY)).toBe(0);
   });
 
   it('maps raid runs onto unique chart points', () => {

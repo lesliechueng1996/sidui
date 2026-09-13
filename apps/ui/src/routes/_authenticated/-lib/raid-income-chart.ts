@@ -55,17 +55,36 @@ export const toIncomeChartPoints = (
 export const incomeChartConfig = {
   totalIncome: {
     label: '金团总计',
-    color: 'var(--chart-1)',
+    theme: {
+      light: 'oklch(0.72 0.16 75)',
+      dark: 'oklch(0.80 0.14 80)',
+    },
   },
   wagePerPerson: {
     label: '每人工资',
-    color: 'var(--chart-2)',
+    theme: {
+      light: 'oklch(0.55 0.11 210)',
+      dark: 'oklch(0.74 0.10 210)',
+    },
   },
   subsidyAmount: {
     label: '补贴金额',
-    color: 'var(--chart-3)',
+    theme: {
+      light: 'oklch(0.58 0.17 20)',
+      dark: 'oklch(0.72 0.14 20)',
+    },
   },
 } satisfies ChartConfig;
+
+export const INCOME_CHART_WAGE_AXIS_MAX_MULTIPLIER = 2;
+
+export const incomeChartWageAxisMax = (dataMax: number): number => {
+  if (!Number.isFinite(dataMax) || dataMax < 0) {
+    return 0;
+  }
+
+  return dataMax * INCOME_CHART_WAGE_AXIS_MAX_MULTIPLIER;
+};
 
 export const incomeChartTickLabel = (
   id: string,

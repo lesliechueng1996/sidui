@@ -15,6 +15,7 @@ import {
   incomeChartSeriesLabel,
   incomeChartTickLabel,
   incomeChartTooltipTitleFromPayload,
+  incomeChartWageAxisMax,
   isIncomeChartTickActivateKey,
   type RaidIncomeChartPoint,
 } from '../-lib/raid-income-chart';
@@ -152,6 +153,7 @@ const RaidIncomeChartCanvasComponent = ({
       <YAxis
         yAxisId="wage"
         orientation="right"
+        domain={[0, incomeChartWageAxisMax]}
         tickLine={false}
         axisLine={false}
         width={48}
