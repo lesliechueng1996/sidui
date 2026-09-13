@@ -4,6 +4,10 @@ import { describe, expect, it, vi } from 'vitest';
 import type { AdminGameItemListItem } from '@/lib/api/admin/admin-game-items-api';
 import { GameItemEditDialogComponent } from '@/routes/_authenticated/admin/game-items/-components/GameItemEditDialogComponent';
 
+vi.mock('@/components/GameDungeonSearchSelectComponent', () => ({
+  GameDungeonSearchSelectComponent: () => <div>副本选择</div>,
+}));
+
 const item: AdminGameItemListItem = {
   id: '1',
   name: '上品玄晶',
@@ -13,6 +17,7 @@ const item: AdminGameItemListItem = {
   description: '用于装备精炼',
   icon: '/icon.png',
   alias: ['大铁'],
+  dungeons: [],
   createdAt: '2024-01-01',
   updatedAt: '2024-01-01',
 };
@@ -45,6 +50,7 @@ describe('GameItemEditDialogComponent', () => {
       description: '用于装备精炼',
       icon: null,
       alias: ['大铁'],
+      dungeonIds: [],
     });
 
     await user.click(screen.getByRole('button', { name: '取消' }));

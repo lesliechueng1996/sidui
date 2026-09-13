@@ -10,6 +10,7 @@ export type ListGameItemsFilters = {
   type?: ItemType;
   quality?: ItemQuality;
   missingIcon?: boolean;
+  dungeonId?: string;
 };
 
 export const adminListGameItems = async (filters: ListGameItemsFilters) => {
@@ -21,6 +22,7 @@ export const adminListGameItems = async (filters: ListGameItemsFilters) => {
       type: filters.type,
       quality: filters.quality,
       missingIcon: filters.missingIcon,
+      dungeonId: filters.dungeonId,
     },
   });
 
@@ -43,6 +45,7 @@ export type AdminGameItemFormValues = {
   description: string | null;
   icon: string | null;
   alias: string[];
+  dungeonIds: string[];
 };
 
 export const adminCreateGameItem = async (item: AdminGameItemFormValues) => {
@@ -54,6 +57,7 @@ export const adminCreateGameItem = async (item: AdminGameItemFormValues) => {
     description: item.description,
     icon: item.icon,
     alias: item.alias,
+    dungeonIds: item.dungeonIds,
   });
 
   if (error) {
@@ -77,6 +81,7 @@ export const adminUpdateGameItem = async (
     description: item.description,
     icon: item.icon,
     alias: item.alias,
+    dungeonIds: item.dungeonIds,
   });
 
   if (error) {

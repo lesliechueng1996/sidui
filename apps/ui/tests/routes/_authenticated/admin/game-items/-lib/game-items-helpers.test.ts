@@ -85,6 +85,7 @@ describe('toAdminGameItemFormValues', () => {
         description: '',
         icon: '',
         aliasText: '大铁，玄晶',
+        dungeons: [],
       }),
     ).toEqual({
       name: '上品玄晶',
@@ -94,6 +95,7 @@ describe('toAdminGameItemFormValues', () => {
       description: null,
       icon: null,
       alias: ['大铁', '玄晶'],
+      dungeonIds: [],
     });
   });
 
@@ -107,6 +109,7 @@ describe('toAdminGameItemFormValues', () => {
         description: '描述',
         icon: '/icon.png',
         aliasText: '',
+        dungeons: [],
       }),
     ).toEqual({
       name: '上品玄晶',
@@ -116,6 +119,7 @@ describe('toAdminGameItemFormValues', () => {
       description: '描述',
       icon: '/icon.png',
       alias: [],
+      dungeonIds: [],
     });
   });
 });

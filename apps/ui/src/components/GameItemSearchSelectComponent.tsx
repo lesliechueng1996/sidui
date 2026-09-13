@@ -31,6 +31,7 @@ type GameItemSearchSelectComponentProps = {
   error?: string;
   debounceMs?: number;
   allowCreate?: boolean;
+  dungeonId?: string;
   onValueChange: (itemId: string | undefined) => void;
   onCreateRequest?: (name: string) => void;
 };
@@ -77,6 +78,7 @@ export function GameItemSearchSelectComponent({
   error,
   debounceMs = 300,
   allowCreate = false,
+  dungeonId,
   onValueChange,
   onCreateRequest,
 }: GameItemSearchSelectComponentProps) {
@@ -99,8 +101,8 @@ export function GameItemSearchSelectComponent({
   const trimmedInput = inputValue.trim();
   const [debouncedQuery] = useDebounceValue(trimmedInput, debounceMs);
   const searchQuery = useQuery({
-    queryKey: gameItemsSearchQueryKey(debouncedQuery),
-    queryFn: () => searchGameItems(debouncedQuery),
+    queryKey: gameItemsSearchQueryKey(debouncedQuery, dungeonId),
+    queryFn: () => searchGameItems(debouncedQuery, dungeonId),
     enabled: debouncedQuery.length > 0,
   });
 

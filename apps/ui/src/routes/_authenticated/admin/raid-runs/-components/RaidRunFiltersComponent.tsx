@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { type KeyboardEvent, useEffect, useState } from 'react';
+import { GameDungeonSearchSelectComponent } from '@/components/GameDungeonSearchSelectComponent';
 import { Button } from '@/components/ui/button';
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -15,7 +16,6 @@ import {
   adminGameDungeonQueryKey,
   adminGetGameDungeon,
 } from '@/lib/api/admin/admin-game-dungeons-api';
-import { GameDungeonSearchSelectComponent } from '@/routes/_authenticated/raid-run/-components/GameDungeonSearchSelectComponent';
 import type { RaidDungeon } from '@/routes/_authenticated/raid-run/-lib/raid-run';
 import type { RaidRunsSearch } from '../-lib/raid-runs-schema';
 

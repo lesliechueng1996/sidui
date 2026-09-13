@@ -34,6 +34,15 @@ vi.mock('@/lib/api/game-items-api', () => ({
   createGameItemQuick,
 }));
 
+vi.mock('@/components/GameDungeonSearchSelectComponent', () => ({
+  GameDungeonSearchSelectComponent: () => <div>副本选择</div>,
+}));
+
+vi.mock('@/lib/api/admin/admin-game-dungeons-api', () => ({
+  adminGameDungeonQueryKey: (id: string) => ['admin-game-dungeon', id],
+  adminGetGameDungeon: vi.fn(),
+}));
+
 vi.mock('@/components/GameItemSearchSelectComponent', () => ({
   GameItemSearchSelectComponent: ({
     id,
@@ -69,6 +78,7 @@ const item = {
   description: '用于装备精炼',
   icon: '/icon.png',
   alias: ['大铁'],
+  dungeons: [],
   createdAt: '2026-01-01 00:00:00',
   updatedAt: '2026-01-02 00:00:00',
 };

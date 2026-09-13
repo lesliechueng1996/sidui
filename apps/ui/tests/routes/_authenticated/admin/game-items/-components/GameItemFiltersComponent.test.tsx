@@ -1,8 +1,18 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { GameItemFiltersComponent } from '@/routes/_authenticated/admin/game-items/-components/GameItemFiltersComponent';
 import type { GameItemsSearch } from '@/routes/_authenticated/admin/game-items/-lib/game-items-schema';
+import { renderWithQueryClient } from '../../../../../helpers/render';
+
+vi.mock('@/components/GameDungeonSearchSelectComponent', () => ({
+  GameDungeonSearchSelectComponent: () => <div>副本选择</div>,
+}));
+
+vi.mock('@/lib/api/admin/admin-game-dungeons-api', () => ({
+  adminGameDungeonQueryKey: (id: string) => ['admin-game-dungeon', id],
+  adminGetGameDungeon: vi.fn(),
+}));
 
 const filters: GameItemsSearch = {
   page: 3,
@@ -27,7 +37,7 @@ describe('GameItemFiltersComponent', () => {
     const onSearch = vi.fn();
     const onReset = vi.fn();
 
-    render(
+    renderWithQueryClient(
       <GameItemFiltersComponent
         committedFilters={filters}
         onSearch={onSearch}
@@ -58,7 +68,7 @@ describe('GameItemFiltersComponent', () => {
   it('submits on Enter and can clear filters', async () => {
     const user = userEvent.setup();
     const onSearch = vi.fn();
-    render(
+    renderWithQueryClient(
       <GameItemFiltersComponent
         committedFilters={filters}
         onSearch={onSearch}
@@ -83,7 +93,7 @@ describe('GameItemFiltersComponent', () => {
   it('can select remaining type and quality options', async () => {
     const user = userEvent.setup();
     const onSearch = vi.fn();
-    render(
+    renderWithQueryClient(
       <GameItemFiltersComponent
         committedFilters={{ ...filters, type: undefined, quality: undefined }}
         onSearch={onSearch}
@@ -121,7 +131,7 @@ describe('GameItemFiltersComponent', () => {
   });
 
   it('syncs draft filters when committed values change', () => {
-    const { rerender } = render(
+    const { rerender } = renderWithQueryClient(
       <GameItemFiltersComponent
         committedFilters={filters}
         onSearch={vi.fn()}

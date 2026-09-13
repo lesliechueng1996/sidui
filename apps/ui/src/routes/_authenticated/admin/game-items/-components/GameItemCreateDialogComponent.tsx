@@ -31,6 +31,7 @@ const emptyForm = (): GameItemFormFields => ({
   description: '',
   icon: '',
   aliasText: '',
+  dungeons: [],
 });
 
 export function GameItemCreateDialogComponent({

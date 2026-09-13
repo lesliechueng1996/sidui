@@ -1,11 +1,18 @@
 import { v4 as uuidv4 } from 'uuid';
 import {
+  formatRaidDungeonLabel,
+  type RaidDungeon,
+} from '@/lib/game-dungeon-labels';
+import {
   createRaidSignup,
   type RaidSignup,
   type RaidSignupRole,
   type RaidSignupSlotRef,
   swapRaidSignupAttributes,
 } from './raid-signup';
+
+export type { RaidDungeon };
+export { formatRaidDungeonLabel };
 
 export const raidRunStatusMapping = {
   pending: '待开始',
@@ -23,23 +30,6 @@ export const RAID_RUN_TOTAL_GROUP_COUNT = 5;
 export const RAID_RUN_POSITION_COUNT_PER_GROUP = 5;
 export const RAID_RUN_DEFAULT_PLAYER_LIMIT =
   RAID_RUN_TOTAL_GROUP_COUNT * RAID_RUN_POSITION_COUNT_PER_GROUP;
-
-export type RaidDungeon = {
-  id: string;
-  name: string;
-  playerLimit: number;
-  bossCount: number;
-  difficulty: 'normal' | 'heroic' | 'challenge';
-};
-
-const raidDungeonDifficultyLabel = {
-  normal: '普通',
-  heroic: '英雄',
-  challenge: '挑战',
-} as const;
-
-export const formatRaidDungeonLabel = (dungeon: RaidDungeon) =>
-  `${dungeon.name}（${raidDungeonDifficultyLabel[dungeon.difficulty]} · ${dungeon.playerLimit}人）`;
 
 export const raidRunReservedLimit = (run: Pick<RaidRun, 'dungeon'>): number =>
   run.dungeon?.playerLimit ?? RAID_RUN_DEFAULT_PLAYER_LIMIT;

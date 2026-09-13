@@ -45,6 +45,7 @@ const item: AdminGameItemListItem = {
   description: '用于装备精炼',
   icon: '/icon.png',
   alias: ['大铁'],
+  dungeons: [],
   createdAt: '2024-01-01',
   updatedAt: '2024-01-01',
 };

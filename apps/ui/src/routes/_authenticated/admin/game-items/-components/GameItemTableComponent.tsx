@@ -10,6 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import type { AdminGameItemListItem } from '@/lib/api/admin/admin-game-items-api';
+import { formatRaidDungeonLabel } from '@/lib/game-dungeon-labels';
 import {
   itemQualityBadgeClassName,
   itemQualityLabel,
@@ -49,6 +50,7 @@ export function GameItemTableComponent({
             <TableHead>品质</TableHead>
             <TableHead>游戏内 ID</TableHead>
             <TableHead>别名</TableHead>
+            <TableHead>掉落副本</TableHead>
             <TableHead>创建时间</TableHead>
             <TableHead className="text-right">操作</TableHead>
           </TableRow>
@@ -57,7 +59,7 @@ export function GameItemTableComponent({
           {!isLoading && items.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={8}
+                colSpan={9}
                 className="py-10 text-center text-muted-foreground"
               >
                 暂无物品数据
@@ -92,6 +94,13 @@ export function GameItemTableComponent({
                 <TableCell>
                   {emptyValue(
                     item.alias.length > 0 ? item.alias.join('、') : null,
+                  )}
+                </TableCell>
+                <TableCell>
+                  {emptyValue(
+                    item.dungeons.length > 0
+                      ? item.dungeons.map(formatRaidDungeonLabel).join('、')
+                      : null,
                   )}
                 </TableCell>
                 <TableCell>{item.createdAt}</TableCell>

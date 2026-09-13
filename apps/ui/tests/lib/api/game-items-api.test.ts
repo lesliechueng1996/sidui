@@ -46,11 +46,23 @@ describe('game-items-api', () => {
     );
     await expect(searchGameItems('玄晶')).resolves.toEqual(payload);
     expect(itemSearchGet).toHaveBeenCalledWith({
-      query: { name: '玄晶' },
+      query: { name: '玄晶', dungeonId: undefined },
     });
     expect(gameItemsSearchQueryKey('玄晶')).toEqual([
       'game-items-search',
       '玄晶',
+      undefined,
+    ]);
+    await expect(searchGameItems('玄晶', 'dungeon-1')).resolves.toEqual(
+      payload,
+    );
+    expect(itemSearchGet).toHaveBeenCalledWith({
+      query: { name: '玄晶', dungeonId: 'dungeon-1' },
+    });
+    expect(gameItemsSearchQueryKey('玄晶', 'dungeon-1')).toEqual([
+      'game-items-search',
+      '玄晶',
+      'dungeon-1',
     ]);
   });
 

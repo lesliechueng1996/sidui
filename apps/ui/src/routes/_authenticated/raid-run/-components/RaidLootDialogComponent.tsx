@@ -70,6 +70,7 @@ type Props = {
   pending: boolean;
   title: string;
   winnerOptions: RaidLootWinnerOption[];
+  dungeonId?: string;
   initial?: RaidLootDialogInitial;
   onOpenChange: (open: boolean) => void;
   onSubmit: (values: RaidLootDialogValues) => void;
@@ -97,6 +98,7 @@ export const RaidLootDialogComponent = ({
   pending,
   title,
   winnerOptions,
+  dungeonId,
   initial,
   onOpenChange,
   onSubmit,
@@ -184,6 +186,7 @@ export const RaidLootDialogComponent = ({
             seedItem={seedItem}
             creatingName={creatingName}
             allowCreate
+            dungeonId={dungeonId}
             disabled={pending}
             onValueChange={(next) => {
               setItemId(next);

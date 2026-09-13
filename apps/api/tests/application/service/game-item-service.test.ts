@@ -95,6 +95,27 @@ const isReferenced = mock<(id: string) => Promise<boolean>>(() =>
 const replaceLootItemId = mock<
   (fromItemId: string, toItemId: string) => Promise<number>
 >(() => Promise.resolve(0));
+const findDungeonsByItemIds = mock<
+  (itemIds: string[]) => Promise<
+    Array<{
+      itemId: string;
+      id: string;
+      name: string;
+      playerLimit: number;
+      difficulty: 'normal' | 'heroic' | 'challenge';
+      bossCount: number;
+    }>
+  >
+>(() => Promise.resolve([]));
+const replaceForItem = mock<
+  (itemId: string, dungeonIds: string[]) => Promise<void>
+>(() => Promise.resolve());
+const deleteByItemId = mock<(itemId: string) => Promise<void>>(() =>
+  Promise.resolve(),
+);
+const findDungeonsByIds = mock<
+  (ids: string[]) => Promise<Array<{ id: string }>>
+>(() => Promise.resolve([]));
 const formatDateTime = mock<(date: Date) => string>(
   (date) => `fmt:${date.toISOString()}`,
 );
@@ -138,6 +159,23 @@ mock.module('@api/infrastructure/repository/game-item-repository', () => ({
     deleteById,
     isReferenced,
     replaceLootItemId,
+  },
+}));
+
+mock.module(
+  '@api/infrastructure/repository/game-dungeon-item-repository',
+  () => ({
+    gameDungeonItemRepository: {
+      findDungeonsByItemIds,
+      replaceForItem,
+      deleteByItemId,
+    },
+  }),
+);
+
+mock.module('@api/infrastructure/repository/game-dungeon-repository', () => ({
+  gameDungeonRepository: {
+    findByIds: findDungeonsByIds,
   },
 }));
 
@@ -186,6 +224,10 @@ describe('game-item-service', () => {
     deleteById.mockReset();
     isReferenced.mockReset();
     replaceLootItemId.mockReset();
+    findDungeonsByItemIds.mockReset();
+    replaceForItem.mockReset();
+    deleteByItemId.mockReset();
+    findDungeonsByIds.mockReset();
     formatDateTime.mockClear();
     logger.info.mockReset();
     logger.warn.mockReset();
@@ -204,6 +246,10 @@ describe('game-item-service', () => {
     deleteById.mockResolvedValue(undefined);
     isReferenced.mockResolvedValue(false);
     replaceLootItemId.mockResolvedValue(0);
+    findDungeonsByItemIds.mockResolvedValue([]);
+    replaceForItem.mockResolvedValue(undefined);
+    deleteByItemId.mockResolvedValue(undefined);
+    findDungeonsByIds.mockResolvedValue([]);
     searchItem.mockResolvedValue({
       id: '6_42729',
       level: 35300,
@@ -218,7 +264,12 @@ describe('game-item-service', () => {
     searchByName.mockResolvedValue([row]);
 
     await expect(searchGameItems('  玄晶  ')).resolves.toEqual([row]);
-    expect(searchByName).toHaveBeenCalledWith('玄晶', 15);
+    expect(searchByName).toHaveBeenCalledWith('玄晶', 15, undefined);
+  });
+
+  it('passes dungeonId when searching items', async () => {
+    await searchGameItems('玄晶', 'dungeon-1');
+    expect(searchByName).toHaveBeenCalledWith('玄晶', 15, 'dungeon-1');
   });
 
   it('returns an empty list when the search name is blank', async () => {
@@ -253,6 +304,7 @@ describe('game-item-service', () => {
           description: '用于装备精炼',
           icon: '/icons/xuanjing.png',
           alias: ['大铁'],
+          dungeons: [],
           createdAt: 'fmt:2026-01-01T00:00:00.000Z',
           updatedAt: 'fmt:2026-01-02T00:00:00.000Z',
         },
@@ -311,6 +363,7 @@ describe('game-item-service', () => {
 
     await createAdminGameItem(body);
 
+    expect(replaceForItem).toHaveBeenCalledWith('item-1', []);
     expect(findByName).toHaveBeenCalledWith('小铁');
     expect(findByGameItemId).toHaveBeenCalledWith('888');
     expect(create).toHaveBeenCalledWith({
@@ -660,6 +713,7 @@ describe('game-item-service', () => {
     await deleteAdminGameItem('item-1');
 
     expect(isReferenced).toHaveBeenCalledWith('item-1');
+    expect(deleteByItemId).toHaveBeenCalledWith('item-1');
     expect(deleteById).toHaveBeenCalledWith('item-1');
   });
 
@@ -718,5 +772,84 @@ describe('game-item-service', () => {
       code: ERROR_CODES.GAME_ITEM_NOT_FOUND,
     });
     expect(replaceLootItemId).not.toHaveBeenCalled();
+  });
+
+  it('links dungeons when creating an item', async () => {
+    findDungeonsByIds.mockResolvedValue([{ id: 'dungeon-1' }]);
+    findDungeonsByItemIds.mockResolvedValue([
+      {
+        itemId: 'item-1',
+        id: 'dungeon-1',
+        name: '河阳之战',
+        playerLimit: 25,
+        difficulty: 'heroic',
+        bossCount: 6,
+      },
+    ]);
+
+    const result = await createAdminGameItem({
+      name: '掉落',
+      type: 'special',
+      quality: 'orange',
+      dungeonIds: ['dungeon-1', 'dungeon-1'],
+    });
+
+    expect(findDungeonsByIds).toHaveBeenCalledWith(['dungeon-1']);
+    expect(replaceForItem).toHaveBeenCalledWith('item-1', ['dungeon-1']);
+    expect(result.dungeons).toEqual([
+      {
+        id: 'dungeon-1',
+        name: '河阳之战',
+        playerLimit: 25,
+        difficulty: 'heroic',
+        bossCount: 6,
+      },
+    ]);
+  });
+
+  it('rejects creating an item with a missing dungeon', async () => {
+    findDungeonsByIds.mockResolvedValue([]);
+
+    await expect(
+      createAdminGameItem({
+        name: '掉落',
+        type: 'special',
+        quality: 'orange',
+        dungeonIds: ['missing'],
+      }),
+    ).rejects.toMatchObject({
+      code: ERROR_CODES.GAME_DUNGEON_NOT_FOUND,
+    });
+  });
+
+  it('replaces dungeon links when dungeonIds is provided on update', async () => {
+    findById.mockResolvedValue(itemRow());
+    findDungeonsByIds.mockResolvedValue([{ id: 'dungeon-2' }]);
+
+    await updateAdminGameItem('item-1', { dungeonIds: ['dungeon-2'] });
+
+    expect(updateById).not.toHaveBeenCalled();
+    expect(replaceForItem).toHaveBeenCalledWith('item-1', ['dungeon-2']);
+  });
+
+  it('leaves dungeon links unchanged when dungeonIds is omitted on update', async () => {
+    findById.mockResolvedValue(itemRow());
+
+    await updateAdminGameItem('item-1', { name: '上品玄晶·改' });
+
+    expect(replaceForItem).not.toHaveBeenCalled();
+  });
+
+  it('links dungeons on quick create', async () => {
+    findDungeonsByIds.mockResolvedValue([{ id: 'dungeon-1' }]);
+
+    await quickCreateGameItem({
+      name: '新品',
+      type: 'equipment',
+      quality: 'purple',
+      dungeonIds: ['dungeon-1'],
+    });
+
+    expect(replaceForItem).toHaveBeenCalledWith('item-1', ['dungeon-1']);
   });
 });

@@ -136,7 +136,12 @@ const RaidLootPanel = ({ className, raidRunId }: Props) => {
 
   const lootMutation = useMutation({
     mutationFn: (values: RaidLootDialogValues) =>
-      persistLoot(raidRunId as string, values, editingLoot?.id),
+      persistLoot(
+        raidRunId as string,
+        values,
+        editingLoot?.id,
+        raidRun.dungeon?.id,
+      ),
     onSuccess: async () => {
       if (raidRunId) {
         await queryClient.invalidateQueries({
@@ -266,6 +271,7 @@ const RaidLootPanel = ({ className, raidRunId }: Props) => {
           pending={lootMutation.isPending}
           title={editingLoot ? '编辑掉落' : '添加掉落'}
           winnerOptions={winnerOptions}
+          dungeonId={raidRun.dungeon?.id}
           initial={
             editingLoot
               ? {

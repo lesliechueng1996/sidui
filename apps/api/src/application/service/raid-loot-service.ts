@@ -1,4 +1,5 @@
 import { logger } from '@api/infrastructure/logger';
+import { gameDungeonItemRepository } from '@api/infrastructure/repository/game-dungeon-item-repository';
 import { gameItemRepository } from '@api/infrastructure/repository/game-item-repository';
 import { gameServerRepository } from '@api/infrastructure/repository/game-server-repository';
 import { raidLootRepository } from '@api/infrastructure/repository/raid-loot-repository';
@@ -114,6 +115,17 @@ const resolveWinnerSnapshot = async (
   };
 };
 
+const ensureDungeonItemLink = async (
+  dungeonId: string | undefined,
+  itemId: string,
+) => {
+  if (!dungeonId) {
+    return;
+  }
+
+  await gameDungeonItemRepository.ensure(dungeonId, itemId);
+};
+
 const lootWriteValues = async (raidRunId: string, body: UpsertRaidLootBody) => {
   await findGameItemOrThrow(body.itemId);
   const winner = await resolveWinnerSnapshot(raidRunId, body.winnerSignupId);
@@ -140,8 +152,9 @@ export const createRaidLoot = async (
   body: UpsertRaidLootBody,
   userId: string,
 ): Promise<RaidLootItem> => {
-  await findRaidRunOrThrow(raidRunId);
+  const run = await findRaidRunOrThrow(raidRunId);
   const values = await lootWriteValues(raidRunId, body);
+  await ensureDungeonItemLink(run.dungeonId, body.itemId);
 
   try {
     const created = await raidLootRepository.create({
@@ -176,9 +189,10 @@ export const updateRaidLoot = async (
   lootId: string,
   body: UpsertRaidLootBody,
 ): Promise<RaidLootItem> => {
-  await findRaidRunOrThrow(raidRunId);
+  const run = await findRaidRunOrThrow(raidRunId);
   await findLootOrThrow(raidRunId, lootId);
   const values = await lootWriteValues(raidRunId, body);
+  await ensureDungeonItemLink(run.dungeonId, body.itemId);
 
   try {
     const updated = await raidLootRepository.updateById(lootId, values);

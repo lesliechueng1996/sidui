@@ -3,6 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { GameItemCreateDialogComponent } from '@/routes/_authenticated/admin/game-items/-components/GameItemCreateDialogComponent';
 
+vi.mock('@/components/GameDungeonSearchSelectComponent', () => ({
+  GameDungeonSearchSelectComponent: () => <div>副本选择</div>,
+}));
+
 describe('GameItemCreateDialogComponent', () => {
   it('submits a new item and can cancel', async () => {
     const user = userEvent.setup();
@@ -29,6 +33,7 @@ describe('GameItemCreateDialogComponent', () => {
       description: null,
       icon: null,
       alias: ['大铁', '玄晶'],
+      dungeonIds: [],
     });
 
     expect(

@@ -3,6 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { GameItemFormComponent } from '@/routes/_authenticated/admin/game-items/-components/GameItemFormComponent';
 
+vi.mock('@/components/GameDungeonSearchSelectComponent', () => ({
+  GameDungeonSearchSelectComponent: () => <div>副本选择</div>,
+}));
+
 const emptyValues = {
   name: '',
   gameItemId: '',
@@ -11,6 +15,7 @@ const emptyValues = {
   description: '',
   icon: '',
   aliasText: '',
+  dungeons: [],
 };
 
 describe('GameItemFormComponent', () => {
@@ -68,6 +73,7 @@ describe('GameItemFormComponent', () => {
       description: '用于装备精炼',
       icon: '/icon.png',
       aliasText: '大铁',
+      dungeons: [],
     });
   });
 
@@ -86,6 +92,7 @@ describe('GameItemFormComponent', () => {
             description: '',
             icon: '',
             aliasText: '',
+            dungeons: [],
           }}
           onSubmit={onSubmit}
         />
@@ -118,6 +125,7 @@ describe('GameItemFormComponent', () => {
             description: 'x'.repeat(513),
             icon: 'x'.repeat(513),
             aliasText: 'x'.repeat(201),
+            dungeons: [],
           }}
           pending
           onSubmit={onSubmit}

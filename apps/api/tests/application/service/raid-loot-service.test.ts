@@ -8,6 +8,7 @@ const logger = {
 };
 
 const raidRunId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const dungeonId = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
 const lootId = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
 const itemId = '11111111-1111-4111-8111-111111111111';
 const signupId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
@@ -67,7 +68,14 @@ const mappedLoot = {
 };
 
 const findRaidRunById = mock(
-  async (_id: string) => ({ id: raidRunId }) as { id: string } | null,
+  async (_id: string) =>
+    ({ id: raidRunId, dungeonId }) as {
+      id: string;
+      dungeonId?: string;
+    } | null,
+);
+const ensureDungeonItem = mock(
+  async (_dungeonId: string, _itemId: string) => undefined,
 );
 const findGameItemById = mock(
   async (_id: string) => ({ id: itemId }) as { id: string } | null,
@@ -110,6 +118,13 @@ mock.module('@api/infrastructure/repository/game-item-repository', () => ({
   gameItemRepository: { findById: findGameItemById },
 }));
 
+mock.module(
+  '@api/infrastructure/repository/game-dungeon-item-repository',
+  () => ({
+    gameDungeonItemRepository: { ensure: ensureDungeonItem },
+  }),
+);
+
 mock.module('@api/infrastructure/repository/raid-signup-repository', () => ({
   raidSignupRepository: { findByIds: findSignupsByIds },
 }));
@@ -145,6 +160,7 @@ describe('raid-loot-service', () => {
     logger.info.mockReset();
     logger.error.mockReset();
     findRaidRunById.mockReset();
+    ensureDungeonItem.mockReset();
     findGameItemById.mockReset();
     findSignupsByIds.mockReset();
     findServerById.mockReset();
@@ -155,7 +171,8 @@ describe('raid-loot-service', () => {
     updateLootById.mockReset();
     deleteLootById.mockReset();
 
-    findRaidRunById.mockResolvedValue({ id: raidRunId });
+    findRaidRunById.mockResolvedValue({ id: raidRunId, dungeonId });
+    ensureDungeonItem.mockResolvedValue(undefined);
     findGameItemById.mockResolvedValue({ id: itemId });
     findSignupsByIds.mockResolvedValue([]);
     findServerById.mockResolvedValue(null);
@@ -216,6 +233,7 @@ describe('raid-loot-service', () => {
       winnerCharacterName: null,
       winnerServerName: null,
     });
+    expect(ensureDungeonItem).toHaveBeenCalledWith(dungeonId, itemId);
     expect(created).toEqual(mappedLoot);
     expect(logger.info).toHaveBeenCalled();
   });
@@ -378,6 +396,7 @@ describe('raid-loot-service', () => {
         remark: null,
       }),
     );
+    expect(ensureDungeonItem).toHaveBeenCalledWith(dungeonId, itemId);
     expect(updated).toEqual(mappedLoot);
   });
 

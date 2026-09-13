@@ -1,3 +1,4 @@
+import { gameDungeonItemRepository } from '@api/infrastructure/repository/game-dungeon-item-repository';
 import { gameDungeonRepository } from '@api/infrastructure/repository/game-dungeon-repository';
 import { gameExpansionRepository } from '@api/infrastructure/repository/game-expansion-repository';
 import { gameSeasonRepository } from '@api/infrastructure/repository/game-season-repository';
@@ -303,5 +304,6 @@ export const deleteAdminGameDungeon = async (id: string): Promise<void> => {
     );
   }
 
+  await gameDungeonItemRepository.deleteByDungeonId(id);
   await gameDungeonRepository.deleteById(id);
 };

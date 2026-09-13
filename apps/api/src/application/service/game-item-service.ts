@@ -1,8 +1,11 @@
 import { logger } from '@api/infrastructure/logger';
+import { gameDungeonItemRepository } from '@api/infrastructure/repository/game-dungeon-item-repository';
+import { gameDungeonRepository } from '@api/infrastructure/repository/game-dungeon-repository';
 import { gameItemRepository } from '@api/infrastructure/repository/game-item-repository';
 import type {
   CreateGameItemBody,
   GameItemDetail,
+  GameItemDungeon,
   GameItemPublic,
   ListGameItemsQuery,
   QuickCreateGameItemBody,
@@ -62,7 +65,37 @@ const toGameItemPublic = (
   alias: row.alias,
 });
 
-const toGameItemDetail = (row: GameItemRow): GameItemDetail => ({
+const uniqueIds = (ids: string[]): string[] => {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const id of ids) {
+    if (seen.has(id)) {
+      continue;
+    }
+    seen.add(id);
+    result.push(id);
+  }
+  return result;
+};
+
+const toGameItemDungeon = (row: {
+  id: string;
+  name: string;
+  playerLimit: number;
+  difficulty: GameItemDungeon['difficulty'];
+  bossCount: number;
+}): GameItemDungeon => ({
+  id: row.id,
+  name: row.name,
+  playerLimit: row.playerLimit,
+  difficulty: row.difficulty,
+  bossCount: row.bossCount,
+});
+
+const toGameItemDetail = (
+  row: GameItemRow,
+  dungeons: GameItemDungeon[] = [],
+): GameItemDetail => ({
   id: row.id,
   name: row.name,
   gameItemId: row.gameItemId,
@@ -71,9 +104,63 @@ const toGameItemDetail = (row: GameItemRow): GameItemDetail => ({
   description: row.description,
   icon: row.icon,
   alias: row.alias,
+  dungeons,
   createdAt: formatDateTime(row.createdAt),
   updatedAt: formatDateTime(row.updatedAt),
 });
+
+const loadDungeonsByItemIds = async (itemIds: string[]) => {
+  const links = await gameDungeonItemRepository.findDungeonsByItemIds(itemIds);
+  const dungeonsByItemId = new Map<string, GameItemDungeon[]>();
+  for (const link of links) {
+    const current = dungeonsByItemId.get(link.itemId) ?? [];
+    current.push(toGameItemDungeon(link));
+    dungeonsByItemId.set(link.itemId, current);
+  }
+  return dungeonsByItemId;
+};
+
+const toGameItemDetails = async (
+  rows: GameItemRow[],
+): Promise<GameItemDetail[]> => {
+  const dungeonsByItemId = await loadDungeonsByItemIds(
+    rows.map((row) => row.id),
+  );
+  return rows.map((row) =>
+    toGameItemDetail(row, dungeonsByItemId.get(row.id) ?? []),
+  );
+};
+
+const toGameItemDetailWithDungeons = async (
+  row: GameItemRow,
+): Promise<GameItemDetail> => {
+  const dungeonsByItemId = await loadDungeonsByItemIds([row.id]);
+  return toGameItemDetail(row, dungeonsByItemId.get(row.id) ?? []);
+};
+
+const assertDungeonsExist = async (dungeonIds: string[]) => {
+  if (dungeonIds.length === 0) {
+    return;
+  }
+
+  const rows = await gameDungeonRepository.findByIds(dungeonIds);
+  if (rows.length !== dungeonIds.length) {
+    throw new NotFoundException(
+      '副本不存在',
+      ERROR_CODES.GAME_DUNGEON_NOT_FOUND,
+    );
+  }
+};
+
+const replaceItemDungeons = async (itemId: string, dungeonIds?: string[]) => {
+  if (dungeonIds === undefined) {
+    return;
+  }
+
+  const uniqueDungeonIds = uniqueIds(dungeonIds);
+  await assertDungeonsExist(uniqueDungeonIds);
+  await gameDungeonItemRepository.replaceForItem(itemId, uniqueDungeonIds);
+};
 
 const findGameItemOrThrow = async (id: string): Promise<GameItemRow> => {
   const row = await gameItemRepository.findById(id);
@@ -110,13 +197,18 @@ const GAME_ITEM_SEARCH_LIMIT = 15;
 
 export const searchGameItems = async (
   name: string,
+  dungeonId?: string,
 ): Promise<GameItemPublic[]> => {
   const trimmed = name.trim();
   if (trimmed.length === 0) {
     return [];
   }
 
-  return gameItemRepository.searchByName(trimmed, GAME_ITEM_SEARCH_LIMIT);
+  return gameItemRepository.searchByName(
+    trimmed,
+    GAME_ITEM_SEARCH_LIMIT,
+    dungeonId,
+  );
 };
 
 export const listAdminGameItems = async (
@@ -136,7 +228,7 @@ export const listAdminGameItems = async (
   ]);
 
   return {
-    items: rows.map(toGameItemDetail),
+    items: await toGameItemDetails(rows),
     total: totalRows[0]?.total ?? 0,
     page: query.page,
     pageSize: query.pageSize,
@@ -145,7 +237,7 @@ export const listAdminGameItems = async (
 
 export const getAdminGameItem = async (id: string): Promise<GameItemDetail> => {
   const row = await findGameItemOrThrow(id);
-  return toGameItemDetail(row);
+  return toGameItemDetailWithDungeons(row);
 };
 
 export const createAdminGameItem = async (
@@ -168,8 +260,9 @@ export const createAdminGameItem = async (
     icon: normalizeNullableText(body.icon),
     alias: normalizeAlias(body.alias),
   });
+  await replaceItemDungeons(created.id, body.dungeonIds ?? []);
 
-  return toGameItemDetail(created);
+  return toGameItemDetailWithDungeons(created);
 };
 
 const lookupQuickCreateDetails = async (
@@ -225,6 +318,7 @@ export const quickCreateGameItem = async (
       icon,
       alias: [],
     });
+    await replaceItemDungeons(created.id, body.dungeonIds ?? []);
     logger.info('Quick-created game item {itemId} named {name}', {
       itemId: created.id,
       name: created.name,
@@ -281,12 +375,22 @@ export const updateAdminGameItem = async (
     values.alias = normalizeAlias(body.alias);
   }
 
-  const updated = await gameItemRepository.updateById(id, values);
-  if (!updated) {
-    throw new NotFoundException('物品不存在', ERROR_CODES.GAME_ITEM_NOT_FOUND);
+  let updated: GameItemRow | null = null;
+  if (Object.keys(values).length > 0) {
+    updated = await gameItemRepository.updateById(id, values);
+    if (!updated) {
+      throw new NotFoundException(
+        '物品不存在',
+        ERROR_CODES.GAME_ITEM_NOT_FOUND,
+      );
+    }
+  } else {
+    updated = await findGameItemOrThrow(id);
   }
 
-  return toGameItemDetail(updated);
+  await replaceItemDungeons(id, body.dungeonIds);
+
+  return toGameItemDetailWithDungeons(updated);
 };
 
 export const deleteAdminGameItem = async (id: string): Promise<void> => {
@@ -300,6 +404,7 @@ export const deleteAdminGameItem = async (id: string): Promise<void> => {
     );
   }
 
+  await gameDungeonItemRepository.deleteByItemId(id);
   await gameItemRepository.deleteById(id);
 };
 

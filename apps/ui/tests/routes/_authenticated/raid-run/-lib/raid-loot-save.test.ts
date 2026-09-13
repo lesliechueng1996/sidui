@@ -61,6 +61,7 @@ describe('persistLoot', () => {
       name: '新掉落',
       type: 'equipment',
       quality: 'purple',
+      dungeonIds: undefined,
     });
     expect(createRaidRunLoot).toHaveBeenCalledWith(
       'run-1',
@@ -68,6 +69,33 @@ describe('persistLoot', () => {
         itemId: 'item-9',
         winnerSignupId: null,
         remark: null,
+      }),
+    );
+  });
+
+  it('passes the current dungeon when quick-creating', async () => {
+    createGameItemQuick.mockResolvedValue({ id: 'item-9' });
+    createRaidRunLoot.mockResolvedValue({ id: 'loot-1' });
+    await persistLoot(
+      'run-1',
+      {
+        ...values,
+        itemId: undefined,
+        createName: '新掉落',
+      },
+      undefined,
+      'dungeon-1',
+    );
+    expect(createGameItemQuick).toHaveBeenCalledWith({
+      name: '新掉落',
+      type: 'equipment',
+      quality: 'purple',
+      dungeonIds: ['dungeon-1'],
+    });
+    expect(createRaidRunLoot).toHaveBeenCalledWith(
+      'run-1',
+      expect.objectContaining({
+        itemId: 'item-9',
       }),
     );
   });

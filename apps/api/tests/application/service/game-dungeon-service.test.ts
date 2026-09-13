@@ -172,6 +172,9 @@ const deleteById = mock<(id: string) => Promise<void>>(() => Promise.resolve());
 const isReferenced = mock<(id: string) => Promise<boolean>>(() =>
   Promise.resolve(false),
 );
+const deleteByDungeonId = mock<(id: string) => Promise<void>>(() =>
+  Promise.resolve(),
+);
 const findExpansionById = mock<
   (id: string) => Promise<GameExpansionRow | null>
 >(() => Promise.resolve(null));
@@ -196,6 +199,15 @@ mock.module('@api/infrastructure/repository/game-dungeon-repository', () => ({
     isReferenced,
   },
 }));
+
+mock.module(
+  '@api/infrastructure/repository/game-dungeon-item-repository',
+  () => ({
+    gameDungeonItemRepository: {
+      deleteByDungeonId,
+    },
+  }),
+);
 
 mock.module('@api/infrastructure/repository/game-expansion-repository', () => ({
   gameExpansionRepository: {
@@ -255,6 +267,7 @@ describe('game-dungeon-service', () => {
     updateById.mockReset();
     deleteById.mockReset();
     isReferenced.mockReset();
+    deleteByDungeonId.mockReset();
     findExpansionById.mockReset();
     findSeasonById.mockReset();
     formatDateTime.mockClear();
@@ -269,6 +282,7 @@ describe('game-dungeon-service', () => {
     updateById.mockResolvedValue(insertRow());
     deleteById.mockResolvedValue(undefined);
     isReferenced.mockResolvedValue(false);
+    deleteByDungeonId.mockResolvedValue(undefined);
     findExpansionById.mockResolvedValue(expansionRow());
     findSeasonById.mockResolvedValue(seasonRow());
   });
@@ -594,6 +608,7 @@ describe('game-dungeon-service', () => {
     await deleteAdminGameDungeon('dungeon-1');
 
     expect(isReferenced).toHaveBeenCalledWith('dungeon-1');
+    expect(deleteByDungeonId).toHaveBeenCalledWith('dungeon-1');
     expect(deleteById).toHaveBeenCalledWith('dungeon-1');
   });
 

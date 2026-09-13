@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { GameDungeonSearchSelectComponent } from '@/components/GameDungeonSearchSelectComponent';
 import {
   Field,
   FieldError,
@@ -12,6 +13,7 @@ import type {
   ItemQuality,
   ItemType,
 } from '@/lib/api/admin/admin-game-items-api';
+import type { RaidDungeon } from '@/lib/game-dungeon-labels';
 import { CopyMiddleDotHintComponent } from '@/routes/_authenticated/-components/CopyMiddleDotHintComponent';
 import {
   type GameItemFormValues,
@@ -30,6 +32,7 @@ export type GameItemFormFields = {
   description: string;
   icon: string;
   aliasText: string;
+  dungeons: RaidDungeon[];
 };
 
 type FieldErrors = Partial<Record<keyof GameItemFormFields, string>>;
@@ -265,6 +268,17 @@ export function GameItemFormComponent({
             <FieldError>{fieldErrors.aliasText}</FieldError>
           ) : null}
         </Field>
+
+        <GameDungeonSearchSelectComponent
+          id={`${formId}-dungeons`}
+          multiple
+          allowEmpty
+          disabled={pending}
+          value={values.dungeons}
+          onValueChange={(dungeons) =>
+            setValues((current) => ({ ...current, dungeons }))
+          }
+        />
       </FieldGroup>
       <CopyMiddleDotHintComponent />
     </form>

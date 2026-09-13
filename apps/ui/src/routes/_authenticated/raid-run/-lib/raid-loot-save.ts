@@ -17,6 +17,7 @@ export const persistLoot = async (
   raidRunId: string,
   values: PersistRaidLootValues,
   lootId?: string,
+  dungeonId?: string,
 ) => {
   let itemId = values.itemId;
   if (!itemId && values.createName) {
@@ -24,6 +25,7 @@ export const persistLoot = async (
       name: values.createName,
       type: values.createType,
       quality: values.createQuality,
+      dungeonIds: dungeonId ? [dungeonId] : undefined,
     });
     itemId = created.id;
   }

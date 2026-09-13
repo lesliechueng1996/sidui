@@ -2,6 +2,7 @@ export * from './app-setting';
 export * from './auth';
 export * from './character';
 export * from './dungeon';
+export * from './dungeon-item';
 export * from './expansion';
 export * from './idiom';
 export * from './item';

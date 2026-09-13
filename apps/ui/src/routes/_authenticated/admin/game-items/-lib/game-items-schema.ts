@@ -29,6 +29,7 @@ export const gameItemsSearchSchema = paginationSearchQuerySchema.extend({
   type: itemTypeSearchSchema.optional(),
   quality: itemQualitySearchSchema.optional(),
   missingIcon: z.enum(['true']).optional(),
+  dungeonId: z.string().uuid().optional(),
 });
 
 export type GameItemsSearch = z.infer<typeof gameItemsSearchSchema>;
@@ -40,6 +41,7 @@ export const defaultGameItemsSearch: GameItemsSearch = {
   type: undefined,
   quality: undefined,
   missingIcon: undefined,
+  dungeonId: undefined,
 };
 
 export const toListGameItemsFilters = (
@@ -51,4 +53,5 @@ export const toListGameItemsFilters = (
   type: search.type,
   quality: search.quality,
   missingIcon: search.missingIcon === 'true' ? true : undefined,
+  dungeonId: search.dungeonId,
 });

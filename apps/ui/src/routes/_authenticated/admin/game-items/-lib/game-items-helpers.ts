@@ -46,4 +46,5 @@ export const toAdminGameItemFormValues = (
   description: values.description ? values.description : null,
   icon: values.icon ? values.icon : null,
   alias: parseAliasInput(values.aliasText),
+  dungeonIds: values.dungeons.map((dungeon) => dungeon.id),
 });

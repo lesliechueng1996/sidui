@@ -49,7 +49,7 @@ export const gameItemRoute = apiRoute.group('/game-item', (app) =>
     .get(
       '/search',
       async ({ query, status }) => {
-        const result = await searchGameItems(query.name);
+        const result = await searchGameItems(query.name, query.dungeonId);
         return status(200, AppResponse.success(result).toJson());
       },
       {

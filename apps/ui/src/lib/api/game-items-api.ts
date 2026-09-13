@@ -1,11 +1,11 @@
 import { apiClient } from '@/lib/api-client';
 
-export const gameItemsSearchQueryKey = (name: string) =>
-  ['game-items-search', name] as const;
+export const gameItemsSearchQueryKey = (name: string, dungeonId?: string) =>
+  ['game-items-search', name, dungeonId] as const;
 
-export const searchGameItems = async (name: string) => {
+export const searchGameItems = async (name: string, dungeonId?: string) => {
   const { data, error } = await apiClient.api.v1['game-item'].search.get({
-    query: { name },
+    query: { name, dungeonId },
   });
 
   if (error) {
@@ -23,6 +23,7 @@ export const createGameItemQuick = async (item: {
   name: string;
   type: GameItemSearchItem['type'];
   quality: GameItemSearchItem['quality'];
+  dungeonIds?: string[];
 }) => {
   const { data, error } = await apiClient.api.v1['game-item'].quick.post(item);
 

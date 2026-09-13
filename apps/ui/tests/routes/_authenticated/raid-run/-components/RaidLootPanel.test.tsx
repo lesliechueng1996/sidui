@@ -271,6 +271,7 @@ describe('RaidLootPanel', () => {
         name: '新掉落',
         type: 'equipment',
         quality: 'purple',
+        dungeonIds: undefined,
       });
     });
     expect(createRaidRunLoot).toHaveBeenCalledWith(

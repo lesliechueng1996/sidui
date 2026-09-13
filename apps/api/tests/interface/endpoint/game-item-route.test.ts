@@ -10,6 +10,13 @@ const itemDetail = {
   description: '用于装备精炼',
   icon: '/icons/xuanjing.png',
   alias: ['大铁'],
+  dungeons: [] as Array<{
+    id: string;
+    name: string;
+    playerLimit: number;
+    difficulty: 'normal' | 'heroic' | 'challenge';
+    bossCount: number;
+  }>,
   createdAt: '2026-01-01 00:00:00',
   updatedAt: '2026-01-02 00:00:00',
 };
@@ -111,9 +118,19 @@ describe('gameItemRoute', () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(searchGameItems).toHaveBeenCalledWith('玄晶');
+    expect(searchGameItems).toHaveBeenCalledWith('玄晶', undefined);
     expect(body.data).toEqual([itemPublic]);
     expect(body.code).toBe('SUCCESS');
+  });
+
+  it('searches items with an optional dungeonId', async () => {
+    const dungeonId = '22222222-2222-4222-8222-222222222222';
+    const response = await jsonRequest(
+      `/search?name=玄晶&dungeonId=${dungeonId}`,
+    );
+
+    expect(response.status).toBe(200);
+    expect(searchGameItems).toHaveBeenCalledWith('玄晶', dungeonId);
   });
 
   it('rejects search without a name', async () => {

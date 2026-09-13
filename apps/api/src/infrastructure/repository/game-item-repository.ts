@@ -5,6 +5,8 @@ import {
   db,
   desc,
   eq,
+  exists,
+  gameDungeonItem,
   gameItem,
   ilike,
   isNull,
@@ -56,6 +58,22 @@ export class GameItemRepository {
       conditions.push(or(isNull(gameItem.icon), eq(gameItem.icon, '')) as SQL);
     }
 
+    if (query.dungeonId) {
+      conditions.push(
+        exists(
+          db
+            .select({ id: gameDungeonItem.id })
+            .from(gameDungeonItem)
+            .where(
+              and(
+                eq(gameDungeonItem.itemId, gameItem.id),
+                eq(gameDungeonItem.dungeonId, query.dungeonId),
+              ),
+            ),
+        ),
+      );
+    }
+
     if (conditions.length === 0) {
       return undefined;
     }
@@ -63,8 +81,29 @@ export class GameItemRepository {
     return and(...conditions);
   }
 
-  searchByName(name: string, limit: number) {
+  searchByName(name: string, limit: number, dungeonId?: string) {
     const prefixPattern = `${name}%`;
+    const nameRank = sql`case
+          when ${gameItem.name} ilike ${name} then 0
+          when ${gameItem.name} ilike ${prefixPattern} then 1
+          else 2
+        end`;
+
+    if (!dungeonId) {
+      return db
+        .select({
+          id: gameItem.id,
+          name: gameItem.name,
+          type: gameItem.type,
+          quality: gameItem.quality,
+          icon: gameItem.icon,
+          alias: gameItem.alias,
+        })
+        .from(gameItem)
+        .where(nameOrAliasMatches(name))
+        .orderBy(nameRank, sql`char_length(${gameItem.name})`, gameItem.name)
+        .limit(limit);
+    }
 
     return db
       .select({
@@ -76,13 +115,17 @@ export class GameItemRepository {
         alias: gameItem.alias,
       })
       .from(gameItem)
+      .leftJoin(
+        gameDungeonItem,
+        and(
+          eq(gameDungeonItem.itemId, gameItem.id),
+          eq(gameDungeonItem.dungeonId, dungeonId),
+        ),
+      )
       .where(nameOrAliasMatches(name))
       .orderBy(
-        sql`case
-          when ${gameItem.name} ilike ${name} then 0
-          when ${gameItem.name} ilike ${prefixPattern} then 1
-          else 2
-        end`,
+        sql`case when ${gameDungeonItem.id} is not null then 0 else 1 end`,
+        nameRank,
         sql`char_length(${gameItem.name})`,
         gameItem.name,
       )

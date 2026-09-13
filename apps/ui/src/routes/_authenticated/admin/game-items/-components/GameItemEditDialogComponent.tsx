@@ -59,6 +59,7 @@ export function GameItemEditDialogComponent({
               description: item.description ?? '',
               icon: item.icon ?? '',
               aliasText: formatAliasInput(item.alias),
+              dungeons: item.dungeons,
             }}
             pending={pending}
             onSubmit={handleSubmit}

@@ -10,7 +10,11 @@ const { searchGameItems } = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/api/game-items-api', () => ({
-  gameItemsSearchQueryKey: (name: string) => ['game-items-search', name],
+  gameItemsSearchQueryKey: (name: string, dungeonId?: string) => [
+    'game-items-search',
+    name,
+    dungeonId,
+  ],
   searchGameItems,
 }));
 
@@ -70,12 +74,28 @@ describe('GameItemSearchSelectComponent', () => {
     await user.type(combobox, '玄晶');
     expect(await waitForOption('上品玄晶')).toBeInTheDocument();
     await waitFor(() => {
-      expect(searchGameItems).toHaveBeenCalledWith('玄晶');
+      expect(searchGameItems).toHaveBeenCalledWith('玄晶', undefined);
     });
 
     await user.click(screen.getByRole('option', { name: '上品玄晶' }));
     expect(onValueChange).toHaveBeenCalledWith('item-1');
     expect(combobox).toHaveValue('上品玄晶');
+  });
+
+  it('passes dungeonId to search', async () => {
+    const user = userEvent.setup();
+    renderWithQueryClient(
+      <GameItemSearchSelectComponent
+        debounceMs={0}
+        dungeonId="dungeon-1"
+        onValueChange={vi.fn()}
+      />,
+    );
+
+    await user.type(screen.getByLabelText('替换为'), '玄晶');
+    await waitFor(() => {
+      expect(searchGameItems).toHaveBeenCalledWith('玄晶', 'dungeon-1');
+    });
   });
 
   it('filters out an excluded item and can match alias results', async () => {

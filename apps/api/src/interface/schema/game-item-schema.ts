@@ -1,5 +1,14 @@
 import { type Static, t } from 'elysia';
 import { paginationQuerySchema, paginationResponseSchema } from './common';
+import { dungeonDifficultySchema } from './game-dungeon-schema';
+
+const uuidSchema = (message: string) =>
+  t.String({
+    format: 'uuid',
+    error: () => message,
+  });
+
+const dungeonIdsSchema = t.Array(uuidSchema('副本ID格式不正确'));
 
 export const itemTypeSchema = t.Enum(
   {
@@ -81,6 +90,16 @@ export const gameItemPublicSchema = t.Object({
 
 export type GameItemPublic = Static<typeof gameItemPublicSchema>;
 
+export const gameItemDungeonSchema = t.Object({
+  id: t.String(),
+  name: t.String(),
+  playerLimit: t.Integer(),
+  difficulty: dungeonDifficultySchema,
+  bossCount: t.Integer(),
+});
+
+export type GameItemDungeon = Static<typeof gameItemDungeonSchema>;
+
 export const gameItemDetailSchema = t.Object({
   id: t.String(),
   name: t.String(),
@@ -90,6 +109,7 @@ export const gameItemDetailSchema = t.Object({
   description: t.Nullable(t.String()),
   icon: t.Nullable(t.String()),
   alias: t.Array(t.String()),
+  dungeons: t.Array(gameItemDungeonSchema),
   createdAt: t.String(),
   updatedAt: t.String(),
 });
@@ -98,6 +118,7 @@ export type GameItemDetail = Static<typeof gameItemDetailSchema>;
 
 export const searchGameItemsQuerySchema = t.Object({
   name: nameSchema,
+  dungeonId: t.Optional(uuidSchema('副本ID格式不正确')),
 });
 
 export type SearchGameItemsQuery = Static<typeof searchGameItemsQuerySchema>;
@@ -111,6 +132,7 @@ export const listGameItemsQuerySchema = t.Composite([
     type: t.Optional(itemTypeSchema),
     quality: t.Optional(itemQualitySchema),
     missingIcon: t.Optional(t.Boolean()),
+    dungeonId: t.Optional(uuidSchema('副本ID格式不正确')),
   }),
 ]);
 
@@ -131,6 +153,7 @@ export const createGameItemBodySchema = t.Object({
   description: t.Optional(t.Nullable(descriptionSchema)),
   icon: t.Optional(t.Nullable(iconSchema)),
   alias: t.Optional(itemAliasSchema),
+  dungeonIds: t.Optional(dungeonIdsSchema),
 });
 
 export type CreateGameItemBody = Static<typeof createGameItemBodySchema>;
@@ -139,6 +162,7 @@ export const quickCreateGameItemBodySchema = t.Object({
   name: nameSchema,
   type: itemTypeSchema,
   quality: itemQualitySchema,
+  dungeonIds: t.Optional(dungeonIdsSchema),
 });
 
 export type QuickCreateGameItemBody = Static<
@@ -154,6 +178,7 @@ export const updateGameItemBodySchema = t.Object(
     description: t.Optional(t.Nullable(descriptionSchema)),
     icon: t.Optional(t.Nullable(iconSchema)),
     alias: t.Optional(itemAliasSchema),
+    dungeonIds: t.Optional(dungeonIdsSchema),
   },
   {
     minProperties: 1,

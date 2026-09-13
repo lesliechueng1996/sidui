@@ -39,6 +39,7 @@ const formValues = {
   description: '用于装备精炼',
   icon: '/icon.png',
   alias: ['大铁'],
+  dungeonIds: [],
 };
 
 describe('admin-game-items-api', () => {
@@ -65,6 +66,7 @@ describe('admin-game-items-api', () => {
         type: 'special',
         quality: 'orange',
         missingIcon: true,
+        dungeonId: undefined,
       }),
     ).resolves.toEqual(payload);
     expect(itemGet).toHaveBeenCalledWith({
@@ -75,6 +77,7 @@ describe('admin-game-items-api', () => {
         type: 'special',
         quality: 'orange',
         missingIcon: true,
+        dungeonId: undefined,
       },
     });
   });

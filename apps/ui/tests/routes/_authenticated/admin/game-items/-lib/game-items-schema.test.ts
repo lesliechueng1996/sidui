@@ -23,6 +23,7 @@ describe('gameItemsSearchSchema', () => {
       type: 'special',
       quality: 'orange',
       missingIcon: 'true',
+      dungeonId: undefined,
     });
   });
 
@@ -41,6 +42,7 @@ describe('gameItemsSearchSchema', () => {
       type: undefined,
       quality: undefined,
       missingIcon: undefined,
+      dungeonId: undefined,
     });
   });
 });
@@ -54,6 +56,7 @@ describe('toListGameItemsFilters', () => {
         type: 'small_iron',
         quality: 'purple',
         missingIcon: 'true',
+        dungeonId: '11111111-1111-4111-8111-111111111111',
       }),
     ).toEqual({
       page: 1,
@@ -62,6 +65,7 @@ describe('toListGameItemsFilters', () => {
       type: 'small_iron',
       quality: 'purple',
       missingIcon: true,
+      dungeonId: '11111111-1111-4111-8111-111111111111',
     });
     expect(toListGameItemsFilters(defaultGameItemsSearch).missingIcon).toBe(
       undefined,

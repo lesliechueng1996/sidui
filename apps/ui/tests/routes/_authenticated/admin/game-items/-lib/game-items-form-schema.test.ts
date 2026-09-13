@@ -12,6 +12,7 @@ describe('gameItemFormSchema', () => {
         description: ' 描述 ',
         icon: ' /icon.png ',
         aliasText: '大铁',
+        dungeons: [],
       }),
     ).toEqual({
       name: '上品玄晶',
@@ -21,6 +22,7 @@ describe('gameItemFormSchema', () => {
       description: '描述',
       icon: '/icon.png',
       aliasText: '大铁',
+      dungeons: [],
     });
   });
 
@@ -33,6 +35,7 @@ describe('gameItemFormSchema', () => {
       description: '',
       icon: '',
       aliasText: '',
+      dungeons: [],
     });
     expect(result.success).toBe(false);
   });
@@ -46,6 +49,7 @@ describe('gameItemFormSchema', () => {
       description: 'x'.repeat(513),
       icon: 'x'.repeat(513),
       aliasText: 'x'.repeat(201),
+      dungeons: [],
     });
     expect(result.success).toBe(false);
   });
