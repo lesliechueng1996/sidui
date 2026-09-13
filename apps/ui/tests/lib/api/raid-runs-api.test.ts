@@ -8,6 +8,7 @@ const {
   gameRaidIdPatch,
   wagesPatch,
   calendarGet,
+  incomeChartGet,
 } = vi.hoisted(() => ({
   raidRunPost: vi.fn(),
   raidRunGet: vi.fn(),
@@ -16,6 +17,7 @@ const {
   gameRaidIdPatch: vi.fn(),
   wagesPatch: vi.fn(),
   calendarGet: vi.fn(),
+  incomeChartGet: vi.fn(),
 }));
 
 const raidRun = Object.assign(
@@ -36,6 +38,9 @@ const raidRun = Object.assign(
     post: raidRunPost,
     calendar: {
       get: calendarGet,
+    },
+    'income-chart': {
+      get: incomeChartGet,
     },
   },
 );
@@ -59,6 +64,7 @@ describe('raid-runs-api', () => {
     gameRaidIdPatch.mockReset();
     wagesPatch.mockReset();
     calendarGet.mockReset();
+    incomeChartGet.mockReset();
   });
 
   it('creates a raid run and unwraps the envelope', async () => {
@@ -384,5 +390,68 @@ describe('raid-runs-api', () => {
     await expect(
       listRaidRunCalendar({ from: '2026-08-01', to: '2026-08-31' }),
     ).rejects.toThrow('获取开团日历失败');
+  });
+
+  it('lists income chart points and unwraps the envelope', async () => {
+    const payload = {
+      dungeons: [{ id: 'dungeon-1', name: '河阳之战' }],
+      selectedDungeonId: 'dungeon-1',
+      from: '2026-08-01',
+      to: null,
+      items: [],
+    };
+    incomeChartGet.mockResolvedValue({
+      data: { data: payload },
+      error: null,
+    });
+    const { listRaidRunIncomeChart, raidRunIncomeChartQueryKey } = await import(
+      '@/lib/api/raid-runs-api'
+    );
+
+    await expect(listRaidRunIncomeChart()).resolves.toEqual(payload);
+    expect(incomeChartGet).toHaveBeenCalledWith({ query: {} });
+    expect(raidRunIncomeChartQueryKey()).toEqual([
+      'raid-run-income-chart',
+      'default',
+    ]);
+  });
+
+  it('forwards a dungeon id when listing income chart points', async () => {
+    incomeChartGet.mockResolvedValue({
+      data: { data: { items: [] } },
+      error: null,
+    });
+    const { listRaidRunIncomeChart, raidRunIncomeChartQueryKey } = await import(
+      '@/lib/api/raid-runs-api'
+    );
+
+    await listRaidRunIncomeChart('dungeon-1');
+    expect(incomeChartGet).toHaveBeenCalledWith({
+      query: { dungeonId: 'dungeon-1' },
+    });
+    expect(raidRunIncomeChartQueryKey('dungeon-1')).toEqual([
+      'raid-run-income-chart',
+      'dungeon-1',
+    ]);
+  });
+
+  it('throws the API message when listing income chart points fails', async () => {
+    incomeChartGet.mockResolvedValue({
+      data: null,
+      error: { value: { message: '图表失败' } },
+    });
+    const { listRaidRunIncomeChart } = await import('@/lib/api/raid-runs-api');
+    await expect(listRaidRunIncomeChart()).rejects.toThrow('图表失败');
+  });
+
+  it('uses a fallback message when the income chart API omits one', async () => {
+    incomeChartGet.mockResolvedValue({
+      data: null,
+      error: { value: {} },
+    });
+    const { listRaidRunIncomeChart } = await import('@/lib/api/raid-runs-api');
+    await expect(listRaidRunIncomeChart()).rejects.toThrow(
+      '获取金团收入图失败',
+    );
   });
 });

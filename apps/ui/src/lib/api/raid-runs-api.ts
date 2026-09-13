@@ -138,3 +138,26 @@ export const listRaidRunCalendar = async (range: {
 export type RaidRunCalendarItem = Awaited<
   ReturnType<typeof listRaidRunCalendar>
 >['items'][number];
+
+export const raidRunIncomeChartQueryKey = (dungeonId?: string) =>
+  ['raid-run-income-chart', dungeonId ?? 'default'] as const;
+
+export const listRaidRunIncomeChart = async (dungeonId?: string) => {
+  const { data, error } = await apiClient.api.v1['raid-run'][
+    'income-chart'
+  ].get({
+    query: dungeonId ? { dungeonId } : {},
+  });
+
+  if (error) {
+    throw new Error(error.value.message ?? '获取金团收入图失败');
+  }
+
+  return data.data;
+};
+
+export type RaidRunIncomeChart = Awaited<
+  ReturnType<typeof listRaidRunIncomeChart>
+>;
+
+export type RaidRunIncomeChartItem = RaidRunIncomeChart['items'][number];

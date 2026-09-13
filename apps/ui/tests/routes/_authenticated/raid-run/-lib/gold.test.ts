@@ -31,7 +31,7 @@ describe('gold', () => {
     expect(formatGold(0)).toBe('0金');
     expect(formatGold(2000)).toBe('2000金');
     expect(formatGold(10_000)).toBe('1砖');
-    expect(formatGold(15_000)).toBe('1砖5000金');
+    expect(formatGold(15_000)).toBe('1砖 5000金');
   });
 
   it('parses brick and gold input text', () => {

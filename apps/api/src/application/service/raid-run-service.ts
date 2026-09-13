@@ -1,14 +1,19 @@
 import { logger } from '@api/infrastructure/logger';
+import { appSettingRepository } from '@api/infrastructure/repository/app-setting-repository';
 import { gameDungeonRepository } from '@api/infrastructure/repository/game-dungeon-repository';
 import { gameServerRepository } from '@api/infrastructure/repository/game-server-repository';
 import { kungfuRepository } from '@api/infrastructure/repository/kungfu-repository';
 import { raidRunRepository } from '@api/infrastructure/repository/raid-run-repository';
 import { raidSignupRepository } from '@api/infrastructure/repository/raid-signup-repository';
 import { schoolRepository } from '@api/infrastructure/repository/school-repository';
+import type { RaidIncomeChartValue } from '@api/interface/schema/app-setting-schema';
 import type {
   CalendarRaidRunItem,
   CalendarRaidRunsQuery,
   CreateRaidRunBody,
+  IncomeChartRaidRunItem,
+  IncomeChartRaidRunsQuery,
+  IncomeChartRaidRunsResponse,
   ListRaidRunsQuery,
   RaidRunDetail,
   RaidRunListItem,
@@ -515,6 +520,112 @@ export const listCalendarRaidRuns = async (
 
   return {
     items: rows.map(toCalendarRaidRunItem),
+  };
+};
+
+const emptyIncomeChart = (
+  from: string | null = null,
+  to: string | null = null,
+): IncomeChartRaidRunsResponse => ({
+  dungeons: [],
+  selectedDungeonId: null,
+  from,
+  to,
+  items: [],
+});
+
+const isRaidIncomeChartValue = (
+  value: unknown,
+): value is RaidIncomeChartValue => {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return false;
+  }
+
+  const record = value as Record<string, unknown>;
+  return (
+    Array.isArray(record.dungeonIds) &&
+    typeof record.from === 'string' &&
+    (record.to === null || typeof record.to === 'string')
+  );
+};
+
+type IncomeChartRaidRunRow = Awaited<
+  ReturnType<typeof raidRunRepository.listIncomeChart>
+>[number];
+
+const toIncomeChartRaidRunItem = (
+  row: IncomeChartRaidRunRow,
+): IncomeChartRaidRunItem => ({
+  id: row.id,
+  name: row.name,
+  startTime: row.startTime.toISOString(),
+  totalIncome: numericToGoldInteger(row.totalIncome),
+  wagePerPerson: numericToGoldInteger(row.wagePerPerson),
+  subsidyAmount: numericToGoldInteger(row.subsidyAmount),
+});
+
+export const listRaidIncomeChart = async (
+  query: IncomeChartRaidRunsQuery,
+): Promise<IncomeChartRaidRunsResponse> => {
+  const setting = await appSettingRepository.findByKey('raidIncomeChart');
+  if (!setting || !isRaidIncomeChartValue(setting.value)) {
+    return emptyIncomeChart();
+  }
+
+  const dungeonRows = await gameDungeonRepository.findByIds(
+    setting.value.dungeonIds,
+  );
+  const dungeonById = new Map(dungeonRows.map((row) => [row.id, row]));
+  const dungeons = setting.value.dungeonIds.flatMap((id) => {
+    const row = dungeonById.get(id);
+    if (!row) {
+      return [];
+    }
+
+    return [
+      {
+        id: row.id,
+        name:
+          formatDungeonDisplayName(row.name, row.playerLimit, row.difficulty) ??
+          row.name,
+      },
+    ];
+  });
+
+  if (dungeons.length === 0) {
+    return emptyIncomeChart(setting.value.from, setting.value.to);
+  }
+
+  if (query.dungeonId && !setting.value.dungeonIds.includes(query.dungeonId)) {
+    throw new BadRequestException(
+      '该副本不在金团收入图配置中',
+      ERROR_CODES.RAID_RUN_INCOME_CHART_DUNGEON_INVALID,
+    );
+  }
+
+  const selected = query.dungeonId
+    ? dungeons.find((dungeon) => dungeon.id === query.dungeonId)
+    : dungeons[0];
+
+  if (!selected) {
+    throw new NotFoundException(
+      '相关副本不存在',
+      ERROR_CODES.RAID_RUN_DUNGEON_NOT_FOUND,
+    );
+  }
+
+  const rows = await raidRunRepository.listIncomeChart(
+    selected.id,
+    setting.value.from,
+    setting.value.to,
+  );
+
+  return {
+    dungeons,
+    selectedDungeonId: selected.id,
+    from: setting.value.from,
+    to: setting.value.to,
+    items: rows.map(toIncomeChartRaidRunItem),
   };
 };
 

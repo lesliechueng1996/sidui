@@ -11,6 +11,7 @@ import {
   getRaidRun,
   listAdminRaidRuns,
   listCalendarRaidRuns,
+  listRaidIncomeChart,
   saveRaidRun,
   updateRaidRunGameRaidId,
   updateRaidRunStatus,
@@ -35,6 +36,8 @@ import {
   copyRaidRunResponseSchema,
   createRaidRunBodySchema,
   createRaidRunResponseSchema,
+  incomeChartRaidRunsQuerySchema,
+  incomeChartRaidRunsResponseSchema,
   listRaidRunsQuerySchema,
   listRaidRunsResponseSchema,
   raidRunDetailSchema,
@@ -105,6 +108,30 @@ export const raidRunRoute = apiRoute.group('/raid-run', (app) =>
           summary: 'List raid runs for the calendar',
           description:
             'Returns published raid runs overlapping a date range. Requires user role.',
+        },
+      },
+    )
+    .get(
+      '/income-chart',
+      async ({ query, status }) => {
+        const result = await listRaidIncomeChart(query);
+        return status(200, AppResponse.success(result).toJson());
+      },
+      {
+        auth: roleUser,
+        query: incomeChartRaidRunsQuerySchema,
+        response: {
+          200: createSuccessResponseSchema(incomeChartRaidRunsResponseSchema),
+          400: errorResponseSchema,
+          401: errorResponseSchema,
+          404: errorResponseSchema,
+          500: errorResponseSchema,
+        },
+        detail: {
+          tags: [raidRunTag.name],
+          summary: 'List raid income chart points',
+          description:
+            'Returns gold income series for a configured dungeon. Requires user role.',
         },
       },
     )

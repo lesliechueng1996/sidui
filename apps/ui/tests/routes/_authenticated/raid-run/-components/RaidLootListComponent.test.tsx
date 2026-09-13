@@ -58,7 +58,7 @@ describe('RaidLootListComponent', () => {
     expect(screen.getByText('上品玄晶')).toBeInTheDocument();
     expect(screen.getByAltText('上品玄晶图标')).toBeInTheDocument();
     expect(screen.getByText('团长 · 破阵子')).toBeInTheDocument();
-    expect(screen.getByText('1砖5000金')).toBeInTheDocument();
+    expect(screen.getByText('1砖 5000金')).toBeInTheDocument();
     expect(screen.getByText('首刀')).toBeInTheDocument();
     expect(screen.getAllByText('-')).toHaveLength(3);
 

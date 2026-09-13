@@ -57,6 +57,16 @@ const count = mock(
 const listByTimeRange = mock(
   async (_from: string, _to: string) => [] as CalendarRaidRunRow[],
 );
+const findSettingByKey = mock(
+  async (_key: string) => null as IncomeChartSettingRow | null,
+);
+const findDungeonsByIds = mock(
+  async (_ids: string[]) => [] as IncomeChartDungeonRow[],
+);
+const listIncomeChart = mock(
+  async (_dungeonId: string, _from: string, _to: string | null) =>
+    [] as IncomeChartRaidRunRow[],
+);
 const deleteWithChildren = mock(async (_id: string) => undefined);
 const formatDateTimeToMinute = mock(
   (date: Date) => `min:${date.toISOString()}`,
@@ -138,6 +148,27 @@ type RaidRunListRow = {
   wagePerPerson: string | null;
   subsidyAmount: string | null;
   signupCount: number;
+};
+
+type IncomeChartSettingRow = {
+  key: string;
+  value: unknown;
+};
+
+type IncomeChartDungeonRow = {
+  id: string;
+  name: string;
+  playerLimit: number;
+  difficulty: 'normal' | 'heroic' | 'challenge';
+};
+
+type IncomeChartRaidRunRow = {
+  id: string;
+  name: string;
+  startTime: Date;
+  totalIncome: string | null;
+  wagePerPerson: string | null;
+  subsidyAmount: string | null;
 };
 
 type CalendarRaidRunRow = {
@@ -253,6 +284,13 @@ mock.module('@api/infrastructure/logger', () => ({
 mock.module('@api/infrastructure/repository/game-dungeon-repository', () => ({
   gameDungeonRepository: {
     findById: findDungeonById,
+    findByIds: findDungeonsByIds,
+  },
+}));
+
+mock.module('@api/infrastructure/repository/app-setting-repository', () => ({
+  appSettingRepository: {
+    findByKey: findSettingByKey,
   },
 }));
 
@@ -288,6 +326,7 @@ mock.module('@api/infrastructure/repository/raid-run-repository', () => ({
     count,
     deleteWithChildren,
     listByTimeRange,
+    listIncomeChart,
   },
 }));
 
@@ -310,6 +349,7 @@ const {
   getRaidRun,
   listAdminRaidRuns,
   listCalendarRaidRuns,
+  listRaidIncomeChart,
   saveRaidRun,
   updateRaidRunGameRaidId,
   updateRaidRunStatus,
@@ -1714,6 +1754,319 @@ describe('listCalendarRaidRuns', () => {
     await listCalendarRaidRuns({ from: '2026-01-01', to: '2026-03-03' });
 
     expect(listByTimeRange).toHaveBeenCalledWith('2026-01-01', '2026-03-03');
+  });
+});
+
+const incomeChartDungeonId = '11111111-1111-4111-8111-111111111111';
+const extraIncomeChartDungeonId = '22222222-2222-4222-8222-222222222222';
+const missingIncomeChartDungeonId = '33333333-3333-4333-8333-333333333333';
+
+const incomeChartSetting = (value: unknown) => ({
+  key: 'raidIncomeChart',
+  value,
+});
+
+const incomeChartDungeon = (
+  overrides: Partial<IncomeChartDungeonRow> = {},
+): IncomeChartDungeonRow => ({
+  id: incomeChartDungeonId,
+  name: '河阳之战',
+  playerLimit: 25,
+  difficulty: 'heroic',
+  ...overrides,
+});
+
+const incomeChartRow = (
+  overrides: Partial<IncomeChartRaidRunRow> = {},
+): IncomeChartRaidRunRow => ({
+  id: 'raid-run-1',
+  name: '周六团',
+  startTime,
+  totalIncome: '20000.00',
+  wagePerPerson: '800.00',
+  subsidyAmount: '2000.00',
+  ...overrides,
+});
+
+describe('listRaidIncomeChart', () => {
+  beforeEach(() => {
+    findSettingByKey.mockReset();
+    findDungeonsByIds.mockReset();
+    listIncomeChart.mockReset();
+    findSettingByKey.mockResolvedValue(null);
+    findDungeonsByIds.mockResolvedValue([]);
+    listIncomeChart.mockResolvedValue([]);
+  });
+
+  it('returns an empty chart when the setting is missing', async () => {
+    const result = await listRaidIncomeChart({});
+
+    expect(result).toEqual({
+      dungeons: [],
+      selectedDungeonId: null,
+      from: null,
+      to: null,
+      items: [],
+    });
+    expect(findDungeonsByIds).not.toHaveBeenCalled();
+    expect(listIncomeChart).not.toHaveBeenCalled();
+  });
+
+  it('returns an empty chart when the setting value is invalid', async () => {
+    findSettingByKey.mockResolvedValue(incomeChartSetting({ dungeonIds: [] }));
+
+    await expect(listRaidIncomeChart({})).resolves.toEqual({
+      dungeons: [],
+      selectedDungeonId: null,
+      from: null,
+      to: null,
+      items: [],
+    });
+  });
+
+  it('returns the configured range when no dungeons still exist', async () => {
+    findSettingByKey.mockResolvedValue(
+      incomeChartSetting({
+        dungeonIds: [incomeChartDungeonId],
+        from: '2026-08-01',
+        to: null,
+      }),
+    );
+
+    const result = await listRaidIncomeChart({});
+
+    expect(result).toEqual({
+      dungeons: [],
+      selectedDungeonId: null,
+      from: '2026-08-01',
+      to: null,
+      items: [],
+    });
+    expect(listIncomeChart).not.toHaveBeenCalled();
+  });
+
+  it('uses the first configured dungeon and maps income points', async () => {
+    findSettingByKey.mockResolvedValue(
+      incomeChartSetting({
+        dungeonIds: [incomeChartDungeonId, extraIncomeChartDungeonId],
+        from: '2026-08-01',
+        to: '2026-09-01',
+      }),
+    );
+    findDungeonsByIds.mockResolvedValue([
+      incomeChartDungeon(),
+      incomeChartDungeon({
+        id: extraIncomeChartDungeonId,
+        name: '大战庄',
+        difficulty: 'normal',
+      }),
+    ]);
+    listIncomeChart.mockResolvedValue([
+      incomeChartRow(),
+      incomeChartRow({
+        id: 'raid-run-2',
+        name: '补刀团',
+        totalIncome: null,
+        wagePerPerson: '',
+        subsidyAmount: 'not-a-number',
+      }),
+    ]);
+
+    const result = await listRaidIncomeChart({});
+
+    expect(listIncomeChart).toHaveBeenCalledWith(
+      incomeChartDungeonId,
+      '2026-08-01',
+      '2026-09-01',
+    );
+    expect(result.selectedDungeonId).toBe(incomeChartDungeonId);
+    expect(result.dungeons).toEqual([
+      { id: incomeChartDungeonId, name: '25人英雄河阳之战' },
+      { id: extraIncomeChartDungeonId, name: '25人普通大战庄' },
+    ]);
+    expect(result.items).toEqual([
+      {
+        id: 'raid-run-1',
+        name: '周六团',
+        startTime: startTime.toISOString(),
+        totalIncome: 20000,
+        wagePerPerson: 800,
+        subsidyAmount: 2000,
+      },
+      {
+        id: 'raid-run-2',
+        name: '补刀团',
+        startTime: startTime.toISOString(),
+        totalIncome: 0,
+        wagePerPerson: 0,
+        subsidyAmount: 0,
+      },
+    ]);
+  });
+
+  it('keeps setting order and skips missing dungeons', async () => {
+    findSettingByKey.mockResolvedValue(
+      incomeChartSetting({
+        dungeonIds: [extraIncomeChartDungeonId, incomeChartDungeonId],
+        from: '2026-08-01',
+        to: null,
+      }),
+    );
+    findDungeonsByIds.mockResolvedValue([incomeChartDungeon()]);
+
+    const result = await listRaidIncomeChart({});
+
+    expect(result.dungeons).toEqual([
+      { id: incomeChartDungeonId, name: '25人英雄河阳之战' },
+    ]);
+    expect(listIncomeChart).toHaveBeenCalledWith(
+      incomeChartDungeonId,
+      '2026-08-01',
+      null,
+    );
+  });
+
+  it('uses the requested dungeon when it is configured', async () => {
+    findSettingByKey.mockResolvedValue(
+      incomeChartSetting({
+        dungeonIds: [incomeChartDungeonId, extraIncomeChartDungeonId],
+        from: '2026-08-01',
+        to: null,
+      }),
+    );
+    findDungeonsByIds.mockResolvedValue([
+      incomeChartDungeon(),
+      incomeChartDungeon({
+        id: extraIncomeChartDungeonId,
+        name: '大战庄',
+        difficulty: 'challenge',
+      }),
+    ]);
+
+    const result = await listRaidIncomeChart({
+      dungeonId: extraIncomeChartDungeonId,
+    });
+
+    expect(result.selectedDungeonId).toBe(extraIncomeChartDungeonId);
+    expect(result.dungeons[1]?.name).toBe('25人挑战大战庄');
+    expect(listIncomeChart).toHaveBeenCalledWith(
+      extraIncomeChartDungeonId,
+      '2026-08-01',
+      null,
+    );
+  });
+
+  it('rejects a dungeon that is not in the setting', async () => {
+    findSettingByKey.mockResolvedValue(
+      incomeChartSetting({
+        dungeonIds: [incomeChartDungeonId],
+        from: '2026-08-01',
+        to: null,
+      }),
+    );
+    findDungeonsByIds.mockResolvedValue([incomeChartDungeon()]);
+
+    try {
+      await listRaidIncomeChart({ dungeonId: extraIncomeChartDungeonId });
+      throw new Error('expected BadRequestException');
+    } catch (error) {
+      expect(error).toBeInstanceOf(BadRequestException);
+      expect((error as BadRequestException).code).toBe(
+        ERROR_CODES.RAID_RUN_INCOME_CHART_DUNGEON_INVALID,
+      );
+      expect((error as BadRequestException).message).toBe(
+        '该副本不在金团收入图配置中',
+      );
+    }
+
+    expect(listIncomeChart).not.toHaveBeenCalled();
+  });
+
+  it('rejects a configured dungeon that no longer exists', async () => {
+    findSettingByKey.mockResolvedValue(
+      incomeChartSetting({
+        dungeonIds: [incomeChartDungeonId, missingIncomeChartDungeonId],
+        from: '2026-08-01',
+        to: null,
+      }),
+    );
+    findDungeonsByIds.mockResolvedValue([incomeChartDungeon()]);
+
+    try {
+      await listRaidIncomeChart({ dungeonId: missingIncomeChartDungeonId });
+      throw new Error('expected NotFoundException');
+    } catch (error) {
+      expect(error).toBeInstanceOf(NotFoundException);
+      expect((error as NotFoundException).code).toBe(
+        ERROR_CODES.RAID_RUN_DUNGEON_NOT_FOUND,
+      );
+    }
+
+    expect(listIncomeChart).not.toHaveBeenCalled();
+  });
+
+  it('falls back to the raw dungeon name when display fields are incomplete', async () => {
+    findSettingByKey.mockResolvedValue(
+      incomeChartSetting({
+        dungeonIds: [incomeChartDungeonId],
+        from: '2026-08-01',
+        to: null,
+      }),
+    );
+    findDungeonsByIds.mockResolvedValue([
+      {
+        id: incomeChartDungeonId,
+        name: '河阳之战',
+        playerLimit: null as unknown as number,
+        difficulty: 'heroic',
+      },
+    ]);
+
+    const result = await listRaidIncomeChart({});
+
+    expect(result.dungeons[0]?.name).toBe('河阳之战');
+  });
+
+  it('treats a non-object setting value as missing', async () => {
+    findSettingByKey.mockResolvedValue(incomeChartSetting('oops'));
+
+    await expect(listRaidIncomeChart({})).resolves.toEqual({
+      dungeons: [],
+      selectedDungeonId: null,
+      from: null,
+      to: null,
+      items: [],
+    });
+  });
+
+  it('treats an array setting value as missing', async () => {
+    findSettingByKey.mockResolvedValue(incomeChartSetting([]));
+
+    await expect(listRaidIncomeChart({})).resolves.toEqual({
+      dungeons: [],
+      selectedDungeonId: null,
+      from: null,
+      to: null,
+      items: [],
+    });
+  });
+
+  it('treats a setting whose end date is not a date as missing', async () => {
+    findSettingByKey.mockResolvedValue(
+      incomeChartSetting({
+        dungeonIds: [incomeChartDungeonId],
+        from: '2026-08-01',
+        to: 1,
+      }),
+    );
+
+    await expect(listRaidIncomeChart({})).resolves.toEqual({
+      dungeons: [],
+      selectedDungeonId: null,
+      from: null,
+      to: null,
+      items: [],
+    });
   });
 });
 

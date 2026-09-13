@@ -10,6 +10,7 @@ import {
   ilike,
   inArray,
   ne,
+  notInArray,
   raidLoot,
   raidRun,
   raidSignup,
@@ -162,6 +163,33 @@ export class RaidRunRepository {
         ),
       )
       .orderBy(asc(raidRun.startTime));
+  }
+
+  listIncomeChart(dungeonId: string, from: string, to: string | null) {
+    const conditions: SQL[] = [
+      eq(raidRun.dungeonId, dungeonId),
+      notInArray(raidRun.status, ['pending', 'cancelled']),
+      sql`${raidRun.startTime} >= (${from}::date AT TIME ZONE 'Asia/Shanghai')`,
+    ];
+
+    if (to !== null) {
+      conditions.push(
+        sql`${raidRun.startTime} < ((${to}::date + 1) AT TIME ZONE 'Asia/Shanghai')`,
+      );
+    }
+
+    return db
+      .select({
+        id: raidRun.id,
+        name: raidRun.name,
+        startTime: raidRun.startTime,
+        totalIncome: raidRun.totalIncome,
+        wagePerPerson: raidRun.wagePerPerson,
+        subsidyAmount: raidRun.subsidyAmount,
+      })
+      .from(raidRun)
+      .where(and(...conditions))
+      .orderBy(asc(raidRun.startTime), asc(raidRun.id));
   }
 
   async findById(id: string) {

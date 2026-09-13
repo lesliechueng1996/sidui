@@ -161,7 +161,7 @@ describe('RaidLootPanel', () => {
     expect(screen.getByText('游戏副本ID：in-game')).toBeInTheDocument();
     expect(
       screen.getByText(
-        '工资详情：金团工资 1砖5000金，团队补贴 2000金，个人工资 1300金',
+        '工资详情：金团工资 1砖 5000金，团队补贴 2000金，个人工资 1300金',
       ),
     ).toBeInTheDocument();
 

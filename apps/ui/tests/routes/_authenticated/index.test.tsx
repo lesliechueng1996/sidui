@@ -18,5 +18,8 @@ describe('home route', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('开团日历')).toBeInTheDocument();
     expect(screen.getByText('即将开团')).toBeInTheDocument();
+    expect(
+      screen.getByText('金团收入（尚未配置时间范围）'),
+    ).toBeInTheDocument();
   });
 });

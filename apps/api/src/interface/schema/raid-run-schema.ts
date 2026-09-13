@@ -334,3 +334,46 @@ export type CalendarRaidRunItem = Static<typeof calendarRaidRunItemSchema>;
 export const calendarRaidRunsResponseSchema = t.Object({
   items: t.Array(calendarRaidRunItemSchema),
 });
+
+export const incomeChartRaidRunsQuerySchema = t.Object({
+  dungeonId: t.Optional(
+    t.String({
+      format: 'uuid',
+      error: () => '副本ID格式不正确',
+    }),
+  ),
+});
+
+export type IncomeChartRaidRunsQuery = Static<
+  typeof incomeChartRaidRunsQuerySchema
+>;
+
+export const incomeChartDungeonSchema = t.Object({
+  id: t.String(),
+  name: t.String(),
+});
+
+export const incomeChartRaidRunItemSchema = t.Object({
+  id: t.String(),
+  name: t.String(),
+  startTime: t.String(),
+  totalIncome: t.Integer(),
+  wagePerPerson: t.Integer(),
+  subsidyAmount: t.Integer(),
+});
+
+export type IncomeChartRaidRunItem = Static<
+  typeof incomeChartRaidRunItemSchema
+>;
+
+export const incomeChartRaidRunsResponseSchema = t.Object({
+  dungeons: t.Array(incomeChartDungeonSchema),
+  selectedDungeonId: t.Nullable(t.String()),
+  from: t.Nullable(t.String()),
+  to: t.Nullable(t.String()),
+  items: t.Array(incomeChartRaidRunItemSchema),
+});
+
+export type IncomeChartRaidRunsResponse = Static<
+  typeof incomeChartRaidRunsResponseSchema
+>;

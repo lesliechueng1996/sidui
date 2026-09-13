@@ -52,7 +52,7 @@ export const formatGold = (totalGold: number): string => {
     return `${brick}砖`;
   }
 
-  return `${brick}砖${gold}金`;
+  return `${brick}砖 ${gold}金`;
 };
 
 export type BrickGoldInputValues = {

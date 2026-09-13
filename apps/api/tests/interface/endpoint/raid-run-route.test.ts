@@ -146,6 +146,22 @@ const listCalendarRaidRuns = mock(async () => ({
     },
   ],
 }));
+const listRaidIncomeChart = mock(async () => ({
+  dungeons: [{ id: dungeonId, name: '25人英雄河阳之战' }],
+  selectedDungeonId: dungeonId,
+  from: '2026-08-01',
+  to: null,
+  items: [
+    {
+      id: raidRunId,
+      name: '周六团',
+      startTime: '2026-08-22T13:00:00.000Z',
+      totalIncome: 20000,
+      wagePerPerson: 800,
+      subsidyAmount: 2000,
+    },
+  ],
+}));
 const deleteAdminRaidRun = mock(async () => undefined);
 
 mock.module('@api/application/service/raid-run-service', () => ({
@@ -155,6 +171,7 @@ mock.module('@api/application/service/raid-run-service', () => ({
   getRaidRun,
   listAdminRaidRuns,
   listCalendarRaidRuns,
+  listRaidIncomeChart,
   saveRaidRun,
   updateRaidRunStatus,
   updateRaidRunGameRaidId,
@@ -286,6 +303,23 @@ describe('raidRunRoute', () => {
           startTime: '2026-08-22T13:00:00.000Z',
           endTime: '2026-08-22T16:00:00.000Z',
           dungeonName: '25人英雄河阳之战',
+        },
+      ],
+    });
+    listRaidIncomeChart.mockReset();
+    listRaidIncomeChart.mockResolvedValue({
+      dungeons: [{ id: dungeonId, name: '25人英雄河阳之战' }],
+      selectedDungeonId: dungeonId,
+      from: '2026-08-01',
+      to: null,
+      items: [
+        {
+          id: raidRunId,
+          name: '周六团',
+          startTime: '2026-08-22T13:00:00.000Z',
+          totalIncome: 20000,
+          wagePerPerson: 800,
+          subsidyAmount: 2000,
         },
       ],
     });
@@ -612,6 +646,32 @@ describe('raidRunRoute', () => {
 
     expect(response.status).toBe(422);
     expect(listCalendarRaidRuns).not.toHaveBeenCalled();
+  });
+
+  it('lists income chart points for the default dungeon', async () => {
+    const response = await jsonRequest('/income-chart');
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(listRaidIncomeChart).toHaveBeenCalledWith({});
+    expect(body.data.selectedDungeonId).toBe(dungeonId);
+    expect(body.data.items[0].totalIncome).toBe(20000);
+  });
+
+  it('lists income chart points for a requested dungeon', async () => {
+    const response = await jsonRequest(`/income-chart?dungeonId=${dungeonId}`);
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(listRaidIncomeChart).toHaveBeenCalledWith({ dungeonId });
+    expect(body.data.items[0].id).toBe(raidRunId);
+  });
+
+  it('rejects an invalid income chart dungeon id', async () => {
+    const response = await jsonRequest('/income-chart?dungeonId=not-a-uuid');
+
+    expect(response.status).toBe(422);
+    expect(listRaidIncomeChart).not.toHaveBeenCalled();
   });
 
   it('rejects an invalid list status', async () => {
