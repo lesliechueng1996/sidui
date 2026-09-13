@@ -145,3 +145,14 @@ export const joinLyricKana = (segments: LyricSegment[]): string =>
   segments.map((segment) => segment.kana).join('');
 
 export const joinLyricSource = (parts: string[]): string => parts.join(' / ');
+
+export const nextLyricSegmentKey = (
+  seen: Map<string, number>,
+  prefix: string,
+  segment: Pick<LyricSegment, 'text' | 'kana'>,
+): string => {
+  const base = `${prefix}-${segment.text}-${segment.kana}`;
+  const count = (seen.get(base) ?? 0) + 1;
+  seen.set(base, count);
+  return `${base}-${count}`;
+};

@@ -12,7 +12,7 @@ type LyricSongInsert = typeof lyricSong.$inferInsert;
 type LyricLineInsert = typeof lyricLine.$inferInsert;
 
 type LyricSongUpdate = Partial<
-  Pick<LyricSongInsert, 'title' | 'meaning' | 'artist'>
+  Pick<LyricSongInsert, 'title' | 'meaning' | 'artist' | 'durationSeconds'>
 >;
 
 type LyricLineWrite = Pick<
@@ -28,6 +28,7 @@ export class LyricSongRepository {
         title: lyricSong.title,
         meaning: lyricSong.meaning,
         artist: lyricSong.artist,
+        durationSeconds: lyricSong.durationSeconds,
         createdAt: lyricSong.createdAt,
         updatedAt: lyricSong.updatedAt,
         lineCount: sql<number>`cast(count(${lyricLine.id}) as int)`,
@@ -66,14 +67,20 @@ export class LyricSongRepository {
   }
 
   async create(
-    values: Pick<LyricSongInsert, 'userId' | 'title' | 'meaning' | 'artist'>,
+    values: Pick<
+      LyricSongInsert,
+      'userId' | 'title' | 'meaning' | 'artist' | 'durationSeconds'
+    >,
   ) {
     const [created] = await db.insert(lyricSong).values(values).returning();
     return created;
   }
 
   async createWithLines(
-    values: Pick<LyricSongInsert, 'userId' | 'title' | 'meaning' | 'artist'>,
+    values: Pick<
+      LyricSongInsert,
+      'userId' | 'title' | 'meaning' | 'artist' | 'durationSeconds'
+    >,
     lines: LyricLineWrite[],
   ) {
     return await db.transaction(async (tx) => {

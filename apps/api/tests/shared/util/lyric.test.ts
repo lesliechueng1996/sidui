@@ -5,8 +5,10 @@ import {
   isLyricColorToken,
   LyricValidationError,
   lyricClockDurationMs,
+  normalizeLyricDurationSeconds,
   normalizeLyricSegments,
   normalizeLyricStartMs,
+  normalizeOptionalLyricDurationSeconds,
   parseLyricSegments,
   parseLyricSongExportDocument,
   parseLyricTimestamp,
@@ -186,6 +188,7 @@ describe('parseLyricSongExportDocument', () => {
           title: '君の名は',
           meaning: '你的名字',
           artist: 'RADWIMPS',
+          durationSeconds: null,
           lines: [
             {
               segments: [{ text: '君の', kana: 'きみの', color: null }],
@@ -263,5 +266,32 @@ describe('parseLyricSongExportDocument', () => {
         songs: ['bad'],
       }),
     ).toThrow('歌曲格式不正确');
+    expect(() =>
+      parseLyricSongExportDocument({
+        version: 1,
+        songs: [
+          {
+            title: '歌',
+            meaning: '中文',
+            durationSeconds: 9,
+          },
+        ],
+      }),
+    ).toThrow('歌曲时长须至少 10 秒');
+  });
+});
+
+describe('normalizeLyricDurationSeconds', () => {
+  it('accepts durations of at least 10 seconds', () => {
+    expect(normalizeLyricDurationSeconds(10)).toBe(10);
+    expect(normalizeOptionalLyricDurationSeconds(undefined)).toBeNull();
+    expect(normalizeOptionalLyricDurationSeconds(null)).toBeNull();
+    expect(normalizeOptionalLyricDurationSeconds(180)).toBe(180);
+    expect(() => normalizeLyricDurationSeconds(9)).toThrow(
+      '歌曲时长须至少 10 秒',
+    );
+    expect(() => normalizeLyricDurationSeconds(10.5)).toThrow(
+      '歌曲时长须至少 10 秒',
+    );
   });
 });

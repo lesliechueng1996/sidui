@@ -40,6 +40,12 @@ export const createEmptyDraftLine = (): LyricDraftLine => ({
   colors: [],
 });
 
+export const duplicateDraftLine = (line: LyricDraftLine): LyricDraftLine => ({
+  ...line,
+  key: createDraftKey(),
+  colors: [...line.colors],
+});
+
 export const draftLinesFromSong = (song: LyricSongDetail): LyricDraftLine[] =>
   song.lines.map((line) => ({
     key: line.id,

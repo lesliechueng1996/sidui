@@ -30,7 +30,7 @@ export const lyricColorClassName = (
   extra?: string,
 ): string =>
   cn(
-    'rounded-sm px-0.5',
+    color ? 'rounded-sm px-0.5' : undefined,
     color ? LYRIC_COLOR_CLASSES[color] : undefined,
     extra,
   );

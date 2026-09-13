@@ -75,7 +75,12 @@ describe('lyric-songs-api', () => {
     const api = await import('@/lib/api/lyric-songs-api');
     await expect(api.listLyricSongs()).resolves.toEqual([{ id: '1' }]);
     await expect(
-      api.createLyricSong({ title: '歌', meaning: '中文', artist: null }),
+      api.createLyricSong({
+        title: '歌',
+        meaning: '中文',
+        artist: null,
+        durationSeconds: 180,
+      }),
     ).resolves.toEqual({ id: 'n' });
     await expect(api.getLyricSong('1')).resolves.toEqual({ id: '1' });
     await expect(api.exportLyricSongs()).resolves.toEqual({
@@ -126,7 +131,7 @@ describe('lyric-songs-api', () => {
     const api = await import('@/lib/api/lyric-songs-api');
     await expect(api.listLyricSongs()).rejects.toThrow('获取歌曲列表失败');
     await expect(
-      api.createLyricSong({ title: 'a', meaning: 'b' }),
+      api.createLyricSong({ title: 'a', meaning: 'b', durationSeconds: 180 }),
     ).rejects.toThrow('创建歌曲失败');
     await expect(api.getLyricSong('1')).rejects.toThrow('获取歌曲失败');
     await expect(api.updateLyricSong('1', { title: 'a' })).rejects.toThrow(

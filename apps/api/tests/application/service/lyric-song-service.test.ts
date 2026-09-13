@@ -29,6 +29,7 @@ type SongRow = {
   title: string;
   meaning: string;
   artist: string | null;
+  durationSeconds: number | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -49,6 +50,7 @@ type ListRow = {
   title: string;
   meaning: string;
   artist: string | null;
+  durationSeconds: number | null;
   createdAt: Date;
   updatedAt: Date;
   lineCount: number | string;
@@ -60,6 +62,7 @@ const songRow = (overrides: Partial<SongRow> = {}): SongRow => ({
   title: '君の名は',
   meaning: '你的名字',
   artist: 'RADWIMPS',
+  durationSeconds: 205,
   createdAt,
   updatedAt,
   ...overrides,
@@ -147,6 +150,7 @@ const createBody = (
   title: '君の名は',
   meaning: '你的名字',
   artist: 'RADWIMPS',
+  durationSeconds: 205,
   ...overrides,
 });
 
@@ -216,6 +220,7 @@ describe('lyric-song-service', () => {
         title: '君の名は',
         meaning: '你的名字',
         artist: 'RADWIMPS',
+        durationSeconds: 205,
         createdAt,
         updatedAt,
         lineCount: '2',
@@ -228,6 +233,7 @@ describe('lyric-song-service', () => {
         title: '君の名は',
         meaning: '你的名字',
         artist: 'RADWIMPS',
+        durationSeconds: 205,
         lineCount: 2,
         createdAt: 'fmt:2026-01-01T00:00:00.000Z',
         updatedAt: 'fmt:2026-01-02T00:00:00.000Z',
@@ -247,20 +253,36 @@ describe('lyric-song-service', () => {
       title: '君の名は',
       meaning: '你的名字',
       artist: null,
+      durationSeconds: 205,
     });
     expect(result.lines).toEqual([]);
     expect(logger.info).toHaveBeenCalled();
   });
 
   it('creates a song when artist is omitted', async () => {
-    await createLyricSong(userId, { title: 'スパークル', meaning: '火花' });
+    await createLyricSong(userId, {
+      title: 'スパークル',
+      meaning: '火花',
+      durationSeconds: 205,
+    });
 
     expect(create).toHaveBeenCalledWith({
       userId,
       title: 'スパークル',
       meaning: '火花',
       artist: null,
+      durationSeconds: 205,
     });
+  });
+
+  it('rejects a short duration on create', async () => {
+    await expect(
+      createLyricSong(userId, createBody({ durationSeconds: 9 })),
+    ).rejects.toMatchObject({
+      message: '歌曲时长须至少 10 秒',
+      statusCode: 400,
+    });
+    expect(create).not.toHaveBeenCalled();
   });
 
   it('rejects a blank title or meaning on create', async () => {
@@ -335,6 +357,20 @@ describe('lyric-song-service', () => {
     await updateLyricSong(userId, songId, { meaning: '火花' });
 
     expect(updateById).toHaveBeenCalledWith(songId, { meaning: '火花' });
+
+    await updateLyricSong(userId, songId, { durationSeconds: 180 });
+    expect(updateById).toHaveBeenCalledWith(songId, { durationSeconds: 180 });
+  });
+
+  it('rejects a short duration on update', async () => {
+    findById.mockResolvedValue(songRow());
+
+    await expect(
+      updateLyricSong(userId, songId, { durationSeconds: 9 }),
+    ).rejects.toMatchObject({
+      message: '歌曲时长须至少 10 秒',
+    });
+    expect(updateById).not.toHaveBeenCalled();
   });
 
   it('rejects a blank title on update and a vanished row', async () => {
@@ -548,18 +584,21 @@ describe('lyric-song-service', () => {
         title: '君の名は',
         meaning: '你的名字',
         artist: 'RADWIMPS',
+        durationSeconds: 205,
         lines: [{ segments, meaning: '你的', startMs: 1000 }],
       },
       {
         title: '君の名は',
         meaning: '你的名字',
         artist: 'RADWIMPS',
+        durationSeconds: 205,
         lines: [{ segments, meaning: '你的', startMs: 1000 }],
       },
       {
         title: '空',
         meaning: '你的名字',
         artist: 'RADWIMPS',
+        durationSeconds: 205,
         lines: [],
       },
     ]);

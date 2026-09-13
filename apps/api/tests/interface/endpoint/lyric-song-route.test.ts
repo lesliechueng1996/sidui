@@ -9,6 +9,7 @@ const songDetail = {
   title: '君の名は',
   meaning: '你的名字',
   artist: 'RADWIMPS',
+  durationSeconds: 205,
   createdAt: '2026-01-01 00:00:00',
   updatedAt: '2026-01-02 00:00:00',
   lines: [
@@ -31,6 +32,7 @@ const exportDocument = {
       title: songDetail.title,
       meaning: songDetail.meaning,
       artist: songDetail.artist,
+      durationSeconds: songDetail.durationSeconds,
       lines: [
         {
           segments: songDetail.lines[0].segments,
@@ -55,6 +57,7 @@ const listLyricSongs = mock(async () => [
     title: songDetail.title,
     meaning: songDetail.meaning,
     artist: songDetail.artist,
+    durationSeconds: songDetail.durationSeconds,
     lineCount: 1,
     createdAt: songDetail.createdAt,
     updatedAt: songDetail.updatedAt,
@@ -127,6 +130,7 @@ describe('lyricSongRoute', () => {
         title: songDetail.title,
         meaning: songDetail.meaning,
         artist: songDetail.artist,
+        durationSeconds: songDetail.durationSeconds,
         lineCount: 1,
         createdAt: songDetail.createdAt,
         updatedAt: songDetail.updatedAt,
@@ -165,6 +169,7 @@ describe('lyricSongRoute', () => {
         title: '君の名は',
         meaning: '你的名字',
         artist: 'RADWIMPS',
+        durationSeconds: 205,
       }),
     });
     const body = await response.json();
@@ -174,6 +179,7 @@ describe('lyricSongRoute', () => {
       title: '君の名は',
       meaning: '你的名字',
       artist: 'RADWIMPS',
+      durationSeconds: 205,
     });
     expect(body.data.id).toBe(songId);
   });

@@ -22,23 +22,6 @@ export const markNextUntimedLine = <T extends { startMs: number | null }>(
   };
 };
 
-export const undoMarkedLine = <T extends { startMs: number | null }>(
-  lines: T[],
-  stack: number[],
-): { lines: T[]; stack: number[] } => {
-  const markedIndex = stack.at(-1);
-  if (markedIndex === undefined) {
-    return { lines, stack };
-  }
-
-  return {
-    lines: lines.map((line, index) =>
-      index === markedIndex ? { ...line, startMs: null } : line,
-    ),
-    stack: stack.slice(0, -1),
-  };
-};
-
 export const applyManualTimestamp = <T extends { startMs: number | null }>(
   lines: T[],
   lineIndex: number,

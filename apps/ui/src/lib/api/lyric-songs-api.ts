@@ -22,6 +22,7 @@ export type CreateLyricSongValues = {
   title: string;
   meaning: string;
   artist?: string | null;
+  durationSeconds: number;
 };
 
 export const createLyricSong = async (body: CreateLyricSongValues) => {
@@ -29,6 +30,7 @@ export const createLyricSong = async (body: CreateLyricSongValues) => {
     title: body.title,
     meaning: body.meaning,
     artist: body.artist ?? undefined,
+    durationSeconds: body.durationSeconds,
   });
 
   if (error) {

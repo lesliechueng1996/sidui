@@ -5,6 +5,7 @@ import {
   bulkPasteJapanese,
   createEmptyDraftLine,
   draftLinesFromSong,
+  duplicateDraftLine,
   inspectDraftLine,
   moveDraftLine,
   paintDraftSegments,
@@ -19,6 +20,7 @@ const song = {
   title: '君の名は',
   meaning: '你的名字',
   artist: null,
+  durationSeconds: 205,
   createdAt: '2026-01-01 00:00:00',
   updatedAt: '2026-01-01 00:00:00',
   lines: [
@@ -49,6 +51,16 @@ describe('lyric-editor', () => {
     expect(updated.colors).toEqual(['rose', null]);
     const reset = updateDraftSource(line, 'japanese', '君の');
     expect(reset.colors).toEqual([]);
+    const copied = duplicateDraftLine(line);
+    expect(copied).toMatchObject({
+      japanese: line.japanese,
+      kana: line.kana,
+      meaning: line.meaning,
+      startMsText: line.startMsText,
+      colors: line.colors,
+    });
+    expect(copied.key).not.toBe(line.key);
+    expect(copied.colors).not.toBe(line.colors);
   });
 
   it('validates rows and builds the save payload in display order', () => {

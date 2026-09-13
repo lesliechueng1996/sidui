@@ -64,6 +64,7 @@ function NavBranchItem({ item }: { item: NavItem }) {
     select: (state) => state.location.pathname,
   });
   const childActive = isNavItemActive(pathname, item);
+  const siblingTos = item.children?.map((leaf) => leaf.to) ?? [];
   const [open, setOpen] = useState(childActive);
   const Icon = item.icon;
 
@@ -92,7 +93,7 @@ function NavBranchItem({ item }: { item: NavItem }) {
         <CollapsibleContent>
           <SidebarMenuSub>
             {item.children?.map((child) => {
-              const active = isNavPathActive(pathname, child.to);
+              const active = isNavPathActive(pathname, child.to, siblingTos);
 
               return (
                 <SidebarMenuSubItem key={child.to}>

@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import type { LyricSongListItem } from '@/lib/api/lyric-songs-api';
+import { formatLyricDurationLabel } from '../-lib/lyric-duration';
 
 type LyricSongCardComponentProps = {
   song: LyricSongListItem;
@@ -59,6 +60,7 @@ export function LyricSongCardComponent({
       </CardHeader>
       <CardContent className="text-sm text-muted-foreground">
         <p>{song.artist ?? '未填写歌手'}</p>
+        <p>{formatLyricDurationLabel(song.durationSeconds)}</p>
         <p>{song.lineCount} 行</p>
       </CardContent>
     </Card>

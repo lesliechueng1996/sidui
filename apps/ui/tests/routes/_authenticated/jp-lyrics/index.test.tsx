@@ -45,6 +45,7 @@ const song = {
   title: '君の名は',
   meaning: '你的名字',
   artist: 'RADWIMPS',
+  durationSeconds: 205,
   lineCount: 2,
   createdAt: '2026-01-01 00:00:00',
   updatedAt: '2026-01-01 00:00:00',
@@ -118,6 +119,7 @@ describe('jp-lyrics list route', () => {
       'スパークル',
     );
     await user.type(within(createDialog).getByLabelText('中文歌名'), '火花');
+    await user.type(within(createDialog).getByLabelText('时长（秒）'), '45');
     await user.click(
       within(createDialog).getByRole('button', { name: '创建' }),
     );
@@ -234,6 +236,7 @@ describe('jp-lyrics list route', () => {
       'スパークル',
     );
     await user.type(within(createDialog).getByLabelText('中文歌名'), '火花');
+    await user.type(within(createDialog).getByLabelText('时长（秒）'), '45');
     await user.click(
       within(createDialog).getByRole('button', { name: '创建' }),
     );

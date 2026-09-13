@@ -24,6 +24,7 @@ const detail = {
   title: '君の名は',
   meaning: '你的名字',
   artist: 'RADWIMPS',
+  durationSeconds: 180,
   createdAt: '2026-01-01 00:00:00',
   updatedAt: '2026-01-01 00:00:00',
   lines: [
@@ -60,19 +61,31 @@ describe('jp-lyrics browse route', () => {
     updateLyricLineTimings.mockResolvedValue(detail);
   });
 
+  it('stamps the current clock onto the clicked line', async () => {
+    const user = userEvent.setup();
+    await renderApp(`/jp-lyrics/${songId}`);
+    expect(await screen.findByText('君の名は')).toBeInTheDocument();
+
+    await user.click(screen.getByLabelText('播放模式'));
+    await user.click(screen.getByRole('button', { name: '开始' }));
+    await user.click(screen.getByRole('button', { name: '第 2 行标记' }));
+    await waitFor(() =>
+      expect(updateLyricLineTimings).toHaveBeenCalledWith(songId, [
+        { lineId: detail.lines[1].id, startMs: expect.any(Number) },
+      ]),
+    );
+  });
+
   it('marks, undoes, and edits timestamps', async () => {
     const user = userEvent.setup();
     await renderApp(`/jp-lyrics/${songId}`);
 
     expect(await screen.findByText('君の名は')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: '开始' }));
-    await user.click(screen.getByRole('button', { name: '标记' }));
-    await waitFor(() => expect(updateLyricLineTimings).toHaveBeenCalled());
-
-    await user.click(screen.getByRole('button', { name: '撤销' }));
+    await user.click(screen.getByRole('button', { name: '第 1 行标记' }));
     await waitFor(() =>
-      expect(updateLyricLineTimings).toHaveBeenLastCalledWith(songId, [
-        { lineId: detail.lines[0].id, startMs: null },
+      expect(updateLyricLineTimings).toHaveBeenCalledWith(songId, [
+        { lineId: detail.lines[0].id, startMs: expect.any(Number) },
       ]),
     );
 
@@ -104,7 +117,7 @@ describe('jp-lyrics browse route', () => {
     fireEvent.keyDown(window, { code: 'Space' });
     await waitFor(() => expect(updateLyricLineTimings).toHaveBeenCalled());
 
-    await user.click(screen.getByRole('button', { name: '标记' }));
+    fireEvent.keyDown(window, { code: 'Space' });
     await waitFor(() =>
       expect(toast.add).toHaveBeenCalledWith(
         expect.objectContaining({ title: '已全部标记' }),
@@ -150,7 +163,7 @@ describe('jp-lyrics browse route', () => {
 
     const tick = callbacks.at(-1);
     tick?.(0);
-    tick?.(10_000);
+    tick?.(180_000);
 
     await waitFor(() =>
       expect(screen.getByRole('button', { name: '播放' })).toBeInTheDocument(),
@@ -158,6 +171,60 @@ describe('jp-lyrics browse route', () => {
 
     raf.mockRestore();
     caf.mockRestore();
+  });
+
+  it('keeps the clock running past the last stamp while marking', async () => {
+    const callbacks: FrameRequestCallback[] = [];
+    const raf = vi
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation((callback) => {
+        callbacks.push(callback);
+        return callbacks.length;
+      });
+    const caf = vi
+      .spyOn(window, 'cancelAnimationFrame')
+      .mockImplementation(() => undefined);
+
+    const user = userEvent.setup();
+    await renderApp(`/jp-lyrics/${songId}`);
+    expect(await screen.findByText('君の名は')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '开始' }));
+
+    const tick = callbacks.at(-1);
+    tick?.(0);
+    tick?.(10_000);
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: '暂停' })).toBeInTheDocument();
+      expect(screen.getByText(/0:10\./)).toBeInTheDocument();
+    });
+
+    raf.mockRestore();
+    caf.mockRestore();
+  });
+
+  it('jumps the clock to a timed line in play mode', async () => {
+    const user = userEvent.setup();
+    await renderApp(`/jp-lyrics/${songId}`);
+    expect(await screen.findByText('君の名は')).toBeInTheDocument();
+
+    await user.click(screen.getByLabelText('播放模式'));
+    await user.click(screen.getByRole('button', { name: '跳转到第 2 行' }));
+    expect(screen.getByText(/第 2 行/)).toBeInTheDocument();
+    expect(screen.getByText(/0:04\./)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '跳转到第 1 行' }));
+    expect(toast.add).toHaveBeenCalledWith(
+      expect.objectContaining({ title: '这一行还没有时间戳' }),
+    );
+  });
+
+  it('disables play controls when the song has no duration', async () => {
+    getLyricSong.mockResolvedValue({ ...detail, durationSeconds: null });
+    await renderApp(`/jp-lyrics/${songId}`);
+    expect(await screen.findByText('还没有填写歌曲时长')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '播放' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '开始' })).toBeDisabled();
   });
 
   it('shows an error when the song cannot be opened', async () => {
@@ -172,7 +239,7 @@ describe('jp-lyrics browse route', () => {
     await renderApp(`/jp-lyrics/${songId}`);
     expect(await screen.findByText('君の名は')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: '开始' }));
-    await user.click(screen.getByRole('button', { name: '标记' }));
+    await user.click(screen.getByRole('button', { name: '第 1 行标记' }));
     await waitFor(() =>
       expect(toast.add).toHaveBeenCalledWith(
         expect.objectContaining({ type: 'error' }),

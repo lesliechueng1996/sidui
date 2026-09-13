@@ -18,15 +18,11 @@ import {
   findCurrentLyricLineIndex,
   isLyricColorToken,
   type LyricSegment,
-  lyricClockDurationMs,
   parseLyricTimestamp,
   snapToNearestTimedLineMs,
 } from '../-lib/lyric';
-import {
-  applyManualTimestamp,
-  markNextUntimedLine,
-  undoMarkedLine,
-} from '../-lib/lyric-mark';
+import { isLyricDurationValid } from '../-lib/lyric-duration';
+import { applyManualTimestamp, markNextUntimedLine } from '../-lib/lyric-mark';
 
 export const Route = createFileRoute('/_authenticated/jp-lyrics/$songId/')({
   component: LyricSongBrowseComponent,
@@ -62,7 +58,7 @@ function LyricSongBrowseComponent() {
   const [currentMs, setCurrentMs] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [marking, setMarking] = useState(false);
-  const [undoStack, setUndoStack] = useState<number[]>([]);
+  const [playMode, setPlayMode] = useState(false);
   const frameRef = useRef<number | null>(null);
   const lastTickRef = useRef<number | null>(null);
 
@@ -77,7 +73,12 @@ function LyricSongBrowseComponent() {
     }
   }, [detailQuery.data]);
 
-  const durationMs = useMemo(() => lyricClockDurationMs(lines), [lines]);
+  const clockEnabled = isLyricDurationValid(
+    detailQuery.data?.durationSeconds ?? null,
+  );
+  const durationMs = clockEnabled
+    ? (detailQuery.data?.durationSeconds ?? 0) * 1000
+    : 0;
   const currentIndex = useMemo(
     () => findCurrentLyricLineIndex(lines, currentMs),
     [lines, currentMs],
@@ -131,6 +132,14 @@ function LyricSongBrowseComponent() {
     timingsMutation.mutate([{ lineId: line.id, startMs: line.startMs }]);
   };
 
+  const persistMarkedLine = (next: LyricBrowseLine[], index: number) => {
+    setLines(next);
+    const marked = next[index];
+    if (marked) {
+      persistLine(marked);
+    }
+  };
+
   const handleMark = () => {
     const result = markNextUntimedLine(lines, Math.round(currentMs));
     if (result.markedIndex === null) {
@@ -138,12 +147,34 @@ function LyricSongBrowseComponent() {
       return;
     }
 
-    setLines(result.lines);
-    setUndoStack((stack) => [...stack, result.markedIndex as number]);
-    const marked = result.lines[result.markedIndex];
-    if (marked) {
-      persistLine(marked);
+    persistMarkedLine(result.lines, result.markedIndex);
+  };
+
+  const handleMarkLine = (lineId: string) => {
+    const index = lines.findIndex((line) => line.id === lineId);
+    if (index === -1) {
+      return;
     }
+
+    persistMarkedLine(
+      applyManualTimestamp(lines, index, Math.round(currentMs)),
+      index,
+    );
+  };
+
+  const handleJumpToLine = (lineId: string) => {
+    if (!playMode || !clockEnabled) {
+      return;
+    }
+    const line = lines.find((item) => item.id === lineId);
+    if (!line) {
+      return;
+    }
+    if (line.startMs === null) {
+      toast.add({ type: 'info', title: '这一行还没有时间戳' });
+      return;
+    }
+    setCurrentMs(Math.min(line.startMs, durationMs));
   };
 
   useEffect(() => {
@@ -165,31 +196,20 @@ function LyricSongBrowseComponent() {
     return () => window.removeEventListener('keydown', onKeyDown);
   });
 
-  const handleUndo = () => {
-    const result = undoMarkedLine(lines, undoStack);
-    const undoneIndex = undoStack.at(-1);
-    setLines(result.lines);
-    setUndoStack(result.stack);
-    if (undoneIndex !== undefined) {
-      const line = result.lines[undoneIndex];
-      if (line) {
-        persistLine(line);
-      }
-    }
-  };
-
   useEffect(() => {
-    if (currentIndex === null) {
+    if (!playMode || currentIndex === null) {
       return;
     }
-    const node = document.querySelector('[data-current="true"]');
-    if (
-      node instanceof HTMLElement &&
-      typeof node.scrollIntoView === 'function'
-    ) {
-      node.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    const list = document.querySelector('[aria-label="歌词列表"]');
+    const node = list?.querySelector('[data-current="true"]');
+    if (!(list instanceof HTMLElement) || !(node instanceof HTMLElement)) {
+      return;
     }
-  }, [currentIndex]);
+    const listRect = list.getBoundingClientRect();
+    const nodeRect = node.getBoundingClientRect();
+    list.scrollTop +=
+      nodeRect.top - listRect.top - listRect.height / 2 + nodeRect.height / 2;
+  }, [currentIndex, playMode]);
 
   if (detailQuery.isError) {
     return (
@@ -198,16 +218,25 @@ function LyricSongBrowseComponent() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex h-[calc(100svh-6.5rem)] min-h-0 flex-col gap-4 overflow-hidden">
       <Button
         type="button"
         variant="outline"
         size="sm"
+        className="shrink-0 self-start"
         render={<Link to="/jp-lyrics/$songId/edit" params={{ songId }} />}
         nativeButton={false}
       >
         编辑
       </Button>
+      {detailQuery.data && !clockEnabled ? (
+        <div className="shrink-0">
+          <ErrorAlert
+            title="还没有填写歌曲时长"
+            description="请先到编辑页补充歌曲信息，再播放或标记。"
+          />
+        </div>
+      ) : null}
       <LyricBrowseViewComponent
         title={detailQuery.data?.title ?? ''}
         meaning={detailQuery.data?.meaning ?? ''}
@@ -217,17 +246,25 @@ function LyricSongBrowseComponent() {
         durationMs={durationMs}
         currentIndex={currentIndex}
         playing={playing}
-        marking={marking}
-        canUndo={undoStack.length > 0}
-        onPlayPause={() => setPlaying((value) => !value)}
+        playMode={playMode}
+        clockEnabled={clockEnabled}
+        onPlayModeChange={setPlayMode}
+        onPlayPause={() => {
+          if (!clockEnabled) {
+            return;
+          }
+          setPlaying((value) => !value);
+        }}
         onStartMarking={() => {
+          if (!clockEnabled) {
+            return;
+          }
           setCurrentMs(0);
           setPlaying(true);
           setMarking(true);
-          setUndoStack([]);
         }}
-        onMark={handleMark}
-        onUndo={handleUndo}
+        onMarkLine={handleMarkLine}
+        onJumpToLine={handleJumpToLine}
         onSeek={(ms) => {
           setPlaying(false);
           setCurrentMs(ms);

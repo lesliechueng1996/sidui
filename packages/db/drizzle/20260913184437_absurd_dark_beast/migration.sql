@@ -1,0 +1,1 @@
+ALTER TABLE "lyric_song" ADD COLUMN "duration_seconds" integer;

@@ -20,6 +20,30 @@ describe('nav-items', () => {
     expect(isNavPathActive('/admin/raid-runs', '/raid-run')).toBe(false);
   });
 
+  it('prefers the more specific sibling when prefixes overlap', () => {
+    const siblings = ['/jp-lyrics', '/jp-lyrics/kana'];
+
+    expect(isNavPathActive('/jp-lyrics/kana', '/jp-lyrics', siblings)).toBe(
+      false,
+    );
+    expect(
+      isNavPathActive('/jp-lyrics/kana', '/jp-lyrics/kana', siblings),
+    ).toBe(true);
+    expect(isNavPathActive('/jp-lyrics', '/jp-lyrics', siblings)).toBe(true);
+    expect(isNavPathActive('/jp-lyrics', '/jp-lyrics/kana', siblings)).toBe(
+      false,
+    );
+    expect(isNavPathActive('/jp-lyrics/song-1', '/jp-lyrics', siblings)).toBe(
+      true,
+    );
+    expect(
+      isNavPathActive('/jp-lyrics/song-1', '/jp-lyrics/kana', siblings),
+    ).toBe(false);
+    expect(
+      isNavPathActive('/jp-lyrics/song-1/edit', '/jp-lyrics', siblings),
+    ).toBe(true);
+  });
+
   it('treats a branch as active when a child matches', () => {
     const games = navItems.find((item) => item.title === '游戏辅助');
     if (!games) {

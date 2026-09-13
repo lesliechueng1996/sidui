@@ -44,17 +44,17 @@ function RouteComponent() {
 
   return (
     <TooltipProvider>
-      <SidebarProvider className="flex-col!">
+      <SidebarProvider className="h-svh overflow-hidden flex-col!">
         <AppHeaderComponent user={user} />
         <div className="flex min-h-0 w-full flex-1">
           <AppSidebarNavComponent userRole={user.role} />
-          <SidebarInset className="overflow-auto">
-            <div className="relative isolate min-h-full">
+          <SidebarInset className="min-h-0 overflow-auto">
+            <div className="relative isolate flex min-h-full flex-col">
               <div
                 aria-hidden
                 className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_100%_0%,oklch(0.58_0.17_28/0.06),transparent_55%)]"
               />
-              <div className="relative flex flex-1 flex-col p-6">
+              <div className="relative flex min-h-full flex-1 flex-col p-6">
                 <Outlet />
               </div>
             </div>

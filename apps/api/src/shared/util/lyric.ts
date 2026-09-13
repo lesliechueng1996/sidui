@@ -19,6 +19,8 @@ export type LyricSegment = {
 
 export const LYRIC_SONG_EXPORT_VERSION = 1;
 
+export const MIN_LYRIC_DURATION_SECONDS = 10;
+
 export class LyricValidationError extends Error {
   constructor(message: string) {
     super(message);
@@ -112,6 +114,28 @@ export const normalizeLyricStartMs = (value: unknown): number | null => {
   return value;
 };
 
+export const normalizeLyricDurationSeconds = (value: unknown): number => {
+  if (
+    typeof value !== 'number' ||
+    !Number.isInteger(value) ||
+    value < MIN_LYRIC_DURATION_SECONDS
+  ) {
+    throw new LyricValidationError('歌曲时长须至少 10 秒');
+  }
+
+  return value;
+};
+
+export const normalizeOptionalLyricDurationSeconds = (
+  value: unknown,
+): number | null => {
+  if (value === undefined || value === null) {
+    return null;
+  }
+
+  return normalizeLyricDurationSeconds(value);
+};
+
 export const parseLyricTimestamp = (text: string): number | null => {
   const trimmed = text.trim();
   if (trimmed.length === 0) {
@@ -180,6 +204,7 @@ export type LyricSongExportItem = {
   title: string;
   meaning: string;
   artist: string | null;
+  durationSeconds: number | null;
   lines: LyricSongExportLine[];
 };
 
@@ -244,6 +269,9 @@ export const parseLyricSongExportItem = (
     title: normalizeRequiredText(value.title, '歌曲名不能为空'),
     meaning: normalizeRequiredText(value.meaning, '中文歌名不能为空'),
     artist: normalizeNullableText(value.artist),
+    durationSeconds: normalizeOptionalLyricDurationSeconds(
+      value.durationSeconds,
+    ),
     lines: (linesValue ?? []).map(parseLyricSongExportLine),
   };
 };

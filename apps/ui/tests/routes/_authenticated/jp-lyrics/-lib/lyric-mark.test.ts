@@ -3,7 +3,6 @@ import {
   applyManualTimestamp,
   findNextUntimedLineIndex,
   markNextUntimedLine,
-  undoMarkedLine,
 } from '@/routes/_authenticated/jp-lyrics/-lib/lyric-mark';
 
 describe('lyric-mark', () => {
@@ -14,14 +13,6 @@ describe('lyric-mark', () => {
     expect(marked.markedIndex).toBe(1);
     expect(marked.lines[1]?.startMs).toBe(2500);
     expect(markNextUntimedLine([{ startMs: 1 }], 2).markedIndex).toBeNull();
-  });
-
-  it('undoes the last mark from the session stack', () => {
-    const lines = [{ startMs: 10 }, { startMs: 2500 }];
-    const undone = undoMarkedLine(lines, [1]);
-    expect(undone.lines[1]?.startMs).toBeNull();
-    expect(undone.stack).toEqual([]);
-    expect(undoMarkedLine(lines, []).stack).toEqual([]);
   });
 
   it('writes a manual timestamp onto one line', () => {

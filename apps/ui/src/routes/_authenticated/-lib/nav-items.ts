@@ -154,15 +154,36 @@ function normalizePath(path: string): string {
   return path;
 }
 
-export function isNavPathActive(pathname: string, to: string): boolean {
-  const current = normalizePath(pathname);
-  const target = normalizePath(to);
-
+function pathMatches(current: string, target: string): boolean {
   if (target === '/') {
     return current === '/';
   }
 
   return current === target || current.startsWith(`${target}/`);
+}
+
+export function isNavPathActive(
+  pathname: string,
+  to: string,
+  competingTos: readonly string[] = [],
+): boolean {
+  const current = normalizePath(pathname);
+  const target = normalizePath(to);
+
+  if (!pathMatches(current, target)) {
+    return false;
+  }
+
+  return !competingTos.some((other) => {
+    const competitor = normalizePath(other);
+    if (competitor === target) {
+      return false;
+    }
+
+    return (
+      pathMatches(current, competitor) && competitor.length > target.length
+    );
+  });
 }
 
 export function isNavItemActive(pathname: string, item: NavItem): boolean {
@@ -182,8 +203,9 @@ export const APP_DOCUMENT_TITLE = '四堆专用';
 export function getActiveNavTitle(pathname: string): string | undefined {
   for (const item of navItems) {
     if (item.children?.length) {
+      const siblingTos = item.children.map((leaf) => leaf.to);
       const child = item.children.find((leaf) =>
-        isNavPathActive(pathname, leaf.to),
+        isNavPathActive(pathname, leaf.to, siblingTos),
       );
       if (child) {
         return child.title;

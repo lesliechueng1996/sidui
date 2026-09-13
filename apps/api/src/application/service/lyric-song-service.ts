@@ -23,6 +23,7 @@ import {
   type LyricSegment,
   type LyricSongExportItem,
   LyricValidationError,
+  normalizeLyricDurationSeconds,
   normalizeLyricSegments,
   normalizeLyricStartMs,
   parseLyricSongExportItem,
@@ -94,6 +95,7 @@ const toLyricSongListItem = (row: LyricSongListRow): LyricSongListItem => ({
   title: row.title,
   meaning: row.meaning,
   artist: row.artist,
+  durationSeconds: row.durationSeconds,
   lineCount: Number(row.lineCount),
   createdAt: formatDateTime(row.createdAt),
   updatedAt: formatDateTime(row.updatedAt),
@@ -107,6 +109,7 @@ const toLyricSongDetail = (
   title: song.title,
   meaning: song.meaning,
   artist: song.artist,
+  durationSeconds: song.durationSeconds,
   createdAt: formatDateTime(song.createdAt),
   updatedAt: formatDateTime(song.updatedAt),
   lines: lines.map(toLyricLine),
@@ -157,6 +160,12 @@ export const createLyricSong = async (
 ): Promise<LyricSongDetail> => {
   const title = normalizeRequiredText(body.title, '歌曲名不能为空');
   const meaning = normalizeRequiredText(body.meaning, '中文歌名不能为空');
+  let durationSeconds: number;
+  try {
+    durationSeconds = normalizeLyricDurationSeconds(body.durationSeconds);
+  } catch (error) {
+    return mapLyricValidationError(error);
+  }
 
   try {
     const created = await lyricSongRepository.create({
@@ -164,6 +173,7 @@ export const createLyricSong = async (
       title,
       meaning,
       artist: normalizeArtist(body.artist),
+      durationSeconds,
     });
     logger.info('Created lyric song {songId} for user {userId}', {
       songId: created.id,
@@ -206,6 +216,16 @@ export const updateLyricSong = async (
 
   if (body.artist !== undefined) {
     values.artist = normalizeArtist(body.artist);
+  }
+
+  if (body.durationSeconds !== undefined) {
+    try {
+      values.durationSeconds = normalizeLyricDurationSeconds(
+        body.durationSeconds,
+      );
+    } catch (error) {
+      return mapLyricValidationError(error);
+    }
   }
 
   try {
@@ -340,6 +360,7 @@ export const exportLyricSongs = async (
       title: song.title,
       meaning: song.meaning,
       artist: song.artist,
+      durationSeconds: song.durationSeconds,
       lines: (linesBySongId.get(song.id) ?? []).map(toExportLine),
     })),
   };
@@ -373,6 +394,7 @@ const writeImportedSong = async (userId: string, song: LyricSongExportItem) => {
       title: song.title,
       meaning: song.meaning,
       artist: song.artist,
+      durationSeconds: song.durationSeconds,
     },
     song.lines.map((line, position) => ({
       position,

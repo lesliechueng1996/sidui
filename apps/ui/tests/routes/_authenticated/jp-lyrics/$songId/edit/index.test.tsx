@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { toast } from '@/components/ui/toast';
@@ -6,9 +6,10 @@ import { authClient } from '@/lib/auth-client';
 import { renderApp } from '../../../../../helpers/render';
 import { userSession } from '../../../../../helpers/session';
 
-const { getLyricSong, replaceLyricLines } = vi.hoisted(() => ({
+const { getLyricSong, replaceLyricLines, updateLyricSong } = vi.hoisted(() => ({
   getLyricSong: vi.fn(),
   replaceLyricLines: vi.fn(),
+  updateLyricSong: vi.fn(),
 }));
 
 vi.mock('@/lib/api/lyric-songs-api', () => ({
@@ -16,6 +17,7 @@ vi.mock('@/lib/api/lyric-songs-api', () => ({
   lyricSongDetailQueryKey: (id: string) => ['lyric-songs', id],
   getLyricSong,
   replaceLyricLines,
+  updateLyricSong,
 }));
 
 const songId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
@@ -24,6 +26,7 @@ const detail = {
   title: '君の名は',
   meaning: '你的名字',
   artist: null,
+  durationSeconds: 205,
   createdAt: '2026-01-01 00:00:00',
   updatedAt: '2026-01-01 00:00:00',
   lines: [
@@ -56,8 +59,10 @@ describe('jp-lyrics edit route', () => {
     vi.mocked(toast.add).mockClear();
     getLyricSong.mockReset();
     replaceLyricLines.mockReset();
+    updateLyricSong.mockReset();
     getLyricSong.mockResolvedValue(detail);
     replaceLyricLines.mockResolvedValue(detail);
+    updateLyricSong.mockResolvedValue(detail);
   });
 
   it('blocks save on a mismatch and saves reordered valid lines', async () => {
@@ -109,12 +114,53 @@ describe('jp-lyrics edit route', () => {
 
     await user.click(screen.getAllByRole('button', { name: '删除行' })[3]);
     expect(screen.getAllByLabelText('日语歌词').length).toBe(3);
+
+    await user.click(screen.getAllByRole('button', { name: '拷贝' })[0]);
+    expect(screen.getAllByLabelText('日语歌词').length).toBe(4);
+    expect(screen.getAllByDisplayValue('君の')).toHaveLength(2);
   });
 
   it('shows a load error and toasts a save failure', async () => {
     getLyricSong.mockRejectedValueOnce(new Error('missing'));
     await renderApp(`/jp-lyrics/${songId}/edit`);
     expect(await screen.findByText('无法加载歌曲')).toBeInTheDocument();
+  });
+
+  it('updates song info from the dialog', async () => {
+    const user = userEvent.setup();
+    await renderApp(`/jp-lyrics/${songId}/edit`);
+    expect(await screen.findByDisplayValue('君の')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '编辑信息' }));
+    const dialog = await screen.findByRole('dialog', { name: '编辑歌曲信息' });
+    await user.clear(screen.getByLabelText('中文歌名'));
+    await user.type(screen.getByLabelText('中文歌名'), '你的名字改');
+    await user.click(within(dialog).getByRole('button', { name: '保存' }));
+
+    await waitFor(() =>
+      expect(updateLyricSong).toHaveBeenCalledWith(
+        songId,
+        expect.objectContaining({
+          meaning: '你的名字改',
+          durationSeconds: 205,
+        }),
+      ),
+    );
+  });
+
+  it('toasts when song info update fails', async () => {
+    updateLyricSong.mockRejectedValue(new Error('更新歌曲失败'));
+    const user = userEvent.setup();
+    await renderApp(`/jp-lyrics/${songId}/edit`);
+    expect(await screen.findByDisplayValue('君の')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '编辑信息' }));
+    const dialog = await screen.findByRole('dialog', { name: '编辑歌曲信息' });
+    await user.click(within(dialog).getByRole('button', { name: '保存' }));
+    await waitFor(() =>
+      expect(toast.add).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'error' }),
+      ),
+    );
   });
 
   it('toasts when saving fails', async () => {

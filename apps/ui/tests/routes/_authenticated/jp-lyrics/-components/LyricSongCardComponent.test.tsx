@@ -8,6 +8,7 @@ const song = {
   title: '君の名は',
   meaning: '你的名字',
   artist: 'RADWIMPS',
+  durationSeconds: 205,
   lineCount: 2,
   createdAt: '2026-01-01 00:00:00',
   updatedAt: '2026-01-01 00:00:00',
@@ -40,15 +41,16 @@ describe('LyricSongCardComponent', () => {
     expect(onOpen).toHaveBeenCalledTimes(1);
   });
 
-  it('shows a fallback when the artist is missing', () => {
+  it('shows fallbacks when artist or duration is missing', () => {
     render(
       <LyricSongCardComponent
-        song={{ ...song, artist: null }}
+        song={{ ...song, artist: null, durationSeconds: null }}
         onOpen={vi.fn()}
         onEdit={vi.fn()}
         onDelete={vi.fn()}
       />,
     );
     expect(screen.getByText('未填写歌手')).toBeInTheDocument();
+    expect(screen.getByText('未填写时长')).toBeInTheDocument();
   });
 });

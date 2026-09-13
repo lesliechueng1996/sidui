@@ -25,6 +25,7 @@ export const lyricSong = pgTable(
     title: t.text('title').notNull(),
     meaning: t.text('meaning').notNull(),
     artist: t.text('artist'),
+    durationSeconds: t.integer('duration_seconds'),
     createdAt: t
       .timestamp('created_at', { withTimezone: true })
       .notNull()

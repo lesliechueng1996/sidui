@@ -55,6 +55,32 @@ describe('AppSidebarNavComponent', () => {
     );
   });
 
+  it('highlights only the more specific jp-lyrics child', async () => {
+    vi.mocked(authClient.getSession).mockResolvedValue({
+      data: adminSession,
+    } as never);
+    await renderApp('/jp-lyrics/kana');
+
+    const kana = await screen.findByRole('link', { name: '五十音图' });
+    const songs = screen.getByRole('link', { name: '歌曲' });
+
+    expect(kana).toHaveAttribute('data-active', '');
+    expect(songs).not.toHaveAttribute('data-active');
+  });
+
+  it('highlights songs without the kana child', async () => {
+    vi.mocked(authClient.getSession).mockResolvedValue({
+      data: adminSession,
+    } as never);
+    await renderApp('/jp-lyrics');
+
+    const songs = await screen.findByRole('link', { name: '歌曲' });
+    const kana = screen.getByRole('link', { name: '五十音图' });
+
+    expect(songs).toHaveAttribute('data-active', '');
+    expect(kana).not.toHaveAttribute('data-active');
+  });
+
   it('keeps the matching branch open', async () => {
     vi.mocked(authClient.getSession).mockResolvedValue({
       data: adminSession,

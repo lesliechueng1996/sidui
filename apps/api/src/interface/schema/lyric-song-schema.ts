@@ -51,11 +51,17 @@ export const lyricLineSchema = t.Object({
 
 export type LyricLine = Static<typeof lyricLineSchema>;
 
+const lyricDurationSecondsSchema = t.Integer({
+  minimum: 10,
+  error: () => '歌曲时长须至少 10 秒',
+});
+
 export const lyricSongListItemSchema = t.Object({
   id: t.String(),
   title: t.String(),
   meaning: t.String(),
   artist: t.Nullable(t.String()),
+  durationSeconds: t.Nullable(t.Integer()),
   lineCount: t.Integer(),
   createdAt: t.String(),
   updatedAt: t.String(),
@@ -68,6 +74,7 @@ export const lyricSongDetailSchema = t.Object({
   title: t.String(),
   meaning: t.String(),
   artist: t.Nullable(t.String()),
+  durationSeconds: t.Nullable(t.Integer()),
   createdAt: t.String(),
   updatedAt: t.String(),
   lines: t.Array(lyricLineSchema),
@@ -96,6 +103,7 @@ export const createLyricSongBodySchema = t.Object({
       }),
     ),
   ),
+  durationSeconds: lyricDurationSecondsSchema,
 });
 
 export type CreateLyricSongBody = Static<typeof createLyricSongBodySchema>;
@@ -124,6 +132,7 @@ export const updateLyricSongBodySchema = t.Object(
         }),
       ),
     ),
+    durationSeconds: t.Optional(lyricDurationSecondsSchema),
   },
   {
     minProperties: 1,
@@ -174,6 +183,7 @@ export const lyricSongExportItemSchema = t.Object({
   title: t.String(),
   meaning: t.String(),
   artist: t.Nullable(t.String()),
+  durationSeconds: t.Nullable(t.Integer()),
   lines: t.Array(lyricSongExportLineSchema),
 });
 

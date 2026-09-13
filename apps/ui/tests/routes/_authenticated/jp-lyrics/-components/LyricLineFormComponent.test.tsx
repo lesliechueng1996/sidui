@@ -11,6 +11,7 @@ describe('LyricLineFormComponent', () => {
     const onSelectSegment = vi.fn();
     const onPaint = vi.fn();
     const onMove = vi.fn();
+    const onCopy = vi.fn();
     const onRemove = vi.fn();
     const line = {
       ...createEmptyDraftLine(),
@@ -31,6 +32,7 @@ describe('LyricLineFormComponent', () => {
         onSelectSegment={onSelectSegment}
         onPaint={onPaint}
         onMove={onMove}
+        onCopy={onCopy}
         onRemove={onRemove}
       />,
     );
@@ -56,6 +58,7 @@ describe('LyricLineFormComponent', () => {
         onSelectSegment={onSelectSegment}
         onPaint={onPaint}
         onMove={onMove}
+        onCopy={onCopy}
         onRemove={onRemove}
       />,
     );
@@ -70,6 +73,8 @@ describe('LyricLineFormComponent', () => {
     expect(onPaint).toHaveBeenCalledWith('rose');
     await user.click(screen.getByRole('button', { name: '上移' }));
     expect(onMove).toHaveBeenCalledWith(-1);
+    await user.click(screen.getByRole('button', { name: '拷贝' }));
+    expect(onCopy).toHaveBeenCalled();
     await user.click(screen.getByRole('button', { name: '删除行' }));
     expect(onRemove).toHaveBeenCalled();
   });

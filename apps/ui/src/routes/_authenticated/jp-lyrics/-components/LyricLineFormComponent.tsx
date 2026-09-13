@@ -22,6 +22,7 @@ type LyricLineFormComponentProps = {
   onSelectSegment: (index: number) => void;
   onPaint: (color: LyricColorToken | null) => void;
   onMove: (direction: -1 | 1) => void;
+  onCopy: () => void;
   onRemove: () => void;
 };
 
@@ -36,6 +37,7 @@ export function LyricLineFormComponent({
   onSelectSegment,
   onPaint,
   onMove,
+  onCopy,
   onRemove,
 }: LyricLineFormComponentProps) {
   const issue = inspectDraftLine(line);
@@ -63,6 +65,9 @@ export function LyricLineFormComponent({
             onClick={() => onMove(1)}
           >
             下移
+          </Button>
+          <Button type="button" size="sm" variant="outline" onClick={onCopy}>
+            拷贝
           </Button>
           <Button type="button" size="sm" variant="ghost" onClick={onRemove}>
             删除行

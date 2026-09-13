@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import type { LyricSegment } from '../-lib/lyric';
+import { type LyricSegment, nextLyricSegmentKey } from '../-lib/lyric';
 import { lyricColorClassName } from '../-lib/lyric-colors';
 
 type LyricSegmentChipsComponentProps = {
@@ -19,6 +19,7 @@ export function LyricSegmentChipsComponent({
   selectedEnd,
   onSelect,
 }: LyricSegmentChipsComponentProps) {
+  const chipKeys = new Map<string, number>();
   return (
     <div className="space-y-1">
       <p className="text-xs text-muted-foreground">{label}</p>
@@ -32,7 +33,7 @@ export function LyricSegmentChipsComponent({
 
           return (
             <button
-              key={`${field}-${segment.text}-${segment.kana}`}
+              key={nextLyricSegmentKey(chipKeys, field, segment)}
               type="button"
               className={cn(
                 lyricColorClassName(segment.color, 'border px-2 py-1 text-sm'),

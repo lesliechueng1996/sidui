@@ -6,19 +6,23 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/toast';
 import {
+  type CreateLyricSongValues,
   getLyricSong,
   lyricSongDetailQueryKey,
   lyricSongsQueryKey,
   replaceLyricLines,
+  updateLyricSong,
 } from '@/lib/api/lyric-songs-api';
 import { handleApiError } from '@/lib/api-client';
 import { LyricLineFormComponent } from '../../-components/LyricLineFormComponent';
+import { LyricSongInfoDialogComponent } from '../../-components/LyricSongInfoDialogComponent';
 import type { LyricColorToken } from '../../-lib/lyric';
 import {
   areDraftLinesValid,
   bulkPasteJapanese,
   createEmptyDraftLine,
   draftLinesFromSong,
+  duplicateDraftLine,
   type LyricDraftLine,
   moveDraftLine,
   paintDraftSegments,
@@ -38,6 +42,7 @@ function LyricSongEditComponent() {
   const queryClient = useQueryClient();
   const [lines, setLines] = useState<LyricDraftLine[]>([]);
   const [pasteText, setPasteText] = useState('');
+  const [editingInfo, setEditingInfo] = useState(false);
   const [selection, setSelection] = useState<{
     key: string;
     start: number;
@@ -57,6 +62,22 @@ function LyricSongEditComponent() {
   }, [detailQuery.data]);
 
   const canSave = useMemo(() => areDraftLinesValid(lines), [lines]);
+
+  const infoMutation = useMutation({
+    mutationFn: (values: CreateLyricSongValues) =>
+      updateLyricSong(songId, values),
+    onSuccess: async () => {
+      toast.add({ type: 'success', title: '歌曲信息已保存' });
+      setEditingInfo(false);
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: lyricSongDetailQueryKey(songId),
+        }),
+        queryClient.invalidateQueries({ queryKey: lyricSongsQueryKey }),
+      ]);
+    },
+    onError: (error) => handleApiError(error, '更新歌曲失败'),
+  });
 
   const saveMutation = useMutation({
     mutationFn: () => replaceLyricLines(songId, toReplaceLyricLines(lines)),
@@ -99,6 +120,13 @@ function LyricSongEditComponent() {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setEditingInfo(true)}
+          >
+            编辑信息
+          </Button>
           <Button
             type="button"
             variant="outline"
@@ -190,6 +218,9 @@ function LyricSongEditComponent() {
                 moveDraftLine(current, index, index + direction),
               );
             }}
+            onCopy={() => {
+              setLines((current) => [...current, duplicateDraftLine(line)]);
+            }}
             onRemove={() => {
               setLines((current) =>
                 current.filter((item) => item.key !== line.key),
@@ -210,6 +241,23 @@ function LyricSongEditComponent() {
       >
         添加一行
       </Button>
+      <LyricSongInfoDialogComponent
+        open={editingInfo}
+        pending={infoMutation.isPending}
+        mode="edit"
+        initial={
+          detailQuery.data
+            ? {
+                title: detailQuery.data.title,
+                meaning: detailQuery.data.meaning,
+                artist: detailQuery.data.artist,
+                durationSeconds: detailQuery.data.durationSeconds,
+              }
+            : null
+        }
+        onOpenChange={setEditingInfo}
+        onSubmit={(values) => infoMutation.mutate(values)}
+      />
     </div>
   );
 }

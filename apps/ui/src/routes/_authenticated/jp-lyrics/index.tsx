@@ -17,8 +17,8 @@ import {
 } from '@/lib/api/lyric-songs-api';
 import { handleApiError } from '@/lib/api-client';
 import { LyricSongCardComponent } from './-components/LyricSongCardComponent';
-import { LyricSongCreateDialogComponent } from './-components/LyricSongCreateDialogComponent';
 import { LyricSongImportDialogComponent } from './-components/LyricSongImportDialogComponent';
+import { LyricSongInfoDialogComponent } from './-components/LyricSongInfoDialogComponent';
 import { downloadJsonFile } from './-lib/download-json';
 
 export const Route = createFileRoute('/_authenticated/jp-lyrics/')({
@@ -145,9 +145,10 @@ function LyricSongsComponent() {
           还没有歌曲。可以新建一首，或导入之前导出的 JSON。
         </p>
       )}
-      <LyricSongCreateDialogComponent
+      <LyricSongInfoDialogComponent
         open={creating}
         pending={createMutation.isPending}
+        mode="create"
         onOpenChange={setCreating}
         onSubmit={(values: CreateLyricSongValues) =>
           createMutation.mutate(values)

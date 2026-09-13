@@ -8,6 +8,7 @@ import {
   joinLyricTexts,
   LyricValidationError,
   lyricClockDurationMs,
+  nextLyricSegmentKey,
   parseLyricSegments,
   parseLyricTimestamp,
   snapToNearestTimedLineMs,
@@ -61,5 +62,13 @@ describe('lyric helpers', () => {
       'きみ',
     );
     expect(joinLyricSource(['君の', '名は'])).toBe('君の / 名は');
+    const seen = new Map<string, number>();
+    const repeat = { text: '風に乗り', kana: 'かぜにのり' };
+    expect(nextLyricSegmentKey(seen, 'jp', repeat)).toBe(
+      'jp-風に乗り-かぜにのり-1',
+    );
+    expect(nextLyricSegmentKey(seen, 'jp', repeat)).toBe(
+      'jp-風に乗り-かぜにのり-2',
+    );
   });
 });
