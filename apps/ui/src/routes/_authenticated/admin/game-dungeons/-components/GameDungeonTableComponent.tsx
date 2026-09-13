@@ -9,7 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { toast } from '@/components/ui/toast';
 import type { AdminGameDungeonListItem } from '@/lib/api/admin/admin-game-dungeons-api';
+import { copyText } from '@/lib/copy-text';
 import {
   difficultyBadgeClassName,
   difficultyLabel,
@@ -26,6 +28,14 @@ type GameDungeonTableComponentProps = {
 
 const emptyValue = (value: string | null | undefined) =>
   value ? value : <span className="text-muted-foreground">-</span>;
+
+const copyDungeonId = async (id: string) => {
+  const copied = await copyText(id);
+  toast.add({
+    type: copied ? 'success' : 'error',
+    description: copied ? '已复制到剪切板' : '复制失败，请手动复制',
+  });
+};
 
 export function GameDungeonTableComponent({
   items,
@@ -82,6 +92,14 @@ export function GameDungeonTableComponent({
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-end gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => void copyDungeonId(dungeon.id)}
+                    >
+                      复制ID
+                    </Button>
                     <Button
                       type="button"
                       variant="outline"

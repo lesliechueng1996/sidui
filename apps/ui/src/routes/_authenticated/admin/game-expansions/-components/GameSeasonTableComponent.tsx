@@ -8,8 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { toast } from '@/components/ui/toast';
 import type { AdminGameExpansionListItem } from '@/lib/api/admin/admin-game-expansions-api';
 import type { AdminGameSeasonListItem } from '@/lib/api/admin/admin-game-seasons-api';
+import { copyText } from '@/lib/copy-text';
 import { formatDateRange } from '../-lib/game-expansions-helpers';
 
 type GameSeasonTableComponentProps = {
@@ -24,6 +26,14 @@ type GameSeasonTableComponentProps = {
 
 const emptyValue = (value: string | null | undefined) =>
   value ? value : <span className="text-muted-foreground">-</span>;
+
+const copySeasonId = async (id: string) => {
+  const copied = await copyText(id);
+  toast.add({
+    type: copied ? 'success' : 'error',
+    description: copied ? '已复制到剪切板' : '复制失败，请手动复制',
+  });
+};
 
 export function GameSeasonTableComponent({
   expansion,
@@ -78,6 +88,14 @@ export function GameSeasonTableComponent({
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => void copySeasonId(season.id)}
+                      >
+                        复制ID
+                      </Button>
                       <Button
                         type="button"
                         variant="outline"
