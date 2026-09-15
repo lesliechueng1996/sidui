@@ -71,6 +71,12 @@ const replaceLyricLines = mock(async () => songDetail);
 const updateLyricLineTimings = mock(async () => songDetail);
 const exportLyricSongs = mock(async () => exportDocument);
 const importLyricSongsFromJsonFile = mock(async () => importResult);
+const getLyricSongBaseInfoFromAi = mock(async () => ({
+  title: songDetail.title,
+  meaning: songDetail.meaning,
+  artist: songDetail.artist,
+  durationSeconds: songDetail.durationSeconds,
+}));
 
 mock.module('@api/application/service/lyric-song-service', () => ({
   listLyricSongs,
@@ -82,6 +88,10 @@ mock.module('@api/application/service/lyric-song-service', () => ({
   updateLyricLineTimings,
   exportLyricSongs,
   importLyricSongsFromJsonFile,
+}));
+
+mock.module('@api/application/service/lyric-ai-service', () => ({
+  getLyricSongBaseInfoFromAi,
 }));
 
 mock.module('@api/shared/util/auth', () => ({
@@ -123,6 +133,7 @@ describe('lyricSongRoute', () => {
     updateLyricLineTimings.mockReset();
     exportLyricSongs.mockReset();
     importLyricSongsFromJsonFile.mockReset();
+    getLyricSongBaseInfoFromAi.mockReset();
 
     listLyricSongs.mockResolvedValue([
       {
@@ -144,6 +155,12 @@ describe('lyricSongRoute', () => {
     updateLyricLineTimings.mockResolvedValue(songDetail);
     exportLyricSongs.mockResolvedValue(exportDocument);
     importLyricSongsFromJsonFile.mockResolvedValue(importResult);
+    getLyricSongBaseInfoFromAi.mockResolvedValue({
+      title: songDetail.title,
+      meaning: songDetail.meaning,
+      artist: songDetail.artist,
+      durationSeconds: songDetail.durationSeconds,
+    });
   });
 
   it('exports an OpenAPI tag', () => {
@@ -258,6 +275,23 @@ describe('lyricSongRoute', () => {
     expect(timingResponse.status).toBe(200);
     expect(updateLyricLineTimings).toHaveBeenCalledWith('actor-1', songId, {
       timings: [{ lineId, startMs: null }],
+    });
+  });
+
+  it('looks up song base info from AI', async () => {
+    const response = await jsonRequest('/ai/base-info', {
+      method: 'POST',
+      body: JSON.stringify({ title: songDetail.title }),
+    });
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(getLyricSongBaseInfoFromAi).toHaveBeenCalledWith(songDetail.title);
+    expect(body.data).toEqual({
+      title: songDetail.title,
+      meaning: songDetail.meaning,
+      artist: songDetail.artist,
+      durationSeconds: songDetail.durationSeconds,
     });
   });
 });

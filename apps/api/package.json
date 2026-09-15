@@ -20,18 +20,21 @@
     "test:cov": "bun test --isolate --coverage --coverage-reporter=text --coverage-reporter=lcov"
   },
   "dependencies": {
+    "@ai-sdk/moonshotai": "^3.0.49",
     "@elysia/openapi": "^1.4.15",
     "@elysiajs/cors": "^1.4.2",
-    "@sidui/db": "workspace:*",
-    "@sidui/jx3api": "workspace:*",
     "@logtape/drizzle-orm": "^2.3.1",
     "@logtape/elysia": "^2.3.0",
     "@logtape/file": "^2.3.0",
     "@logtape/logtape": "^2.3.0",
+    "@sidui/db": "workspace:*",
+    "@sidui/jx3api": "workspace:*",
+    "ai": "^7.0.99",
     "better-auth": "^1.6.26",
     "date-fns": "^4.4.0",
     "elysia": "latest",
-    "pinyin-pro": "^3.28.2"
+    "pinyin-pro": "^3.28.2",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.7",

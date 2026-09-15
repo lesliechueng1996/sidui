@@ -1,3 +1,4 @@
+import { getLyricSongBaseInfoFromAi } from '@api/application/service/lyric-ai-service';
 import {
   createLyricSong,
   deleteLyricSong,
@@ -21,6 +22,8 @@ import {
   importLyricSongsBodySchema,
   importLyricSongsResponseSchema,
   listLyricSongsResponseSchema,
+  lyricSongAiBaseInfoBodySchema,
+  lyricSongAiBaseInfoResponseSchema,
   lyricSongDetailSchema,
   lyricSongExportDocumentSchema,
   lyricSongIdParamsSchema,
@@ -130,6 +133,31 @@ export const lyricSongRoute = apiRoute.group('/lyric-songs', (app) =>
             'Imports songs from a JSON file. Existing titles are skipped. Requires user role.',
         },
       },
+    )
+    .group('/ai', (app) =>
+      app.post(
+        '/base-info',
+        async ({ body, status }) => {
+          const result = await getLyricSongBaseInfoFromAi(body.title);
+          return status(200, AppResponse.success(result).toJson());
+        },
+        {
+          auth: roleUser,
+          body: lyricSongAiBaseInfoBodySchema,
+          response: {
+            200: createSuccessResponseSchema(lyricSongAiBaseInfoResponseSchema),
+            400: errorResponseSchema,
+            403: errorResponseSchema,
+            500: errorResponseSchema,
+          },
+          detail: {
+            tags: [lyricSongTag.name],
+            summary: 'Get base info of a song',
+            description:
+              'Gets base info of a lyric song from AI by title. Requires user role.',
+          },
+        },
+      ),
     )
     .get(
       '/:id',

@@ -219,3 +219,26 @@ export const importLyricSongsResponseSchema = t.Object({
 export type ImportLyricSongsResponse = Static<
   typeof importLyricSongsResponseSchema
 >;
+
+export const lyricSongAiBaseInfoBodySchema = t.Object({
+  title: t.String({
+    minLength: 1,
+    maxLength: 200,
+    error: () => '歌曲名长度须为1-200个字符',
+  }),
+});
+
+export const lyricSongAiBaseInfoResponseSchema = t.Object({
+  title: t.String(),
+  meaning: t.Nullable(t.String()),
+  artist: t.Nullable(t.String()),
+  durationSeconds: t.Nullable(
+    t.Integer({
+      minimum: 10,
+    }),
+  ),
+});
+
+export type LyricSongAiBaseInfoResponse = Static<
+  typeof lyricSongAiBaseInfoResponseSchema
+>;
