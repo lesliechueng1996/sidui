@@ -137,8 +137,8 @@ export const lyricSongRoute = apiRoute.group('/lyric-songs', (app) =>
     .group('/ai', (app) =>
       app.post(
         '/base-info',
-        async ({ body, status }) => {
-          const result = await getLyricSongBaseInfoFromAi(body.title);
+        async ({ body, status, user }) => {
+          const result = await getLyricSongBaseInfoFromAi(body.title, user.id);
           return status(200, AppResponse.success(result).toJson());
         },
         {

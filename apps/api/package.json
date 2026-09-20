@@ -31,6 +31,7 @@
     "@sidui/jx3api": "workspace:*",
     "ai": "^7.0.99",
     "better-auth": "^1.6.26",
+    "bignumber.js": "^11.1.5",
     "date-fns": "^4.4.0",
     "elysia": "latest",
     "pinyin-pro": "^3.28.2",

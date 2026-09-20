@@ -61,15 +61,18 @@ describe('AiLyricAiService', () => {
   it('throws when the Moonshot API key is missing', async () => {
     env.MOONSHOT_API_KEY = '  ';
 
-    await expect(service.getLyricSongBaseInfo('title')).rejects.toThrow(
-      'Moonshot API key is not configured',
-    );
+    await expect(
+      service.getLyricSongBaseInfo('title', 'user-1'),
+    ).rejects.toThrow('Moonshot API key is not configured');
     expect(generateText).not.toHaveBeenCalled();
     expect(logger.error).toHaveBeenCalled();
   });
 
   it('fills a lyric song from structured model output', async () => {
-    const result = await service.getLyricSongBaseInfo('愛される花 愛されぬ花');
+    const result = await service.getLyricSongBaseInfo(
+      '愛される花 愛されぬ花',
+      'user-1',
+    );
 
     expect(result.title).toBe('愛される花 愛されぬ花');
     expect(result.meaning).toBe('被爱的花和不被爱的花');
@@ -81,6 +84,10 @@ describe('AiLyricAiService', () => {
         prompt: '愛される花 愛されぬ花',
         temperature: 0.2,
         timeout: 20_000,
+        runtimeContext: {
+          userId: 'user-1',
+          feature: 'lyric-song-base-info',
+        },
       }),
     );
     expect(logger.info).toHaveBeenCalled();
@@ -89,9 +96,9 @@ describe('AiLyricAiService', () => {
   it('logs and rethrows generateText failures', async () => {
     generateText.mockRejectedValueOnce(new Error('timeout'));
 
-    await expect(service.getLyricSongBaseInfo('title')).rejects.toThrow(
-      'timeout',
-    );
+    await expect(
+      service.getLyricSongBaseInfo('title', 'user-1'),
+    ).rejects.toThrow('timeout');
     expect(logger.error).toHaveBeenCalled();
   });
 });

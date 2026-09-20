@@ -1,4 +1,5 @@
 import { app } from './app';
+import { initAiSdkTelemetry } from './infrastructure/external/ai/telemetry/init';
 import { initializeLogger, logger } from './infrastructure/logger';
 import { appSettingRoute } from './interface/endpoint/app-setting-route';
 import { gameDungeonRoute } from './interface/endpoint/game-dungeon-route';
@@ -15,6 +16,7 @@ import { schoolRoute } from './interface/endpoint/school-route';
 import { userRoute } from './interface/endpoint/user-route';
 
 await initializeLogger();
+initAiSdkTelemetry();
 
 const server = app
   .use(appSettingRoute)

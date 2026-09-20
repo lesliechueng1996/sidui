@@ -7,6 +7,7 @@ export * from './expansion';
 export * from './idiom';
 export * from './item';
 export * from './kungfu';
+export * from './llm-usage';
 export * from './lyric-song';
 export * from './player-blocklist';
 export * from './raid-brand-blocklist';

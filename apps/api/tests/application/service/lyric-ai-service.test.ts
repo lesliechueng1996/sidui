@@ -11,7 +11,9 @@ const logger = {
   error: mock((message: string) => message),
 };
 
-const getLyricSongBaseInfo = mock(async (_title: string) => new LyricSong('t'));
+const getLyricSongBaseInfo = mock(
+  async (_title: string, _userId: string) => new LyricSong('t'),
+);
 
 mock.module('@api/infrastructure/logger', () => ({ logger }));
 mock.module(
@@ -34,6 +36,8 @@ const makeSong = (overrides: Partial<LyricSong> = {}): LyricSong => {
 };
 
 describe('getLyricSongBaseInfoFromAi', () => {
+  const userId = 'user-1';
+
   beforeEach(() => {
     getLyricSongBaseInfo.mockReset();
     logger.error.mockReset();
@@ -43,9 +47,13 @@ describe('getLyricSongBaseInfoFromAi', () => {
   it('returns mapped base info for a known song', async () => {
     const result = await getLyricSongBaseInfoFromAi(
       '  愛される花 愛されぬ花  ',
+      userId,
     );
 
-    expect(getLyricSongBaseInfo).toHaveBeenCalledWith('愛される花 愛されぬ花');
+    expect(getLyricSongBaseInfo).toHaveBeenCalledWith(
+      '愛される花 愛されぬ花',
+      userId,
+    );
     expect(result).toEqual({
       title: '愛される花 愛されぬ花',
       meaning: '被爱的花和不被爱的花',
@@ -58,7 +66,9 @@ describe('getLyricSongBaseInfoFromAi', () => {
     getLyricSongBaseInfo.mockResolvedValueOnce(
       makeSong({ meaning: '  ', artist: '', durationSeconds: 0 }),
     );
-    await expect(getLyricSongBaseInfoFromAi('title')).resolves.toMatchObject({
+    await expect(
+      getLyricSongBaseInfoFromAi('title', userId),
+    ).resolves.toMatchObject({
       meaning: null,
       artist: null,
       durationSeconds: null,
@@ -67,30 +77,38 @@ describe('getLyricSongBaseInfoFromAi', () => {
     getLyricSongBaseInfo.mockResolvedValueOnce(
       makeSong({ durationSeconds: 9 }),
     );
-    await expect(getLyricSongBaseInfoFromAi('title')).resolves.toMatchObject({
+    await expect(
+      getLyricSongBaseInfoFromAi('title', userId),
+    ).resolves.toMatchObject({
       durationSeconds: null,
     });
 
     getLyricSongBaseInfo.mockResolvedValueOnce(
       makeSong({ durationSeconds: 10.5 }),
     );
-    await expect(getLyricSongBaseInfoFromAi('title')).resolves.toMatchObject({
+    await expect(
+      getLyricSongBaseInfoFromAi('title', userId),
+    ).resolves.toMatchObject({
       durationSeconds: null,
     });
 
     getLyricSongBaseInfo.mockResolvedValueOnce(
       makeSong({ durationSeconds: 10 }),
     );
-    await expect(getLyricSongBaseInfoFromAi('title')).resolves.toMatchObject({
+    await expect(
+      getLyricSongBaseInfoFromAi('title', userId),
+    ).resolves.toMatchObject({
       durationSeconds: 10,
     });
   });
 
   it('rejects a blank title', async () => {
-    await expect(getLyricSongBaseInfoFromAi('   ')).rejects.toBeInstanceOf(
-      BadRequestException,
-    );
-    await expect(getLyricSongBaseInfoFromAi('   ')).rejects.toMatchObject({
+    await expect(
+      getLyricSongBaseInfoFromAi('   ', userId),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    await expect(
+      getLyricSongBaseInfoFromAi('   ', userId),
+    ).rejects.toMatchObject({
       statusCode: 400,
       code: ERROR_CODES.BAD_REQUEST,
       message: '歌曲名不能为空',
@@ -101,10 +119,12 @@ describe('getLyricSongBaseInfoFromAi', () => {
   it('wraps adapter failures', async () => {
     getLyricSongBaseInfo.mockRejectedValue(new Error('network down'));
 
-    await expect(getLyricSongBaseInfoFromAi('title')).rejects.toBeInstanceOf(
-      InternalServerErrorException,
-    );
-    await expect(getLyricSongBaseInfoFromAi('title')).rejects.toMatchObject({
+    await expect(
+      getLyricSongBaseInfoFromAi('title', userId),
+    ).rejects.toBeInstanceOf(InternalServerErrorException);
+    await expect(
+      getLyricSongBaseInfoFromAi('title', userId),
+    ).rejects.toMatchObject({
       statusCode: 500,
       code: ERROR_CODES.LYRIC_AI_UNAVAILABLE,
       message: '获取歌曲资料失败',

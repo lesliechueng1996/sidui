@@ -286,7 +286,10 @@ describe('lyricSongRoute', () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(getLyricSongBaseInfoFromAi).toHaveBeenCalledWith(songDetail.title);
+    expect(getLyricSongBaseInfoFromAi).toHaveBeenCalledWith(
+      songDetail.title,
+      'actor-1',
+    );
     expect(body.data).toEqual({
       title: songDetail.title,
       meaning: songDetail.meaning,

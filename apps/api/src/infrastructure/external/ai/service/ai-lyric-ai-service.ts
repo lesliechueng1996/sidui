@@ -7,6 +7,7 @@ import { generateText, Output } from 'ai';
 import { z } from 'zod';
 import { lyricBaseInfoSystemPrompt } from '../prompt/lyric-base-info-prompt';
 import { kimiModel } from '../provider/moonshot-ai';
+import type { AiRuntimeContext } from '../runtime-context';
 
 const BASE_INFO_TIMEOUT_MS = 20_000;
 
@@ -23,7 +24,10 @@ const lyricSongBaseInfoSchema = z.object({
 export class AiLyricAiService implements LyricAiService {
   constructor(private readonly model: typeof kimiModel = kimiModel) {}
 
-  async getLyricSongBaseInfo(title: string): Promise<LyricSong> {
+  async getLyricSongBaseInfo(
+    title: string,
+    userId: string,
+  ): Promise<LyricSong> {
     if (env.MOONSHOT_API_KEY.trim() === '') {
       logger.error('Moonshot API key is not configured');
       throw new Error('Moonshot API key is not configured');
@@ -48,6 +52,10 @@ export class AiLyricAiService implements LyricAiService {
             },
           } satisfies MoonshotAILanguageModelOptions,
         },
+        runtimeContext: {
+          userId,
+          feature: 'lyric-song-base-info',
+        } satisfies AiRuntimeContext,
       });
 
       lyricSong.meaning = output.meaning;

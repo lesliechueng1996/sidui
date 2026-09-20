@@ -22,6 +22,7 @@ const toOptionalDurationSeconds = (value: number): number | null => {
 
 export const getLyricSongBaseInfoFromAi = async (
   title: string,
+  userId: string,
 ): Promise<LyricSongAiBaseInfoResponse> => {
   const trimmedTitle = title.trim();
   if (trimmedTitle.length === 0) {
@@ -29,7 +30,10 @@ export const getLyricSongBaseInfoFromAi = async (
   }
 
   try {
-    const lyricSong = await aiLyricAiService.getLyricSongBaseInfo(trimmedTitle);
+    const lyricSong = await aiLyricAiService.getLyricSongBaseInfo(
+      trimmedTitle,
+      userId,
+    );
     return {
       title: lyricSong.title,
       meaning: toOptionalText(lyricSong.meaning),
