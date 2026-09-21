@@ -31,6 +31,9 @@ mock.module('ai', () => ({
   },
 }));
 
+const { lyricBaseInfoSystemPrompt } = await import(
+  '@api/infrastructure/external/ai/prompt/lyric-base-info-prompt'
+);
 const { AiLyricAiService, aiLyricAiService } = await import(
   '@api/infrastructure/external/ai/service/ai-lyric-ai-service'
 );
@@ -78,12 +81,20 @@ describe('AiLyricAiService', () => {
     expect(result.meaning).toBe('被爱的花和不被爱的花');
     expect(result.artist).toBe('三田寛子');
     expect(result.durationSeconds).toBe(248);
+    expect(outputObject).toHaveBeenCalled();
     expect(generateText).toHaveBeenCalledWith(
       expect.objectContaining({
         model: 'kimi-k2.6',
         prompt: '愛される花 愛されぬ花',
-        temperature: 0.2,
+        system: lyricBaseInfoSystemPrompt,
         timeout: 20_000,
+        providerOptions: {
+          moonshotai: {
+            thinking: {
+              type: 'disabled',
+            },
+          },
+        },
         runtimeContext: {
           userId: 'user-1',
           feature: 'lyric-song-base-info',

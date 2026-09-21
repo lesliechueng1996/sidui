@@ -109,7 +109,15 @@ describe('toAdminGameItemFormValues', () => {
         description: '描述',
         icon: '/icon.png',
         aliasText: '',
-        dungeons: [],
+        dungeons: [
+          {
+            id: '11111111-1111-4111-8111-111111111111',
+            name: '河阳之战',
+            playerLimit: 25,
+            bossCount: 6,
+            difficulty: 'heroic',
+          },
+        ],
       }),
     ).toEqual({
       name: '上品玄晶',
@@ -119,7 +127,7 @@ describe('toAdminGameItemFormValues', () => {
       description: '描述',
       icon: '/icon.png',
       alias: [],
-      dungeonIds: [],
+      dungeonIds: ['11111111-1111-4111-8111-111111111111'],
     });
   });
 });
