@@ -3,7 +3,6 @@ import {
   formatDurationMs,
   formatEstimatedCost,
   formatJson,
-  formatTokenSummary,
   llmUsageEventStatusBadgeClassName,
   llmUsageEventStatusLabel,
 } from '@/routes/_authenticated/admin/llm-usage-events/-lib/llm-usage-events-helpers';
@@ -23,12 +22,6 @@ describe('llmUsageEventStatusBadgeClassName', () => {
     expect(llmUsageEventStatusBadgeClassName('error')).toContain(
       'bg-destructive',
     );
-  });
-});
-
-describe('formatTokenSummary', () => {
-  it('joins input and output tokens', () => {
-    expect(formatTokenSummary(10, 20)).toBe('入 10 / 出 20');
   });
 });
 

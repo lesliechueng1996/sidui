@@ -56,7 +56,11 @@ describe('LlmUsageEventTableComponent', () => {
 
     expect(screen.getByText('成功')).toBeInTheDocument();
     expect(screen.getByText('失败')).toBeInTheDocument();
-    expect(screen.getAllByText('入 10 / 出 20')).toHaveLength(2);
+    expect(screen.getByText('用户 ID')).toBeInTheDocument();
+    expect(screen.getByText('Input Token')).toBeInTheDocument();
+    expect(screen.getByText('Output Token')).toBeInTheDocument();
+    expect(screen.getAllByText('10')).toHaveLength(2);
+    expect(screen.getAllByText('20')).toHaveLength(2);
     expect(screen.getAllByText('0.0012 CNY')).toHaveLength(2);
     expect(screen.getByText('120 ms')).toBeInTheDocument();
     expect(screen.getByText('-')).toBeInTheDocument();

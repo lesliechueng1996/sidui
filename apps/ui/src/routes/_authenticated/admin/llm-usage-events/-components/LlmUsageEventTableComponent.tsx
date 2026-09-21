@@ -13,7 +13,6 @@ import type { AdminLlmUsageEventListItem } from '@/lib/api/admin/admin-llm-usage
 import {
   formatDurationMs,
   formatEstimatedCost,
-  formatTokenSummary,
   llmUsageEventStatusBadgeClassName,
   llmUsageEventStatusLabel,
 } from '../-lib/llm-usage-events-helpers';
@@ -27,7 +26,7 @@ type LlmUsageEventTableComponentProps = {
 const emptyValue = (value: string | null) =>
   value === null ? <span className="text-muted-foreground">-</span> : value;
 
-const COLUMN_COUNT = 9;
+const COLUMN_COUNT = 10;
 
 export function LlmUsageEventTableComponent({
   items,
@@ -41,11 +40,12 @@ export function LlmUsageEventTableComponent({
         <TableHeader>
           <TableRow>
             <TableHead>时间</TableHead>
-            <TableHead>用户</TableHead>
+            <TableHead className="w-24">用户 ID</TableHead>
             <TableHead>功能</TableHead>
             <TableHead>供应商 / 模型</TableHead>
             <TableHead>状态</TableHead>
-            <TableHead>Token</TableHead>
+            <TableHead>Input Token</TableHead>
+            <TableHead>Output Token</TableHead>
             <TableHead>费用</TableHead>
             <TableHead>耗时</TableHead>
             <TableHead className="text-right">操作</TableHead>
@@ -65,7 +65,7 @@ export function LlmUsageEventTableComponent({
             items.map((event) => (
               <TableRow key={event.id}>
                 <TableCell>{event.createdAt}</TableCell>
-                <TableCell className="max-w-40 truncate font-mono text-xs">
+                <TableCell className="w-24 max-w-24 truncate font-mono text-xs">
                   {event.userId}
                 </TableCell>
                 <TableCell>{event.feature}</TableCell>
@@ -84,9 +84,8 @@ export function LlmUsageEventTableComponent({
                     {llmUsageEventStatusLabel(event.status)}
                   </Badge>
                 </TableCell>
-                <TableCell>
-                  {formatTokenSummary(event.inputTokens, event.outputTokens)}
-                </TableCell>
+                <TableCell>{event.inputTokens}</TableCell>
+                <TableCell>{event.outputTokens}</TableCell>
                 <TableCell>
                   {formatEstimatedCost(event.estimatedCost, event.currency)}
                 </TableCell>

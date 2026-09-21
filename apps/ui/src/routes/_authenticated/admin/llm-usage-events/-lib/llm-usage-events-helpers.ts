@@ -18,11 +18,6 @@ export const llmUsageEventStatusBadgeClassName = (
   return 'border-transparent bg-emerald-600 text-white';
 };
 
-export const formatTokenSummary = (
-  inputTokens: number,
-  outputTokens: number,
-): string => `入 ${inputTokens} / 出 ${outputTokens}`;
-
 export const formatEstimatedCost = (amount: string, currency: string): string =>
   `${amount} ${currency}`;
 
