@@ -10,6 +10,7 @@ import { gameServerRoute } from './interface/endpoint/game-server-route';
 import { idiomRoute } from './interface/endpoint/idiom-route';
 import { kungfuRoute } from './interface/endpoint/kungfu-route';
 import { llmModelPriceRoute } from './interface/endpoint/llm-model-price-route';
+import { llmUsageEventRoute } from './interface/endpoint/llm-usage-event-route';
 import { lyricSongRoute } from './interface/endpoint/lyric-song-route';
 import { raidRunRoute } from './interface/endpoint/raid-run-route';
 import { raidSignupRoute } from './interface/endpoint/raid-signup-route';
@@ -29,6 +30,7 @@ const server = app
   .use(idiomRoute)
   .use(kungfuRoute)
   .use(llmModelPriceRoute)
+  .use(llmUsageEventRoute)
   .use(lyricSongRoute)
   .use(raidRunRoute)
   .use(raidSignupRoute)

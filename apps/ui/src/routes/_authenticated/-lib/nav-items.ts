@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
+  ActivityIcon,
   BookOpenTextIcon,
   CalendarClockIcon,
   CastleIcon,
@@ -107,6 +108,12 @@ export const navItems: NavItem[] = [
     title: 'LLM 价格',
     icon: CircleDollarSignIcon,
     to: '/admin/llm-model-prices',
+    requiredRole: ROLE_ADMIN,
+  },
+  {
+    title: 'LLM 用量',
+    icon: ActivityIcon,
+    to: '/admin/llm-usage-events',
     requiredRole: ROLE_ADMIN,
   },
   {

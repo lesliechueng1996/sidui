@@ -1,12 +1,12 @@
 import type { TokenUsage } from '@api/domain/service/billing-service';
 import type { PriceService } from '@api/domain/service/price-service';
-import type { LlmUsageEventRepository } from '@api/infrastructure/repository/llm-usage-event-repository';
+import type { LlmUsageEventWriter } from '@api/infrastructure/repository/llm-usage-event-repository';
 import type { LanguageModelUsage } from 'ai';
 import { BaseBilling } from '../../billing/base-billing';
 
 export abstract class AiBilling extends BaseBilling<LanguageModelUsage> {
   constructor(
-    llmUsageEventRepository: LlmUsageEventRepository,
+    llmUsageEventRepository: LlmUsageEventWriter,
     priceService: PriceService,
     provider: string,
   ) {

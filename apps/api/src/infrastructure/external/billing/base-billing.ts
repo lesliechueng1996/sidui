@@ -7,14 +7,14 @@ import type {
   LlmPriceSnapshot,
   PriceService,
 } from '@api/domain/service/price-service';
-import type { LlmUsageEventRepository } from '@api/infrastructure/repository/llm-usage-event-repository';
+import type { LlmUsageEventWriter } from '@api/infrastructure/repository/llm-usage-event-repository';
 import type { BigNumber } from 'bignumber.js';
 
 export abstract class BaseBilling<UsageRaw>
   implements BillingService<UsageRaw>
 {
   constructor(
-    private readonly llmUsageEventRepository: LlmUsageEventRepository,
+    private readonly llmUsageEventRepository: LlmUsageEventWriter,
     private readonly priceService: PriceService,
     public readonly provider: string,
   ) {}
