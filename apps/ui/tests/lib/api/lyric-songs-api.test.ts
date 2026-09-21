@@ -10,6 +10,7 @@ const {
   detailDelete,
   linesPut,
   timingsPatch,
+  baseInfoPost,
 } = vi.hoisted(() => ({
   listGet: vi.fn(),
   createPost: vi.fn(),
@@ -20,6 +21,7 @@ const {
   detailDelete: vi.fn(),
   linesPut: vi.fn(),
   timingsPatch: vi.fn(),
+  baseInfoPost: vi.fn(),
 }));
 
 vi.mock('@/lib/api-client', () => ({
@@ -43,6 +45,9 @@ vi.mock('@/lib/api-client', () => ({
             post: createPost,
             export: { get: exportGet },
             import: { post: importPost },
+            ai: {
+              'base-info': { post: baseInfoPost },
+            },
           },
         ),
       },
@@ -61,6 +66,7 @@ describe('lyric-songs-api', () => {
     detailDelete.mockReset();
     linesPut.mockReset();
     timingsPatch.mockReset();
+    baseInfoPost.mockReset();
   });
 
   it('unwraps list, create, detail, and export envelopes', async () => {
@@ -114,6 +120,24 @@ describe('lyric-songs-api', () => {
     await expect(
       api.importLyricSongsFromJsonFile(new File(['{}'], 'a.json')),
     ).resolves.toEqual({ created: 1, skipped: 0, failed: 0 });
+
+    baseInfoPost.mockResolvedValue({
+      data: {
+        data: {
+          title: '歌',
+          meaning: '中文',
+          artist: '歌手',
+          durationSeconds: 180,
+        },
+      },
+      error: null,
+    });
+    await expect(api.getLyricSongBaseInfoFromAi('歌')).resolves.toEqual({
+      title: '歌',
+      meaning: '中文',
+      artist: '歌手',
+      durationSeconds: 180,
+    });
   });
 
   it('throws fallbacks when the API omits a message', async () => {
@@ -127,6 +151,7 @@ describe('lyric-songs-api', () => {
     timingsPatch.mockResolvedValue(failure);
     exportGet.mockResolvedValue(failure);
     importPost.mockResolvedValue(failure);
+    baseInfoPost.mockResolvedValue(failure);
 
     const api = await import('@/lib/api/lyric-songs-api');
     await expect(api.listLyricSongs()).rejects.toThrow('获取歌曲列表失败');
@@ -148,5 +173,8 @@ describe('lyric-songs-api', () => {
     await expect(
       api.importLyricSongsFromJsonFile(new File([''], 'a.json')),
     ).rejects.toThrow('导入歌曲失败');
+    await expect(api.getLyricSongBaseInfoFromAi('歌')).rejects.toThrow(
+      '获取歌曲资料失败',
+    );
   });
 });

@@ -10,7 +10,11 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { CreateLyricSongValues } from '@/lib/api/lyric-songs-api';
+import { Spinner } from '@/components/ui/spinner';
+import type {
+  CreateLyricSongValues,
+  LyricSongAiBaseInfo,
+} from '@/lib/api/lyric-songs-api';
 import {
   isLyricDurationValid,
   lyricDurationPartsFromSeconds,
@@ -27,8 +31,34 @@ type LyricSongInfoDialogComponentProps = {
     artist: string | null;
     durationSeconds: number | null;
   } | null;
+  lookupPending?: boolean;
+  onLookup?: (title: string) => Promise<LyricSongAiBaseInfo>;
   onOpenChange: (open: boolean) => void;
   onSubmit: (values: CreateLyricSongValues) => void;
+};
+
+const applyLookupResult = (
+  result: LyricSongAiBaseInfo,
+  setters: {
+    setTitle: (value: string) => void;
+    setMeaning: (value: string) => void;
+    setArtist: (value: string) => void;
+    setMinutes: (value: string) => void;
+    setSeconds: (value: string) => void;
+  },
+) => {
+  setters.setTitle(result.title);
+  if (result.meaning) {
+    setters.setMeaning(result.meaning);
+  }
+  if (result.artist) {
+    setters.setArtist(result.artist);
+  }
+  if (result.durationSeconds !== null) {
+    const parts = lyricDurationPartsFromSeconds(result.durationSeconds);
+    setters.setMinutes(parts.minutes);
+    setters.setSeconds(parts.seconds);
+  }
 };
 
 export function LyricSongInfoDialogComponent({
@@ -36,6 +66,8 @@ export function LyricSongInfoDialogComponent({
   pending,
   mode,
   initial,
+  lookupPending = false,
+  onLookup,
   onOpenChange,
   onSubmit,
 }: LyricSongInfoDialogComponentProps) {
@@ -71,6 +103,28 @@ export function LyricSongInfoDialogComponent({
     title.trim().length > 0 &&
     meaning.trim().length > 0 &&
     isLyricDurationValid(durationSeconds);
+  const busy = pending || lookupPending;
+  const canLookup = Boolean(onLookup) && title.trim().length > 0 && !busy;
+
+  const handleLookup = async () => {
+    const trimmedTitle = title.trim();
+    if (!onLookup || trimmedTitle.length === 0) {
+      return;
+    }
+
+    try {
+      const result = await onLookup(trimmedTitle);
+      applyLookupResult(result, {
+        setTitle,
+        setMeaning,
+        setArtist,
+        setMinutes,
+        setSeconds,
+      });
+    } catch {
+      return;
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -88,12 +142,29 @@ export function LyricSongInfoDialogComponent({
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="lyric-song-title">歌曲名</Label>
-            <Input
-              id="lyric-song-title"
-              value={title}
-              placeholder="日文歌名"
-              onChange={(event) => setTitle(event.target.value)}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="lyric-song-title"
+                className="flex-1"
+                value={title}
+                placeholder="日文歌名"
+                onChange={(event) => setTitle(event.target.value)}
+              />
+              {onLookup ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  aria-label="AI 填写"
+                  disabled={!canLookup}
+                  onClick={() => {
+                    void handleLookup();
+                  }}
+                >
+                  {lookupPending ? <Spinner data-icon="inline-start" /> : null}
+                  AI 填写
+                </Button>
+              ) : null}
+            </div>
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="lyric-song-meaning">中文歌名</Label>
@@ -150,7 +221,7 @@ export function LyricSongInfoDialogComponent({
           </Button>
           <Button
             type="button"
-            disabled={pending || !canSubmit}
+            disabled={busy || !canSubmit}
             onClick={() => {
               if (!isLyricDurationValid(durationSeconds)) {
                 return;

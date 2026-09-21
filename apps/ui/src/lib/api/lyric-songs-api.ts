@@ -154,3 +154,19 @@ export const importLyricSongsFromJsonFile = async (file: File) => {
 
   return data.data;
 };
+
+export const getLyricSongBaseInfoFromAi = async (title: string) => {
+  const { data, error } = await apiClient.api.v1['lyric-songs'].ai[
+    'base-info'
+  ].post({ title });
+
+  if (error) {
+    throw new Error(error.value.message ?? '获取歌曲资料失败');
+  }
+
+  return data.data;
+};
+
+export type LyricSongAiBaseInfo = Awaited<
+  ReturnType<typeof getLyricSongBaseInfoFromAi>
+>;

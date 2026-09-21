@@ -10,4 +10,6 @@ export const env = {
     process.env.S3_PUBLIC_BASE_URL ??
     'http://avatars.web.garage.localhost:3902',
   MOONSHOT_API_KEY: process.env.MOONSHOT_API_KEY ?? '',
+  MOONSHOT_BASE_URL:
+    process.env.MOONSHOT_BASE_URL ?? 'https://api.moonshot.cn/v1',
 };

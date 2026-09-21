@@ -10,6 +10,7 @@ import {
   createLyricSong,
   deleteLyricSong,
   exportLyricSongs,
+  getLyricSongBaseInfoFromAi,
   importLyricSongsFromJsonFile,
   type LyricSongListItem,
   listLyricSongs,
@@ -68,6 +69,11 @@ function LyricSongsComponent() {
       toast.add({ type: 'success', title: '已导出歌曲' });
     },
     onError: (error) => handleApiError(error, '导出歌曲失败'),
+  });
+
+  const lookupBaseInfoMutation = useMutation({
+    mutationFn: getLyricSongBaseInfoFromAi,
+    onError: (error) => handleApiError(error, '获取歌曲资料失败'),
   });
 
   const importMutation = useMutation({
@@ -149,6 +155,8 @@ function LyricSongsComponent() {
         open={creating}
         pending={createMutation.isPending}
         mode="create"
+        lookupPending={lookupBaseInfoMutation.isPending}
+        onLookup={(title) => lookupBaseInfoMutation.mutateAsync(title)}
         onOpenChange={setCreating}
         onSubmit={(values: CreateLyricSongValues) =>
           createMutation.mutate(values)

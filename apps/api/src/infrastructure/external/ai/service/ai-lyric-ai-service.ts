@@ -43,7 +43,6 @@ export class AiLyricAiService implements LyricAiService {
         }),
         system: lyricBaseInfoSystemPrompt,
         prompt: title,
-        temperature: 0.2,
         timeout: BASE_INFO_TIMEOUT_MS,
         providerOptions: {
           moonshotai: {

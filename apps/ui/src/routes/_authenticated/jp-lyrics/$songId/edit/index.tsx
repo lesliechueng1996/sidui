@@ -8,6 +8,7 @@ import { toast } from '@/components/ui/toast';
 import {
   type CreateLyricSongValues,
   getLyricSong,
+  getLyricSongBaseInfoFromAi,
   lyricSongDetailQueryKey,
   lyricSongsQueryKey,
   replaceLyricLines,
@@ -62,6 +63,11 @@ function LyricSongEditComponent() {
   }, [detailQuery.data]);
 
   const canSave = useMemo(() => areDraftLinesValid(lines), [lines]);
+
+  const lookupBaseInfoMutation = useMutation({
+    mutationFn: getLyricSongBaseInfoFromAi,
+    onError: (error) => handleApiError(error, '获取歌曲资料失败'),
+  });
 
   const infoMutation = useMutation({
     mutationFn: (values: CreateLyricSongValues) =>
@@ -245,6 +251,8 @@ function LyricSongEditComponent() {
         open={editingInfo}
         pending={infoMutation.isPending}
         mode="edit"
+        lookupPending={lookupBaseInfoMutation.isPending}
+        onLookup={(title) => lookupBaseInfoMutation.mutateAsync(title)}
         initial={
           detailQuery.data
             ? {

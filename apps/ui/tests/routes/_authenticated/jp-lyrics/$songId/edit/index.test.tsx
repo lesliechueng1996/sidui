@@ -6,10 +6,16 @@ import { authClient } from '@/lib/auth-client';
 import { renderApp } from '../../../../../helpers/render';
 import { userSession } from '../../../../../helpers/session';
 
-const { getLyricSong, replaceLyricLines, updateLyricSong } = vi.hoisted(() => ({
+const {
+  getLyricSong,
+  replaceLyricLines,
+  updateLyricSong,
+  getLyricSongBaseInfoFromAi,
+} = vi.hoisted(() => ({
   getLyricSong: vi.fn(),
   replaceLyricLines: vi.fn(),
   updateLyricSong: vi.fn(),
+  getLyricSongBaseInfoFromAi: vi.fn(),
 }));
 
 vi.mock('@/lib/api/lyric-songs-api', () => ({
@@ -18,6 +24,7 @@ vi.mock('@/lib/api/lyric-songs-api', () => ({
   getLyricSong,
   replaceLyricLines,
   updateLyricSong,
+  getLyricSongBaseInfoFromAi,
 }));
 
 const songId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
@@ -60,9 +67,16 @@ describe('jp-lyrics edit route', () => {
     getLyricSong.mockReset();
     replaceLyricLines.mockReset();
     updateLyricSong.mockReset();
+    getLyricSongBaseInfoFromAi.mockReset();
     getLyricSong.mockResolvedValue(detail);
     replaceLyricLines.mockResolvedValue(detail);
     updateLyricSong.mockResolvedValue(detail);
+    getLyricSongBaseInfoFromAi.mockResolvedValue({
+      title: '君の名は',
+      meaning: '你的名字',
+      artist: 'RADWIMPS',
+      durationSeconds: 205,
+    });
   });
 
   it('blocks save on a mismatch and saves reordered valid lines', async () => {
@@ -144,6 +158,38 @@ describe('jp-lyrics edit route', () => {
           meaning: '你的名字改',
           durationSeconds: 205,
         }),
+      ),
+    );
+  });
+
+  it('fills song info from AI lookup', async () => {
+    const user = userEvent.setup();
+    await renderApp(`/jp-lyrics/${songId}/edit`);
+    expect(await screen.findByDisplayValue('君の')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '编辑信息' }));
+    const dialog = await screen.findByRole('dialog', { name: '编辑歌曲信息' });
+    await user.click(within(dialog).getByRole('button', { name: 'AI 填写' }));
+    await waitFor(() =>
+      expect(getLyricSongBaseInfoFromAi).toHaveBeenCalledWith(
+        '君の名は',
+        expect.anything(),
+      ),
+    );
+    expect(within(dialog).getByLabelText('歌手')).toHaveValue('RADWIMPS');
+  });
+
+  it('toasts when AI lookup fails from the info dialog', async () => {
+    getLyricSongBaseInfoFromAi.mockRejectedValue(new Error('查询失败'));
+    const user = userEvent.setup();
+    await renderApp(`/jp-lyrics/${songId}/edit`);
+    expect(await screen.findByDisplayValue('君の')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '编辑信息' }));
+    const dialog = await screen.findByRole('dialog', { name: '编辑歌曲信息' });
+    await user.click(within(dialog).getByRole('button', { name: 'AI 填写' }));
+    await waitFor(() =>
+      expect(toast.add).toHaveBeenCalledWith(
+        expect.objectContaining({ description: '查询失败' }),
       ),
     );
   });

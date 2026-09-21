@@ -13,6 +13,7 @@ const {
   exportLyricSongs,
   importLyricSongsFromJsonFile,
   getLyricSong,
+  getLyricSongBaseInfoFromAi,
 } = vi.hoisted(() => ({
   listLyricSongs: vi.fn(),
   createLyricSong: vi.fn(),
@@ -20,6 +21,7 @@ const {
   exportLyricSongs: vi.fn(),
   importLyricSongsFromJsonFile: vi.fn(),
   getLyricSong: vi.fn(),
+  getLyricSongBaseInfoFromAi: vi.fn(),
 }));
 
 vi.mock('@/lib/api/lyric-songs-api', () => ({
@@ -31,6 +33,7 @@ vi.mock('@/lib/api/lyric-songs-api', () => ({
   exportLyricSongs,
   importLyricSongsFromJsonFile,
   getLyricSong,
+  getLyricSongBaseInfoFromAi,
   updateLyricLineTimings: vi.fn(),
   replaceLyricLines: vi.fn(),
 }));
@@ -63,10 +66,17 @@ describe('jp-lyrics list route', () => {
     exportLyricSongs.mockReset();
     importLyricSongsFromJsonFile.mockReset();
     getLyricSong.mockReset();
+    getLyricSongBaseInfoFromAi.mockReset();
     downloadJsonFile.mockReset();
     listLyricSongs.mockResolvedValue([song]);
     createLyricSong.mockResolvedValue({ ...song, lines: [] });
     getLyricSong.mockResolvedValue({ ...song, lines: [] });
+    getLyricSongBaseInfoFromAi.mockResolvedValue({
+      title: 'スパークル',
+      meaning: '火花',
+      artist: 'RADWIMPS',
+      durationSeconds: 45,
+    });
     deleteLyricSong.mockResolvedValue(undefined);
     exportLyricSongs.mockResolvedValue({ version: 1, songs: [] });
     importLyricSongsFromJsonFile.mockResolvedValue({
@@ -219,6 +229,66 @@ describe('jp-lyrics list route', () => {
     await waitFor(() =>
       expect(toast.add).toHaveBeenCalledWith(
         expect.objectContaining({ description: '删除失败' }),
+      ),
+    );
+  });
+
+  it('fills create form from AI lookup', async () => {
+    const user = userEvent.setup();
+    await renderApp('/jp-lyrics');
+    await user.click(await screen.findByRole('button', { name: '新建' }));
+    const createDialog = await screen.findByRole('dialog', {
+      name: '新建歌曲',
+    });
+    await user.type(
+      within(createDialog).getByLabelText('歌曲名'),
+      'スパークル',
+    );
+    await user.click(
+      within(createDialog).getByRole('button', { name: 'AI 填写' }),
+    );
+    await waitFor(() =>
+      expect(getLyricSongBaseInfoFromAi).toHaveBeenCalledWith(
+        'スパークル',
+        expect.anything(),
+      ),
+    );
+    expect(within(createDialog).getByLabelText('中文歌名')).toHaveValue('火花');
+    expect(within(createDialog).getByLabelText('歌手')).toHaveValue('RADWIMPS');
+    await user.click(
+      within(createDialog).getByRole('button', { name: '创建' }),
+    );
+    await waitFor(() =>
+      expect(createLyricSong).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'スパークル',
+          meaning: '火花',
+          artist: 'RADWIMPS',
+          durationSeconds: 45,
+        }),
+        expect.anything(),
+      ),
+    );
+  });
+
+  it('toasts AI lookup failures', async () => {
+    getLyricSongBaseInfoFromAi.mockRejectedValue(new Error('查询失败'));
+    const user = userEvent.setup();
+    await renderApp('/jp-lyrics');
+    await user.click(await screen.findByRole('button', { name: '新建' }));
+    const createDialog = await screen.findByRole('dialog', {
+      name: '新建歌曲',
+    });
+    await user.type(
+      within(createDialog).getByLabelText('歌曲名'),
+      'スパークル',
+    );
+    await user.click(
+      within(createDialog).getByRole('button', { name: 'AI 填写' }),
+    );
+    await waitFor(() =>
+      expect(toast.add).toHaveBeenCalledWith(
+        expect.objectContaining({ description: '查询失败' }),
       ),
     );
   });
