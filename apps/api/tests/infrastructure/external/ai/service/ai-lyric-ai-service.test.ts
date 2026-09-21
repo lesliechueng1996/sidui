@@ -99,6 +99,12 @@ describe('AiLyricAiService', () => {
           userId: 'user-1',
           feature: 'lyric-song-base-info',
         },
+        telemetry: {
+          includeRuntimeContext: {
+            userId: true,
+            feature: true,
+          },
+        },
       }),
     );
     expect(logger.info).toHaveBeenCalled();

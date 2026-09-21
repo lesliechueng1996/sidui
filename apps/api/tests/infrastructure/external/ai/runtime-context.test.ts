@@ -1,5 +1,19 @@
 import { describe, expect, it } from 'bun:test';
-import { parseAiRuntimeContext } from '@api/infrastructure/external/ai/runtime-context';
+import {
+  aiTelemetryOptions,
+  parseAiRuntimeContext,
+} from '@api/infrastructure/external/ai/runtime-context';
+
+describe('aiTelemetryOptions', () => {
+  it('opts billing fields into AI SDK telemetry', () => {
+    expect(aiTelemetryOptions).toEqual({
+      includeRuntimeContext: {
+        userId: true,
+        feature: true,
+      },
+    });
+  });
+});
 
 describe('parseAiRuntimeContext', () => {
   it('returns a context when userId and feature are non-empty', () => {

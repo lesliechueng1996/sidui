@@ -136,8 +136,22 @@ describe('BillingTelemetry', () => {
 
     expect(record).not.toHaveBeenCalled();
     expect(logger.warn).toHaveBeenCalledWith(
-      'Skipping LLM usage record, missing runtime context, {modelId}',
-      { modelId: 'kimi-k2.6' },
+      'Skipping LLM usage record, missing runtime context, {modelId}, {runtimeContext}',
+      { modelId: 'kimi-k2.6', runtimeContext: {} },
+    );
+  });
+
+  it('rounds fractional step durations to integer milliseconds', async () => {
+    await telemetry.onEnd(
+      makeEndEvent({
+        steps: [{ performance: { responseTimeMs: 2690.0515410000226 } }],
+      }),
+    );
+
+    expect(record).toHaveBeenCalledWith(
+      expect.objectContaining({
+        durationMs: 2690,
+      }),
     );
   });
 

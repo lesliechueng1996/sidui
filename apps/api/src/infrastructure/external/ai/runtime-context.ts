@@ -3,6 +3,17 @@ export type AiRuntimeContext = {
   feature: string;
 };
 
+/**
+ * AI SDK telemetry integrations receive a filtered `runtimeContext`.
+ * Properties are omitted unless they are opted in here.
+ */
+export const aiTelemetryOptions = {
+  includeRuntimeContext: {
+    userId: true,
+    feature: true,
+  } satisfies { [K in keyof AiRuntimeContext]: true },
+};
+
 const readNonEmptyString = (value: unknown): string | undefined => {
   if (typeof value !== 'string') {
     return undefined;

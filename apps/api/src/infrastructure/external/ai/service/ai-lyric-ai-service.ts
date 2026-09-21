@@ -7,7 +7,7 @@ import { generateText, Output } from 'ai';
 import { z } from 'zod';
 import { lyricBaseInfoSystemPrompt } from '../prompt/lyric-base-info-prompt';
 import { kimiModel } from '../provider/moonshot-ai';
-import type { AiRuntimeContext } from '../runtime-context';
+import { type AiRuntimeContext, aiTelemetryOptions } from '../runtime-context';
 
 const BASE_INFO_TIMEOUT_MS = 20_000;
 
@@ -55,6 +55,7 @@ export class AiLyricAiService implements LyricAiService {
           userId,
           feature: 'lyric-song-base-info',
         } satisfies AiRuntimeContext,
+        telemetry: aiTelemetryOptions,
       });
 
       lyricSong.meaning = output.meaning;

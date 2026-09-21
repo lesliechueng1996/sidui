@@ -56,7 +56,9 @@ const sumStepResponseTimeMs = (
   if (steps.length === 0) {
     return null;
   }
-  return steps.reduce((sum, step) => sum + step.performance.responseTimeMs, 0);
+  return Math.round(
+    steps.reduce((sum, step) => sum + step.performance.responseTimeMs, 0),
+  );
 };
 
 export class BillingTelemetry implements Telemetry {
@@ -101,8 +103,11 @@ export class BillingTelemetry implements Telemetry {
     );
     if (runtimeContext === null) {
       logger.warn(
-        'Skipping LLM usage record, missing runtime context, {modelId}',
-        { modelId: event.model.modelId },
+        'Skipping LLM usage record, missing runtime context, {modelId}, {runtimeContext}',
+        {
+          modelId: event.model.modelId,
+          runtimeContext: event.finalStep.runtimeContext,
+        },
       );
       return;
     }
