@@ -4,14 +4,14 @@ import type {
   LlmPriceUnit,
   PriceService,
 } from '@api/domain/service/price-service';
-import type { LlmModelPriceRepository } from '@api/infrastructure/repository/llm-model-price-repository';
+import type { LlmCurrentPriceReader } from '@api/infrastructure/repository/llm-model-price-repository';
 import type { BigNumber } from 'bignumber.js';
 
 export abstract class BasePrice implements PriceService {
   constructor(
     protected readonly provider: string,
     protected readonly modelId: string,
-    private readonly llmModelPriceRepository: LlmModelPriceRepository,
+    private readonly llmModelPriceRepository: LlmCurrentPriceReader,
   ) {}
 
   abstract calculate(

@@ -24,6 +24,7 @@ import { Route as AuthenticatedAdminGameItemsIndexRouteImport } from './routes/_
 import { Route as AuthenticatedAdminGameServersIndexRouteImport } from './routes/_authenticated/admin/game-servers/index'
 import { Route as AuthenticatedAdminIdiomsIndexRouteImport } from './routes/_authenticated/admin/idioms/index'
 import { Route as AuthenticatedAdminKungfusIndexRouteImport } from './routes/_authenticated/admin/kungfus/index'
+import { Route as AuthenticatedAdminLlmModelPricesIndexRouteImport } from './routes/_authenticated/admin/llm-model-prices/index'
 import { Route as AuthenticatedAdminRaidRunsIndexRouteImport } from './routes/_authenticated/admin/raid-runs/index'
 import { Route as AuthenticatedAdminRaidSignupsIndexRouteImport } from './routes/_authenticated/admin/raid-signups/index'
 import { Route as AuthenticatedAdminSchoolsIndexRouteImport } from './routes/_authenticated/admin/schools/index'
@@ -117,6 +118,12 @@ const AuthenticatedAdminKungfusIndexRoute =
     path: '/kungfus/',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminLlmModelPricesIndexRoute =
+  AuthenticatedAdminLlmModelPricesIndexRouteImport.update({
+    id: '/llm-model-prices/',
+    path: '/llm-model-prices/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminRaidRunsIndexRoute =
   AuthenticatedAdminRaidRunsIndexRouteImport.update({
     id: '/raid-runs/',
@@ -187,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/admin/game-servers/': typeof AuthenticatedAdminGameServersIndexRoute
   '/admin/idioms/': typeof AuthenticatedAdminIdiomsIndexRoute
   '/admin/kungfus/': typeof AuthenticatedAdminKungfusIndexRoute
+  '/admin/llm-model-prices/': typeof AuthenticatedAdminLlmModelPricesIndexRoute
   '/admin/raid-runs/': typeof AuthenticatedAdminRaidRunsIndexRoute
   '/admin/raid-signups/': typeof AuthenticatedAdminRaidSignupsIndexRoute
   '/admin/schools/': typeof AuthenticatedAdminSchoolsIndexRoute
@@ -212,6 +220,7 @@ export interface FileRoutesByTo {
   '/admin/game-servers': typeof AuthenticatedAdminGameServersIndexRoute
   '/admin/idioms': typeof AuthenticatedAdminIdiomsIndexRoute
   '/admin/kungfus': typeof AuthenticatedAdminKungfusIndexRoute
+  '/admin/llm-model-prices': typeof AuthenticatedAdminLlmModelPricesIndexRoute
   '/admin/raid-runs': typeof AuthenticatedAdminRaidRunsIndexRoute
   '/admin/raid-signups': typeof AuthenticatedAdminRaidSignupsIndexRoute
   '/admin/schools': typeof AuthenticatedAdminSchoolsIndexRoute
@@ -239,6 +248,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/game-servers/': typeof AuthenticatedAdminGameServersIndexRoute
   '/_authenticated/admin/idioms/': typeof AuthenticatedAdminIdiomsIndexRoute
   '/_authenticated/admin/kungfus/': typeof AuthenticatedAdminKungfusIndexRoute
+  '/_authenticated/admin/llm-model-prices/': typeof AuthenticatedAdminLlmModelPricesIndexRoute
   '/_authenticated/admin/raid-runs/': typeof AuthenticatedAdminRaidRunsIndexRoute
   '/_authenticated/admin/raid-signups/': typeof AuthenticatedAdminRaidSignupsIndexRoute
   '/_authenticated/admin/schools/': typeof AuthenticatedAdminSchoolsIndexRoute
@@ -266,6 +276,7 @@ export interface FileRouteTypes {
     | '/admin/game-servers/'
     | '/admin/idioms/'
     | '/admin/kungfus/'
+    | '/admin/llm-model-prices/'
     | '/admin/raid-runs/'
     | '/admin/raid-signups/'
     | '/admin/schools/'
@@ -291,6 +302,7 @@ export interface FileRouteTypes {
     | '/admin/game-servers'
     | '/admin/idioms'
     | '/admin/kungfus'
+    | '/admin/llm-model-prices'
     | '/admin/raid-runs'
     | '/admin/raid-signups'
     | '/admin/schools'
@@ -317,6 +329,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/game-servers/'
     | '/_authenticated/admin/idioms/'
     | '/_authenticated/admin/kungfus/'
+    | '/_authenticated/admin/llm-model-prices/'
     | '/_authenticated/admin/raid-runs/'
     | '/_authenticated/admin/raid-signups/'
     | '/_authenticated/admin/schools/'
@@ -441,6 +454,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminKungfusIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/llm-model-prices/': {
+      id: '/_authenticated/admin/llm-model-prices/'
+      path: '/llm-model-prices'
+      fullPath: '/admin/llm-model-prices/'
+      preLoaderRoute: typeof AuthenticatedAdminLlmModelPricesIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/admin/raid-runs/': {
       id: '/_authenticated/admin/raid-runs/'
       path: '/raid-runs'
@@ -515,6 +535,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminGameServersIndexRoute: typeof AuthenticatedAdminGameServersIndexRoute
   AuthenticatedAdminIdiomsIndexRoute: typeof AuthenticatedAdminIdiomsIndexRoute
   AuthenticatedAdminKungfusIndexRoute: typeof AuthenticatedAdminKungfusIndexRoute
+  AuthenticatedAdminLlmModelPricesIndexRoute: typeof AuthenticatedAdminLlmModelPricesIndexRoute
   AuthenticatedAdminRaidRunsIndexRoute: typeof AuthenticatedAdminRaidRunsIndexRoute
   AuthenticatedAdminRaidSignupsIndexRoute: typeof AuthenticatedAdminRaidSignupsIndexRoute
   AuthenticatedAdminSchoolsIndexRoute: typeof AuthenticatedAdminSchoolsIndexRoute
@@ -535,6 +556,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
       AuthenticatedAdminGameServersIndexRoute,
     AuthenticatedAdminIdiomsIndexRoute: AuthenticatedAdminIdiomsIndexRoute,
     AuthenticatedAdminKungfusIndexRoute: AuthenticatedAdminKungfusIndexRoute,
+    AuthenticatedAdminLlmModelPricesIndexRoute:
+      AuthenticatedAdminLlmModelPricesIndexRoute,
     AuthenticatedAdminRaidRunsIndexRoute: AuthenticatedAdminRaidRunsIndexRoute,
     AuthenticatedAdminRaidSignupsIndexRoute:
       AuthenticatedAdminRaidSignupsIndexRoute,

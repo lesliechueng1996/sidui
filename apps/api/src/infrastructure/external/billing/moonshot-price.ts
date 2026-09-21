@@ -4,7 +4,7 @@ import {
   llmPriceUnit,
 } from '@api/domain/service/price-service';
 import { logger } from '@api/infrastructure/logger';
-import type { LlmModelPriceRepository } from '@api/infrastructure/repository/llm-model-price-repository';
+import type { LlmCurrentPriceReader } from '@api/infrastructure/repository/llm-model-price-repository';
 import { BigNumber } from 'bignumber.js';
 import { moonshotProvider } from '../ai/provider/moonshot-ai';
 import { BasePrice } from './base-price';
@@ -16,10 +16,7 @@ export const moonshotPriceDimension = {
 } as const;
 
 export class MoonshotPrice extends BasePrice {
-  constructor(
-    modelId: string,
-    llmModelPriceRepository: LlmModelPriceRepository,
-  ) {
+  constructor(modelId: string, llmModelPriceRepository: LlmCurrentPriceReader) {
     super(moonshotProvider, modelId, llmModelPriceRepository);
   }
 

@@ -88,6 +88,7 @@ describe('nav-items', () => {
     expect(getActiveNavTitle('/jp-lyrics/song-1/edit')).toBe('歌曲');
     expect(getActiveNavTitle('/admin/idioms')).toBe('成语管理');
     expect(getActiveNavTitle('/admin/app-settings')).toBe('应用配置');
+    expect(getActiveNavTitle('/admin/llm-model-prices')).toBe('LLM 价格');
     expect(getActiveNavTitle('/admin/raid-runs')).toBe('开团管理');
     expect(getActiveNavTitle('/admin/raid-signups')).toBe('报名管理');
     expect(getActiveNavTitle('/login')).toBeUndefined();

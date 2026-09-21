@@ -8,6 +8,13 @@ export const llmPriceUnit = {
 
 export type LlmPriceUnit = (typeof llmPriceUnit)[keyof typeof llmPriceUnit];
 
+export const llmPriceSource = {
+  MANUAL: 'manual',
+} as const;
+
+export type LlmPriceSource =
+  (typeof llmPriceSource)[keyof typeof llmPriceSource];
+
 export type LlmPriceSnapshotItem = {
   id: string;
   dimension: string;

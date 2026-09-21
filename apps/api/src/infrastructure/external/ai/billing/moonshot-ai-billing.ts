@@ -1,4 +1,4 @@
-import type { LlmModelPriceRepository } from '@api/infrastructure/repository/llm-model-price-repository';
+import type { LlmCurrentPriceReader } from '@api/infrastructure/repository/llm-model-price-repository';
 import type { LlmUsageEventRepository } from '@api/infrastructure/repository/llm-usage-event-repository';
 import { MoonshotPrice } from '../../billing/moonshot-price';
 import { moonshotProvider } from '../provider/moonshot-ai';
@@ -8,7 +8,7 @@ export class MoonshotAiBilling extends AiBilling {
   constructor(
     modelId: string,
     llmUsageEventRepository: LlmUsageEventRepository,
-    llmModelPriceRepository: LlmModelPriceRepository,
+    llmModelPriceRepository: LlmCurrentPriceReader,
   ) {
     super(
       llmUsageEventRepository,

@@ -83,7 +83,7 @@ export const llmModelPrice = pgTable(
       })
       .notNull(),
     currency: t.text('currency').notNull().default('CNY'),
-    // Closed-set source: manual / openrouter / ... (validated in the application layer)
+    // Closed-set source: manual (validated in the application layer)
     source: t.text('source').notNull().default('manual'),
     effectiveFrom: t
       .timestamp('effective_from', {

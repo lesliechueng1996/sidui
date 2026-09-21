@@ -3,6 +3,7 @@ import {
   BookOpenTextIcon,
   CalendarClockIcon,
   CastleIcon,
+  CircleDollarSignIcon,
   ClipboardListIcon,
   FlameIcon,
   Gamepad2Icon,
@@ -100,6 +101,12 @@ export const navItems: NavItem[] = [
     title: '成语管理',
     icon: BookOpenTextIcon,
     to: '/admin/idioms',
+    requiredRole: ROLE_ADMIN,
+  },
+  {
+    title: 'LLM 价格',
+    icon: CircleDollarSignIcon,
+    to: '/admin/llm-model-prices',
     requiredRole: ROLE_ADMIN,
   },
   {

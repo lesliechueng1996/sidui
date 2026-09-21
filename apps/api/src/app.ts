@@ -10,6 +10,7 @@ import { gameSeasonTag } from './interface/endpoint/game-season-route';
 import { gameServerTag } from './interface/endpoint/game-server-route';
 import { idiomTag } from './interface/endpoint/idiom-route';
 import { kungfuTag } from './interface/endpoint/kungfu-route';
+import { llmModelPriceTag } from './interface/endpoint/llm-model-price-route';
 import { lyricSongTag } from './interface/endpoint/lyric-song-route';
 import { raidRunTag } from './interface/endpoint/raid-run-route';
 import { raidSignupTag } from './interface/endpoint/raid-signup-route';
@@ -42,6 +43,7 @@ export const app = new Elysia()
           gameServerTag,
           idiomTag,
           kungfuTag,
+          llmModelPriceTag,
           lyricSongTag,
           raidRunTag,
           raidSignupTag,
