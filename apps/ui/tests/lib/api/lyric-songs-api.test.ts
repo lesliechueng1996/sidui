@@ -11,6 +11,7 @@ const {
   linesPut,
   timingsPatch,
   baseInfoPost,
+  lyricsPost,
 } = vi.hoisted(() => ({
   listGet: vi.fn(),
   createPost: vi.fn(),
@@ -22,6 +23,7 @@ const {
   linesPut: vi.fn(),
   timingsPatch: vi.fn(),
   baseInfoPost: vi.fn(),
+  lyricsPost: vi.fn(),
 }));
 
 vi.mock('@/lib/api-client', () => ({
@@ -47,6 +49,7 @@ vi.mock('@/lib/api-client', () => ({
             import: { post: importPost },
             ai: {
               'base-info': { post: baseInfoPost },
+              lyrics: { post: lyricsPost },
             },
           },
         ),
@@ -67,6 +70,7 @@ describe('lyric-songs-api', () => {
     linesPut.mockReset();
     timingsPatch.mockReset();
     baseInfoPost.mockReset();
+    lyricsPost.mockReset();
   });
 
   it('unwraps list, create, detail, and export envelopes', async () => {
@@ -138,6 +142,21 @@ describe('lyric-songs-api', () => {
       artist: '歌手',
       durationSeconds: 180,
     });
+
+    lyricsPost.mockResolvedValue({
+      data: { data: { title: '歌', lyrics: '一行歌词' } },
+      error: null,
+    });
+    await expect(
+      api.getLyricSongLyricsFromAi({ title: '歌', artist: ' 歌手 ' }),
+    ).resolves.toEqual({
+      title: '歌',
+      lyrics: '一行歌词',
+    });
+    expect(lyricsPost).toHaveBeenCalledWith({ title: '歌', artist: '歌手' });
+
+    await api.getLyricSongLyricsFromAi({ title: '歌', artist: null });
+    expect(lyricsPost).toHaveBeenLastCalledWith({ title: '歌' });
   });
 
   it('throws fallbacks when the API omits a message', async () => {
@@ -152,6 +171,7 @@ describe('lyric-songs-api', () => {
     exportGet.mockResolvedValue(failure);
     importPost.mockResolvedValue(failure);
     baseInfoPost.mockResolvedValue(failure);
+    lyricsPost.mockResolvedValue(failure);
 
     const api = await import('@/lib/api/lyric-songs-api');
     await expect(api.listLyricSongs()).rejects.toThrow('获取歌曲列表失败');
@@ -175,6 +195,9 @@ describe('lyric-songs-api', () => {
     ).rejects.toThrow('导入歌曲失败');
     await expect(api.getLyricSongBaseInfoFromAi('歌')).rejects.toThrow(
       '获取歌曲资料失败',
+    );
+    await expect(api.getLyricSongLyricsFromAi({ title: '歌' })).rejects.toThrow(
+      '获取歌词失败',
     );
   });
 });

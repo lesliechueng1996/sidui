@@ -77,6 +77,10 @@ const getLyricSongBaseInfoFromAi = mock(async () => ({
   artist: songDetail.artist,
   durationSeconds: songDetail.durationSeconds,
 }));
+const getLyricSongLyricsFromAi = mock(async () => ({
+  title: songDetail.title,
+  lyrics: '君の名前を呼ぶ',
+}));
 
 mock.module('@api/application/service/lyric-song-service', () => ({
   listLyricSongs,
@@ -92,6 +96,7 @@ mock.module('@api/application/service/lyric-song-service', () => ({
 
 mock.module('@api/application/service/lyric-ai-service', () => ({
   getLyricSongBaseInfoFromAi,
+  getLyricSongLyricsFromAi,
 }));
 
 mock.module('@api/shared/util/auth', () => ({
@@ -134,6 +139,7 @@ describe('lyricSongRoute', () => {
     exportLyricSongs.mockReset();
     importLyricSongsFromJsonFile.mockReset();
     getLyricSongBaseInfoFromAi.mockReset();
+    getLyricSongLyricsFromAi.mockReset();
 
     listLyricSongs.mockResolvedValue([
       {
@@ -160,6 +166,10 @@ describe('lyricSongRoute', () => {
       meaning: songDetail.meaning,
       artist: songDetail.artist,
       durationSeconds: songDetail.durationSeconds,
+    });
+    getLyricSongLyricsFromAi.mockResolvedValue({
+      title: songDetail.title,
+      lyrics: '君の名前を呼ぶ',
     });
   });
 
@@ -295,6 +305,28 @@ describe('lyricSongRoute', () => {
       meaning: songDetail.meaning,
       artist: songDetail.artist,
       durationSeconds: songDetail.durationSeconds,
+    });
+  });
+
+  it('looks up song lyrics from AI', async () => {
+    const response = await jsonRequest('/ai/lyrics', {
+      method: 'POST',
+      body: JSON.stringify({
+        title: songDetail.title,
+        artist: songDetail.artist,
+      }),
+    });
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(getLyricSongLyricsFromAi).toHaveBeenCalledWith(
+      songDetail.title,
+      'actor-1',
+      songDetail.artist,
+    );
+    expect(body.data).toEqual({
+      title: songDetail.title,
+      lyrics: '君の名前を呼ぶ',
     });
   });
 });

@@ -242,3 +242,28 @@ export const lyricSongAiBaseInfoResponseSchema = t.Object({
 export type LyricSongAiBaseInfoResponse = Static<
   typeof lyricSongAiBaseInfoResponseSchema
 >;
+
+export const lyricSongAiLyricsBodySchema = t.Object({
+  title: t.String({
+    minLength: 1,
+    maxLength: 200,
+    error: () => '歌曲名长度须为1-200个字符',
+  }),
+  artist: t.Optional(
+    t.Nullable(
+      t.String({
+        maxLength: 200,
+        error: () => '歌手最多 200 个字符',
+      }),
+    ),
+  ),
+});
+
+export const lyricSongAiLyricsResponseSchema = t.Object({
+  title: t.String(),
+  lyrics: t.Nullable(t.String()),
+});
+
+export type LyricSongAiLyricsResponse = Static<
+  typeof lyricSongAiLyricsResponseSchema
+>;

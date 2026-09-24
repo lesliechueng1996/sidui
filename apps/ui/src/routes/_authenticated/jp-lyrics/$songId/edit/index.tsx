@@ -9,6 +9,7 @@ import {
   type CreateLyricSongValues,
   getLyricSong,
   getLyricSongBaseInfoFromAi,
+  getLyricSongLyricsFromAi,
   lyricSongDetailQueryKey,
   lyricSongsQueryKey,
   replaceLyricLines,
@@ -67,6 +68,14 @@ function LyricSongEditComponent() {
   const lookupBaseInfoMutation = useMutation({
     mutationFn: getLyricSongBaseInfoFromAi,
     onError: (error) => handleApiError(error, '获取歌曲资料失败'),
+  });
+
+  const lookupLyricsMutation = useMutation({
+    mutationFn: getLyricSongLyricsFromAi,
+    onSuccess: (result) => {
+      setPasteText(result.lyrics ?? '');
+    },
+    onError: (error) => handleApiError(error, '获取歌词失败'),
   });
 
   const infoMutation = useMutation({
@@ -166,20 +175,40 @@ function LyricSongEditComponent() {
           placeholder="每行一句日语，假名和中文先留空"
           onChange={(event) => setPasteText(event.target.value)}
         />
-        <Button
-          type="button"
-          variant="outline"
-          disabled={pasteText.trim().length === 0}
-          onClick={() => {
-            setLines((current) => [
-              ...current,
-              ...bulkPasteJapanese(pasteText),
-            ]);
-            setPasteText('');
-          }}
-        >
-          插入这些行
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={
+              !detailQuery.data?.title || lookupLyricsMutation.isPending
+            }
+            onClick={() => {
+              if (!detailQuery.data?.title) {
+                return;
+              }
+              lookupLyricsMutation.mutate({
+                title: detailQuery.data.title,
+                artist: detailQuery.data.artist,
+              });
+            }}
+          >
+            生成歌词
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={pasteText.trim().length === 0}
+            onClick={() => {
+              setLines((current) => [
+                ...current,
+                ...bulkPasteJapanese(pasteText),
+              ]);
+              setPasteText('');
+            }}
+          >
+            插入这些行
+          </Button>
+        </div>
       </div>
       <div className="space-y-4">
         {lines.map((line, index) => (

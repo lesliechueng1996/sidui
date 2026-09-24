@@ -170,3 +170,20 @@ export const getLyricSongBaseInfoFromAi = async (title: string) => {
 export type LyricSongAiBaseInfo = Awaited<
   ReturnType<typeof getLyricSongBaseInfoFromAi>
 >;
+
+export const getLyricSongLyricsFromAi = async (input: {
+  title: string;
+  artist?: string | null;
+}) => {
+  const artist = input.artist?.trim();
+  const { data, error } = await apiClient.api.v1['lyric-songs'].ai.lyrics.post({
+    title: input.title,
+    ...(artist ? { artist } : {}),
+  });
+
+  if (error) {
+    throw new Error(error.value.message ?? '获取歌词失败');
+  }
+
+  return data.data;
+};

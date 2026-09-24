@@ -9,13 +9,15 @@ const env = {
   MOONSHOT_API_KEY: 'test-key',
 };
 
-const generateText = mock(async () => ({
-  output: {
-    meaning: '被爱的花和不被爱的花',
-    artist: '三田寛子',
-    durationSeconds: 248,
-  },
-}));
+const generateText = mock(
+  async (): Promise<{ output: Record<string, unknown> }> => ({
+    output: {
+      meaning: '被爱的花和不被爱的花',
+      artist: '三田寛子',
+      durationSeconds: 248,
+    },
+  }),
+);
 
 const outputObject = mock((options: unknown) => options);
 
@@ -31,7 +33,7 @@ mock.module('ai', () => ({
   },
 }));
 
-const { lyricBaseInfoSystemPrompt } = await import(
+const { lyricBaseInfoSystemPrompt, lyricSongLyricsSystemPrompt } = await import(
   '@api/infrastructure/external/ai/prompt/lyric-base-info-prompt'
 );
 const { AiLyricAiService } = await import(
@@ -107,6 +109,39 @@ describe('AiLyricAiService', () => {
     generateText.mockRejectedValueOnce(new Error('timeout'));
 
     await expect(service.getLyricSongBaseInfo('title')).rejects.toThrow(
+      'timeout',
+    );
+    expect(logger.error).toHaveBeenCalled();
+  });
+
+  it('returns lyrics from structured model output', async () => {
+    generateText.mockResolvedValueOnce({
+      output: { lyrics: '君の名前を呼ぶ' },
+    });
+
+    const result = await service.getLyricSongLyrics(
+      '愛される花 愛されぬ花',
+      '三田寛子',
+    );
+
+    expect(result).toBe('君の名前を呼ぶ');
+    expect(generateText).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: 'kimi-k2.6',
+        prompt: '标题：愛される花 愛されぬ花\n歌手：三田寛子',
+        system: lyricSongLyricsSystemPrompt,
+        runtimeContext: {
+          userId: 'user-1',
+          feature: 'lyric-song-lyrics',
+        },
+      }),
+    );
+  });
+
+  it('logs and rethrows lyric lookup failures', async () => {
+    generateText.mockRejectedValueOnce(new Error('timeout'));
+
+    await expect(service.getLyricSongLyrics('title')).rejects.toThrow(
       'timeout',
     );
     expect(logger.error).toHaveBeenCalled();

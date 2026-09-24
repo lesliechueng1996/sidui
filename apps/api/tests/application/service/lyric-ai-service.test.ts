@@ -14,6 +14,7 @@ const logger = {
 const constructedUserIds: string[] = [];
 
 const getLyricSongBaseInfo = mock(async (_title: string) => new LyricSong('t'));
+const getLyricSongLyrics = mock(async (_title: string, _artist?: string) => '');
 
 class AiLyricAiService {
   constructor(userId: string) {
@@ -21,6 +22,7 @@ class AiLyricAiService {
   }
 
   getLyricSongBaseInfo = getLyricSongBaseInfo;
+  getLyricSongLyrics = getLyricSongLyrics;
 }
 
 mock.module('@api/infrastructure/logger', () => ({ logger }));
@@ -31,7 +33,7 @@ mock.module(
   }),
 );
 
-const { getLyricSongBaseInfoFromAi } = await import(
+const { getLyricSongBaseInfoFromAi, getLyricSongLyricsFromAi } = await import(
   '@api/application/service/lyric-ai-service'
 );
 
@@ -49,8 +51,10 @@ describe('getLyricSongBaseInfoFromAi', () => {
   beforeEach(() => {
     constructedUserIds.length = 0;
     getLyricSongBaseInfo.mockReset();
+    getLyricSongLyrics.mockReset();
     logger.error.mockReset();
     getLyricSongBaseInfo.mockResolvedValue(makeSong());
+    getLyricSongLyrics.mockResolvedValue('君の名前を呼ぶ');
   });
 
   it('returns mapped base info for a known song', async () => {
@@ -135,6 +139,76 @@ describe('getLyricSongBaseInfoFromAi', () => {
       statusCode: 500,
       code: ERROR_CODES.LYRIC_AI_UNAVAILABLE,
       message: '获取歌曲资料失败',
+    });
+    expect(logger.error).toHaveBeenCalled();
+  });
+});
+
+describe('getLyricSongLyricsFromAi', () => {
+  const userId = 'user-1';
+
+  beforeEach(() => {
+    constructedUserIds.length = 0;
+    getLyricSongLyrics.mockReset();
+    logger.error.mockReset();
+    getLyricSongLyrics.mockResolvedValue('君の名前を呼ぶ');
+  });
+
+  it('returns lyrics for a known song', async () => {
+    const result = await getLyricSongLyricsFromAi(
+      '  愛される花 愛されぬ花  ',
+      userId,
+    );
+
+    expect(constructedUserIds).toEqual([userId]);
+    expect(getLyricSongLyrics).toHaveBeenCalledWith(
+      '愛される花 愛されぬ花',
+      undefined,
+    );
+    expect(result).toEqual({
+      title: '愛される花 愛されぬ花',
+      lyrics: '君の名前を呼ぶ',
+    });
+  });
+
+  it('passes a trimmed artist and drops a blank one', async () => {
+    await getLyricSongLyricsFromAi('  title  ', userId, '  三田寛子  ');
+    expect(getLyricSongLyrics).toHaveBeenCalledWith('title', '三田寛子');
+
+    getLyricSongLyrics.mockClear();
+    await getLyricSongLyricsFromAi('title', userId, '   ');
+    expect(getLyricSongLyrics).toHaveBeenCalledWith('title', undefined);
+  });
+
+  it('maps blank lyrics to null', async () => {
+    getLyricSongLyrics.mockResolvedValueOnce('  ');
+
+    await expect(
+      getLyricSongLyricsFromAi('title', userId),
+    ).resolves.toMatchObject({
+      lyrics: null,
+    });
+  });
+
+  it('rejects a blank title', async () => {
+    await expect(
+      getLyricSongLyricsFromAi('   ', userId),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(getLyricSongLyrics).not.toHaveBeenCalled();
+  });
+
+  it('wraps adapter failures', async () => {
+    getLyricSongLyrics.mockRejectedValue(new Error('network down'));
+
+    await expect(
+      getLyricSongLyricsFromAi('title', userId),
+    ).rejects.toBeInstanceOf(InternalServerErrorException);
+    await expect(
+      getLyricSongLyricsFromAi('title', userId),
+    ).rejects.toMatchObject({
+      statusCode: 500,
+      code: ERROR_CODES.LYRIC_AI_UNAVAILABLE,
+      message: '获取歌词失败',
     });
     expect(logger.error).toHaveBeenCalled();
   });

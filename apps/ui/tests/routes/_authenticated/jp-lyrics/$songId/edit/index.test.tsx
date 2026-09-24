@@ -11,11 +11,13 @@ const {
   replaceLyricLines,
   updateLyricSong,
   getLyricSongBaseInfoFromAi,
+  getLyricSongLyricsFromAi,
 } = vi.hoisted(() => ({
   getLyricSong: vi.fn(),
   replaceLyricLines: vi.fn(),
   updateLyricSong: vi.fn(),
   getLyricSongBaseInfoFromAi: vi.fn(),
+  getLyricSongLyricsFromAi: vi.fn(),
 }));
 
 vi.mock('@/lib/api/lyric-songs-api', () => ({
@@ -25,6 +27,7 @@ vi.mock('@/lib/api/lyric-songs-api', () => ({
   replaceLyricLines,
   updateLyricSong,
   getLyricSongBaseInfoFromAi,
+  getLyricSongLyricsFromAi,
 }));
 
 const songId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
@@ -68,6 +71,7 @@ describe('jp-lyrics edit route', () => {
     replaceLyricLines.mockReset();
     updateLyricSong.mockReset();
     getLyricSongBaseInfoFromAi.mockReset();
+    getLyricSongLyricsFromAi.mockReset();
     getLyricSong.mockResolvedValue(detail);
     replaceLyricLines.mockResolvedValue(detail);
     updateLyricSong.mockResolvedValue(detail);
@@ -76,6 +80,10 @@ describe('jp-lyrics edit route', () => {
       meaning: '你的名字',
       artist: 'RADWIMPS',
       durationSeconds: 205,
+    });
+    getLyricSongLyricsFromAi.mockResolvedValue({
+      title: '君の名は',
+      lyrics: '君の名前を呼ぶ',
     });
   });
 
@@ -177,6 +185,51 @@ describe('jp-lyrics edit route', () => {
       ),
     );
     expect(within(dialog).getByLabelText('歌手')).toHaveValue('RADWIMPS');
+  });
+
+  it('fills the paste box with AI lyrics', async () => {
+    getLyricSong.mockResolvedValue({ ...detail, artist: 'RADWIMPS' });
+    const user = userEvent.setup();
+    await renderApp(`/jp-lyrics/${songId}/edit`);
+    expect(await screen.findByDisplayValue('君の')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '生成歌词' }));
+
+    await waitFor(() =>
+      expect(getLyricSongLyricsFromAi).toHaveBeenCalledWith(
+        { title: '君の名は', artist: 'RADWIMPS' },
+        expect.anything(),
+      ),
+    );
+    expect(screen.getByLabelText('批量粘贴日语')).toHaveValue('君の名前を呼ぶ');
+  });
+
+  it('clears the paste box when AI lyrics are blank', async () => {
+    getLyricSongLyricsFromAi.mockResolvedValue({
+      title: '君の名は',
+      lyrics: null,
+    });
+    const user = userEvent.setup();
+    await renderApp(`/jp-lyrics/${songId}/edit`);
+    expect(await screen.findByDisplayValue('君の')).toBeInTheDocument();
+    await user.type(screen.getByLabelText('批量粘贴日语'), '旧内容');
+    await user.click(screen.getByRole('button', { name: '生成歌词' }));
+    await waitFor(() =>
+      expect(screen.getByLabelText('批量粘贴日语')).toHaveValue(''),
+    );
+  });
+
+  it('toasts when AI lyric lookup fails', async () => {
+    getLyricSongLyricsFromAi.mockRejectedValue(new Error('查询失败'));
+    const user = userEvent.setup();
+    await renderApp(`/jp-lyrics/${songId}/edit`);
+    expect(await screen.findByDisplayValue('君の')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '生成歌词' }));
+    await waitFor(() =>
+      expect(toast.add).toHaveBeenCalledWith(
+        expect.objectContaining({ description: '查询失败' }),
+      ),
+    );
   });
 
   it('toasts when AI lookup fails from the info dialog', async () => {

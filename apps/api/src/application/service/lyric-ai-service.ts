@@ -1,6 +1,9 @@
 import { AiLyricAiService } from '@api/infrastructure/external/ai/service/ai-lyric-ai-service';
 import { logger } from '@api/infrastructure/logger';
-import type { LyricSongAiBaseInfoResponse } from '@api/interface/schema/lyric-song-schema';
+import type {
+  LyricSongAiBaseInfoResponse,
+  LyricSongAiLyricsResponse,
+} from '@api/interface/schema/lyric-song-schema';
 import {
   BadRequestException,
   ERROR_CODES,
@@ -45,6 +48,43 @@ export const getLyricSongBaseInfoFromAi = async (
     });
     throw new InternalServerErrorException(
       '获取歌曲资料失败',
+      ERROR_CODES.LYRIC_AI_UNAVAILABLE,
+    );
+  }
+};
+
+const toOptionalArtist = (artist?: string | null): string | undefined => {
+  const trimmed = artist?.trim() ?? '';
+  return trimmed.length === 0 ? undefined : trimmed;
+};
+
+export const getLyricSongLyricsFromAi = async (
+  title: string,
+  userId: string,
+  artist?: string | null,
+): Promise<LyricSongAiLyricsResponse> => {
+  const trimmedTitle = title.trim();
+  if (trimmedTitle.length === 0) {
+    throw new BadRequestException('歌曲名不能为空');
+  }
+
+  try {
+    const aiLyricAiService = new AiLyricAiService(userId);
+    const lyrics = await aiLyricAiService.getLyricSongLyrics(
+      trimmedTitle,
+      toOptionalArtist(artist),
+    );
+    return {
+      title: trimmedTitle,
+      lyrics: toOptionalText(lyrics),
+    };
+  } catch (error) {
+    logger.error('Lookup lyric song lyrics failed, {title}, {error}', {
+      title: trimmedTitle,
+      error,
+    });
+    throw new InternalServerErrorException(
+      '获取歌词失败',
       ERROR_CODES.LYRIC_AI_UNAVAILABLE,
     );
   }

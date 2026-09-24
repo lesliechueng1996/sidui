@@ -1,4 +1,7 @@
-import { getLyricSongBaseInfoFromAi } from '@api/application/service/lyric-ai-service';
+import {
+  getLyricSongBaseInfoFromAi,
+  getLyricSongLyricsFromAi,
+} from '@api/application/service/lyric-ai-service';
 import {
   createLyricSong,
   deleteLyricSong,
@@ -24,6 +27,8 @@ import {
   listLyricSongsResponseSchema,
   lyricSongAiBaseInfoBodySchema,
   lyricSongAiBaseInfoResponseSchema,
+  lyricSongAiLyricsBodySchema,
+  lyricSongAiLyricsResponseSchema,
   lyricSongDetailSchema,
   lyricSongExportDocumentSchema,
   lyricSongIdParamsSchema,
@@ -135,29 +140,62 @@ export const lyricSongRoute = apiRoute.group('/lyric-songs', (app) =>
       },
     )
     .group('/ai', (app) =>
-      app.post(
-        '/base-info',
-        async ({ body, status, user }) => {
-          const result = await getLyricSongBaseInfoFromAi(body.title, user.id);
-          return status(200, AppResponse.success(result).toJson());
-        },
-        {
-          auth: roleUser,
-          body: lyricSongAiBaseInfoBodySchema,
-          response: {
-            200: createSuccessResponseSchema(lyricSongAiBaseInfoResponseSchema),
-            400: errorResponseSchema,
-            403: errorResponseSchema,
-            500: errorResponseSchema,
+      app
+        .post(
+          '/base-info',
+          async ({ body, status, user }) => {
+            const result = await getLyricSongBaseInfoFromAi(
+              body.title,
+              user.id,
+            );
+            return status(200, AppResponse.success(result).toJson());
           },
-          detail: {
-            tags: [lyricSongTag.name],
-            summary: 'Get base info of a song',
-            description:
-              'Gets base info of a lyric song from AI by title. Requires user role.',
+          {
+            auth: roleUser,
+            body: lyricSongAiBaseInfoBodySchema,
+            response: {
+              200: createSuccessResponseSchema(
+                lyricSongAiBaseInfoResponseSchema,
+              ),
+              400: errorResponseSchema,
+              403: errorResponseSchema,
+              500: errorResponseSchema,
+            },
+            detail: {
+              tags: [lyricSongTag.name],
+              summary: 'Get base info of a song',
+              description:
+                'Gets base info of a lyric song from AI by title. Requires user role.',
+            },
           },
-        },
-      ),
+        )
+        .post(
+          '/lyrics',
+          async ({ body, status, user }) => {
+            const result = await getLyricSongLyricsFromAi(
+              body.title,
+              user.id,
+              body.artist,
+            );
+            return status(200, AppResponse.success(result).toJson());
+          },
+          {
+            auth: roleUser,
+            body: lyricSongAiLyricsBodySchema,
+            response: {
+              200: createSuccessResponseSchema(lyricSongAiLyricsResponseSchema),
+              400: errorResponseSchema,
+              403: errorResponseSchema,
+              500: errorResponseSchema,
+            },
+            detail: {
+              tags: [lyricSongTag.name],
+              summary: 'Get lyrics of a song',
+              description:
+                'Gets lyrics of a lyric song from AI by title and optional artist. Requires user role.',
+            },
+          },
+        ),
     )
     .get(
       '/:id',
