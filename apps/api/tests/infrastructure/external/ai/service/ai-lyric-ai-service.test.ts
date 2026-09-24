@@ -34,12 +34,12 @@ mock.module('ai', () => ({
 const { lyricBaseInfoSystemPrompt } = await import(
   '@api/infrastructure/external/ai/prompt/lyric-base-info-prompt'
 );
-const { AiLyricAiService, aiLyricAiService } = await import(
+const { AiLyricAiService } = await import(
   '@api/infrastructure/external/ai/service/ai-lyric-ai-service'
 );
 
 describe('AiLyricAiService', () => {
-  const service = new AiLyricAiService();
+  const service = new AiLyricAiService('user-1');
 
   beforeEach(() => {
     env.MOONSHOT_API_KEY = 'test-key';
@@ -57,25 +57,18 @@ describe('AiLyricAiService', () => {
     });
   });
 
-  it('exports a singleton', () => {
-    expect(aiLyricAiService).toBeInstanceOf(AiLyricAiService);
-  });
-
   it('throws when the Moonshot API key is missing', async () => {
     env.MOONSHOT_API_KEY = '  ';
 
-    await expect(
-      service.getLyricSongBaseInfo('title', 'user-1'),
-    ).rejects.toThrow('Moonshot API key is not configured');
+    await expect(service.getLyricSongBaseInfo('title')).rejects.toThrow(
+      'Moonshot API key is not configured',
+    );
     expect(generateText).not.toHaveBeenCalled();
     expect(logger.error).toHaveBeenCalled();
   });
 
   it('fills a lyric song from structured model output', async () => {
-    const result = await service.getLyricSongBaseInfo(
-      '愛される花 愛されぬ花',
-      'user-1',
-    );
+    const result = await service.getLyricSongBaseInfo('愛される花 愛されぬ花');
 
     expect(result.title).toBe('愛される花 愛されぬ花');
     expect(result.meaning).toBe('被爱的花和不被爱的花');
@@ -113,9 +106,9 @@ describe('AiLyricAiService', () => {
   it('logs and rethrows generateText failures', async () => {
     generateText.mockRejectedValueOnce(new Error('timeout'));
 
-    await expect(
-      service.getLyricSongBaseInfo('title', 'user-1'),
-    ).rejects.toThrow('timeout');
+    await expect(service.getLyricSongBaseInfo('title')).rejects.toThrow(
+      'timeout',
+    );
     expect(logger.error).toHaveBeenCalled();
   });
 });

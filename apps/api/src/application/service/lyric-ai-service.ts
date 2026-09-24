@@ -1,4 +1,4 @@
-import { aiLyricAiService } from '@api/infrastructure/external/ai/service/ai-lyric-ai-service';
+import { AiLyricAiService } from '@api/infrastructure/external/ai/service/ai-lyric-ai-service';
 import { logger } from '@api/infrastructure/logger';
 import type { LyricSongAiBaseInfoResponse } from '@api/interface/schema/lyric-song-schema';
 import {
@@ -30,10 +30,8 @@ export const getLyricSongBaseInfoFromAi = async (
   }
 
   try {
-    const lyricSong = await aiLyricAiService.getLyricSongBaseInfo(
-      trimmedTitle,
-      userId,
-    );
+    const aiLyricAiService = new AiLyricAiService(userId);
+    const lyricSong = await aiLyricAiService.getLyricSongBaseInfo(trimmedTitle);
     return {
       title: lyricSong.title,
       meaning: toOptionalText(lyricSong.meaning),

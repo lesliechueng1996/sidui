@@ -22,12 +22,12 @@ const lyricSongBaseInfoSchema = z.object({
 });
 
 export class AiLyricAiService implements LyricAiService {
-  constructor(private readonly model: typeof kimiModel = kimiModel) {}
+  constructor(
+    private readonly userId: string,
+    private readonly model: typeof kimiModel = kimiModel,
+  ) {}
 
-  async getLyricSongBaseInfo(
-    title: string,
-    userId: string,
-  ): Promise<LyricSong> {
+  async getLyricSongBaseInfo(title: string): Promise<LyricSong> {
     if (env.MOONSHOT_API_KEY.trim() === '') {
       logger.error('Moonshot API key is not configured');
       throw new Error('Moonshot API key is not configured');
@@ -52,7 +52,7 @@ export class AiLyricAiService implements LyricAiService {
           } satisfies MoonshotAILanguageModelOptions,
         },
         runtimeContext: {
-          userId,
+          userId: this.userId,
           feature: 'lyric-song-base-info',
         } satisfies AiRuntimeContext,
         telemetry: aiTelemetryOptions,
@@ -72,6 +72,6 @@ export class AiLyricAiService implements LyricAiService {
     logger.info('Looked up lyric song base info for {title}', { title });
     return lyricSong;
   }
-}
 
-export const aiLyricAiService = new AiLyricAiService();
+  // async getLyricSongLyrics() {}
+}

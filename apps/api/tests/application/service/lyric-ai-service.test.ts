@@ -11,15 +11,23 @@ const logger = {
   error: mock((message: string) => message),
 };
 
-const getLyricSongBaseInfo = mock(
-  async (_title: string, _userId: string) => new LyricSong('t'),
-);
+const constructedUserIds: string[] = [];
+
+const getLyricSongBaseInfo = mock(async (_title: string) => new LyricSong('t'));
+
+class AiLyricAiService {
+  constructor(userId: string) {
+    constructedUserIds.push(userId);
+  }
+
+  getLyricSongBaseInfo = getLyricSongBaseInfo;
+}
 
 mock.module('@api/infrastructure/logger', () => ({ logger }));
 mock.module(
   '@api/infrastructure/external/ai/service/ai-lyric-ai-service',
   () => ({
-    aiLyricAiService: { getLyricSongBaseInfo },
+    AiLyricAiService,
   }),
 );
 
@@ -39,6 +47,7 @@ describe('getLyricSongBaseInfoFromAi', () => {
   const userId = 'user-1';
 
   beforeEach(() => {
+    constructedUserIds.length = 0;
     getLyricSongBaseInfo.mockReset();
     logger.error.mockReset();
     getLyricSongBaseInfo.mockResolvedValue(makeSong());
@@ -50,10 +59,8 @@ describe('getLyricSongBaseInfoFromAi', () => {
       userId,
     );
 
-    expect(getLyricSongBaseInfo).toHaveBeenCalledWith(
-      '愛される花 愛されぬ花',
-      userId,
-    );
+    expect(constructedUserIds).toEqual([userId]);
+    expect(getLyricSongBaseInfo).toHaveBeenCalledWith('愛される花 愛されぬ花');
     expect(result).toEqual({
       title: '愛される花 愛されぬ花',
       meaning: '被爱的花和不被爱的花',
