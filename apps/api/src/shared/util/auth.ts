@@ -2,7 +2,7 @@ import { env } from '@api/infrastructure/config/env';
 import { account, session, user, verification } from '@sidui/db';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { admin, openAPI } from 'better-auth/plugins';
+import { admin, bearer, openAPI } from 'better-auth/plugins';
 import { db } from './db';
 
 export const auth = betterAuth({
@@ -21,7 +21,7 @@ export const auth = betterAuth({
       strategy: 'jwt',
     },
   },
-  plugins: [openAPI(), admin()],
+  plugins: [openAPI(), admin(), bearer()],
 });
 
 let _schema: ReturnType<typeof auth.api.generateOpenAPISchema>;

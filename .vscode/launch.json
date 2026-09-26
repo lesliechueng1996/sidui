@@ -2,6 +2,20 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Flutter (MacOS)",
+      "type": "dart",
+      "request": "launch",
+      "program": "${workspaceFolder}/apps/cook_app/lib/main.dart",
+      "cwd": "${workspaceFolder}/apps/cook_app",
+      "flutterMode": "debug",
+      "args": [
+        "-d",
+        "macos",
+        "--dart-define-from-file=.env"
+      ]
+      
+    },
+    {
       "type": "bun",
       "request": "launch",
       "name": "Debug API (dev)",
