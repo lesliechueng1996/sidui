@@ -1,5 +1,6 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
+import 'ui/core/themes/theme.dart';
 import 'routing/router.dart';
 
 void main() {
@@ -11,6 +12,10 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoApp.router(routerConfig: router);
+    return MaterialApp.router(
+      routerConfig: router,
+      theme: AppTheme.lightTheme(),
+      themeMode: ThemeMode.light,
+    );
   }
 }

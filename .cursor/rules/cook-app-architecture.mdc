@@ -1,0 +1,49 @@
+---
+description: Folder roles for apps/cook_app, following Flutter's Compass package structure
+globs: apps/cook_app/**
+alwaysApply: false
+---
+
+# cook_app package structure
+
+`apps/cook_app` is a standalone Flutter app. Follow the [architecture case study](https://docs.flutter.dev/app-architecture/case-study#package-structure): UI by feature, data by type. Do not use the web feature template (Eden, Elysia, Drizzle) here.
+
+UI is MVVM: a feature has one view and one view model. Widgets talk to the view model; the view model talks to repositories. Repositories talk to services.
+
+## lib/
+
+| Path | Role |
+|------|------|
+| `ui/<feature>/widgets/` | That feature's screen and widgets used only there. |
+| `ui/<feature>/view_models/` | That view's view model: UI state and commands. |
+| `ui/core/ui/` | Widgets shared by more than one feature. |
+| `ui/core/themes/` | Shared theme and styling. |
+| `domain/models/` | App data types used by both data and UI. |
+| `data/repositories/` | Source of truth for one kind of data. Shared across features. |
+| `data/services/` | One external or platform API each. Used by repositories. |
+| `data/model/` | API and serialization models. Map them to `domain/models` in the repository. |
+| `config/` | Environment and app configuration. |
+| `utils/` | Helpers that are not UI, domain, or data. |
+| `routing/` | `GoRouter` setup and route paths. Screens stay in `ui/`. |
+| `main.dart` | Default entry point. Add `main_development.dart` or `main_staging.dart` only when that environment exists. |
+
+Feature folders may nest (`ui/auth/login/`). Existing features: `ui/home`, `ui/auth/login`.
+
+## Tests
+
+| Path | Role |
+|------|------|
+| `test/` | Unit and widget tests. Mirror `lib/` (`test/ui/`, `test/data/`, `test/domain/`). |
+| `testing/` | Fakes and other test utilities. Not shipped with the app. |
+
+## Placement
+
+```dart
+// lib/ui/home/widgets/home_screen.dart — view only
+// lib/ui/home/view_models/home_viewmodel.dart — UI state
+// lib/data/repositories/trip_repository.dart — shared data access
+```
+
+- A new screen goes in `lib/ui/<feature>/widgets/<feature>_screen.dart`, with its view model under `view_models/`.
+- Shared data access goes in `lib/data/`, not under a feature folder.
+- Do not put widgets in `data/`, `domain/`, or `routing/`.
