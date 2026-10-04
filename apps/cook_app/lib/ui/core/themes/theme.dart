@@ -2,6 +2,36 @@ import 'package:flutter/material.dart';
 
 import 'colors.dart';
 
+abstract final class AppFonts {
+  static const family = 'PingFang SC';
+
+  static const fallback = <String>[
+    'Hiragino Sans GB',
+    'Heiti SC',
+    'Noto Sans SC',
+    'Noto Sans CJK SC',
+    'sans-serif',
+  ];
+
+  static TextStyle text({
+    required double fontSize,
+    FontWeight fontWeight = FontWeight.w400,
+    Color color = const Color(0xFF1D1D1F),
+    double? letterSpacing,
+    double height = 1.2,
+  }) {
+    return TextStyle(
+      fontFamily: family,
+      fontFamilyFallback: fallback,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      letterSpacing: letterSpacing,
+      height: height,
+    );
+  }
+}
+
 abstract class AppTheme {
   static const _textTheme = TextTheme(
     headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.w500),
@@ -31,5 +61,7 @@ abstract class AppTheme {
     colorScheme: AppColors.lightColorScheme,
     extensions: [AppExtraColors.light],
     textTheme: _textTheme,
+    fontFamily: AppFonts.family,
+    fontFamilyFallback: AppFonts.fallback,
   );
 }
