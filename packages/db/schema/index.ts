@@ -1,6 +1,7 @@
 export * from './app-setting';
 export * from './auth';
 export * from './character';
+export * from './cook/space';
 export * from './dungeon';
 export * from './dungeon-item';
 export * from './expansion';
