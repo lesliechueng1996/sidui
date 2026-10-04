@@ -1,21 +1,24 @@
 import { app } from './app';
 import { initAiSdkTelemetry } from './infrastructure/external/ai/telemetry/init';
 import { initializeLogger, logger } from './infrastructure/logger';
-import { appSettingRoute } from './interface/endpoint/app-setting-route';
-import { gameDungeonRoute } from './interface/endpoint/game-dungeon-route';
-import { gameExpansionRoute } from './interface/endpoint/game-expansion-route';
-import { gameItemRoute } from './interface/endpoint/game-item-route';
-import { gameSeasonRoute } from './interface/endpoint/game-season-route';
-import { gameServerRoute } from './interface/endpoint/game-server-route';
-import { idiomRoute } from './interface/endpoint/idiom-route';
-import { kungfuRoute } from './interface/endpoint/kungfu-route';
-import { llmModelPriceRoute } from './interface/endpoint/llm-model-price-route';
-import { llmUsageEventRoute } from './interface/endpoint/llm-usage-event-route';
-import { lyricSongRoute } from './interface/endpoint/lyric-song-route';
-import { raidRunRoute } from './interface/endpoint/raid-run-route';
-import { raidSignupRoute } from './interface/endpoint/raid-signup-route';
-import { schoolRoute } from './interface/endpoint/school-route';
-import { userRoute } from './interface/endpoint/user-route';
+import {
+  appSettingRoute,
+  cookUserRoute,
+  gameDungeonRoute,
+  gameExpansionRoute,
+  gameItemRoute,
+  gameSeasonRoute,
+  gameServerRoute,
+  idiomRoute,
+  kungfuRoute,
+  llmModelPriceRoute,
+  llmUsageEventRoute,
+  lyricSongRoute,
+  raidRunRoute,
+  raidSignupRoute,
+  schoolRoute,
+  userRoute,
+} from './interface/endpoint';
 
 await initializeLogger();
 initAiSdkTelemetry();
@@ -35,7 +38,8 @@ const server = app
   .use(raidRunRoute)
   .use(raidSignupRoute)
   .use(schoolRoute)
-  .use(userRoute);
+  .use(userRoute)
+  .use(cookUserRoute);
 
 export type App = typeof server;
 
