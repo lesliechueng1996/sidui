@@ -2,19 +2,16 @@ import 'package:cook_app/ui/auth/login/widgets/character_stage.dart';
 import 'package:cook_app/ui/auth/login/widgets/gaze_bus.dart';
 import 'package:cook_app/ui/auth/login/widgets/login_form.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends HookWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final _gazeBus = GazeBus();
-
-  @override
   Widget build(BuildContext context) {
+    final gazeBus = useMemoized(GazeBus.new);
+    useEffect(() => gazeBus.dispose, [gazeBus]);
+
     return Scaffold(
       body: DecoratedBox(
         decoration: const BoxDecoration(
@@ -27,13 +24,13 @@ class _LoginScreenState extends State<LoginScreen> {
           builder: (context, constraints) {
             final isDesktop = constraints.maxWidth >= 900;
             return MouseRegion(
-              onEnter: (_) => _gazeBus.isPointerInside.value = true,
-              onExit: (_) => _gazeBus.isPointerInside.value = false,
+              onEnter: (_) => gazeBus.isPointerInside.value = true,
+              onExit: (_) => gazeBus.isPointerInside.value = false,
               onHover: (event) {
-                _gazeBus.isPointerInside.value = true;
-                _gazeBus.look.value = event.position;
+                gazeBus.isPointerInside.value = true;
+                gazeBus.look.value = event.position;
               },
-              child: isDesktop ? _desktop() : _mobile(),
+              child: isDesktop ? _desktop(gazeBus) : _mobile(gazeBus),
             );
           },
         ),
@@ -41,11 +38,11 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _desktop() {
+  Widget _desktop(GazeBus gazeBus) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(child: CharacterStage(isCompact: false, gazeBus: _gazeBus)),
+        Expanded(child: CharacterStage(isCompact: false, gazeBus: gazeBus)),
         SizedBox(
           width: 480,
           child: Center(
@@ -53,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 28),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 380),
-                child: LoginForm(gazeBus: _gazeBus),
+                child: LoginForm(gazeBus: gazeBus),
               ),
             ),
           ),
@@ -62,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _mobile() {
+  Widget _mobile(GazeBus gazeBus) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -81,11 +78,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     left: 0,
                     right: 0,
                     height: 108,
-                    child: CharacterStage(isCompact: true, gazeBus: _gazeBus),
+                    child: CharacterStage(isCompact: true, gazeBus: gazeBus),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 48),
-                    child: LoginForm(gazeBus: _gazeBus, showBrand: false),
+                    child: LoginForm(gazeBus: gazeBus, showBrand: false),
                   ),
                 ],
               ),
@@ -94,11 +91,5 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _gazeBus.dispose();
-    super.dispose();
   }
 }

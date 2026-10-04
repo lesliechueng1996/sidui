@@ -1,10 +1,13 @@
 import 'package:cook_app/config/app_config.dart';
 import 'package:cook_app/utils/logger.dart';
 import 'package:dio/dio.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talker_dio_logger/talker_dio_logger_interceptor.dart';
 import 'package:talker_dio_logger/talker_dio_logger_settings.dart';
 
 import '../data/services/token_storage.dart';
+
+part 'http.g.dart';
 
 const _bearerResponseTokenHeader = 'set-auth-token';
 
@@ -58,8 +61,8 @@ class DioInterceptor extends QueuedInterceptor {
   }
 }
 
-Dio initDio() {
-  final dio = Dio(
+Dio initDio(TokenStorage storage) {
+  final client = Dio(
     BaseOptions(
       baseUrl: AppConfig.apiBaseUrl,
       connectTimeout: const Duration(seconds: 10),
@@ -67,7 +70,7 @@ Dio initDio() {
     ),
   );
 
-  dio.interceptors.add(
+  client.interceptors.add(
     TalkerDioLogger(
       settings: const TalkerDioLoggerSettings(
         printRequestHeaders: true,
@@ -76,8 +79,13 @@ Dio initDio() {
       ),
     ),
   );
-  dio.interceptors.add(DioInterceptor(tokenStorage: tokenStorage));
-  return dio;
+  client.interceptors.add(DioInterceptor(tokenStorage: storage));
+  return client;
 }
 
-final dio = initDio();
+@Riverpod(keepAlive: true)
+Dio dio(Ref ref) {
+  final client = initDio(ref.watch(tokenStorageProvider));
+  ref.onDispose(client.close);
+  return client;
+}

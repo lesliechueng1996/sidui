@@ -1,57 +1,57 @@
+import 'package:cook_app/ui/auth/login/view_models/login_view_model.dart';
 import 'package:cook_app/ui/auth/login/widgets/gaze_bus.dart';
 import 'package:cook_app/ui/core/themes/colors.dart';
 import 'package:cook_app/ui/core/themes/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 const _shadowAlpha = 0x14 / 0xFF;
 const _hoverAlpha = 0x0F / 0xFF;
 
-class LoginForm extends StatefulWidget {
+class LoginForm extends HookConsumerWidget {
   const LoginForm({super.key, required this.gazeBus, this.showBrand = true});
 
   final GazeBus gazeBus;
   final bool showBrand;
 
   @override
-  State<LoginForm> createState() => _LoginFormState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final obscure = useState(true);
+    final emailController = useTextEditingController();
+    final passwordController = useTextEditingController();
+    final emailFocusNode = useFocusNode();
+    final passwordFocusNode = useFocusNode();
+    useListenable(emailFocusNode);
+    useListenable(passwordFocusNode);
+    final viewModel = ref.watch(loginViewModelProvider);
+    final loginState = viewModel.signInState;
 
-class _LoginFormState extends State<LoginForm> {
-  bool _obscure = true;
+    useEffect(() {
+      void sync() {
+        var next = GazeMode.idle;
+        if (passwordFocusNode.hasFocus) {
+          next = obscure.value ? GazeMode.password : GazeMode.passwordVisible;
+        } else if (emailFocusNode.hasFocus) {
+          next = GazeMode.email;
+        }
+        gazeBus.mode.value = next;
+      }
 
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _emailFocusNode = FocusNode();
-  final _passwordFocusNode = FocusNode();
+      emailFocusNode.addListener(sync);
+      passwordFocusNode.addListener(sync);
+      sync();
+      return () {
+        emailFocusNode.removeListener(sync);
+        passwordFocusNode.removeListener(sync);
+      };
+    }, [emailFocusNode, passwordFocusNode, obscure.value, gazeBus]);
 
-  @override
-  void initState() {
-    _emailFocusNode.addListener(_sync);
-    _passwordFocusNode.addListener(_sync);
-    super.initState();
-  }
-
-  void _sync() {
-    var next = GazeMode.idle;
-    if (_passwordFocusNode.hasFocus) {
-      next = _obscure ? GazeMode.password : GazeMode.passwordVisible;
-    } else if (_emailFocusNode.hasFocus) {
-      next = GazeMode.email;
-    }
-
-    widget.gazeBus.mode.value = next;
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (widget.showBrand) ...const [LoginBrand(), SizedBox(height: 28)],
+        if (showBrand) ...const [LoginBrand(), SizedBox(height: 28)],
         DecoratedBox(
           decoration: BoxDecoration(
             color: scheme.surface,
@@ -81,8 +81,8 @@ class _LoginFormState extends State<LoginForm> {
                 const SizedBox(height: 24),
                 _Field(
                   label: '邮箱',
-                  controller: _emailController,
-                  focusNode: _emailFocusNode,
+                  controller: emailController,
+                  focusNode: emailFocusNode,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   hint: 'leslie@example.com',
@@ -90,16 +90,13 @@ class _LoginFormState extends State<LoginForm> {
                 const SizedBox(height: 16),
                 _Field(
                   label: '密码',
-                  controller: _passwordController,
-                  focusNode: _passwordFocusNode,
-                  obscureText: _obscure,
+                  controller: passwordController,
+                  focusNode: passwordFocusNode,
+                  obscureText: obscure.value,
                   textInputAction: TextInputAction.done,
                   suffix: IconButton(
-                    tooltip: _obscure ? '显示密码' : '隐藏密码',
-                    onPressed: () {
-                      _obscure = !_obscure;
-                      _sync();
-                    },
+                    tooltip: obscure.value ? '显示密码' : '隐藏密码',
+                    onPressed: () => obscure.value = !obscure.value,
                     style: IconButton.styleFrom(
                       splashFactory: NoSplash.splashFactory,
                       highlightColor: Colors.transparent,
@@ -111,7 +108,7 @@ class _LoginFormState extends State<LoginForm> {
                     icon: CustomPaint(
                       size: const Size(22, 14),
                       painter: _PasswordEyePainter(
-                        concealed: _obscure,
+                        concealed: obscure.value,
                         color: scheme.onSurfaceVariant,
                       ),
                     ),
@@ -119,26 +116,52 @@ class _LoginFormState extends State<LoginForm> {
                 ),
                 const SizedBox(height: 22),
                 Material(
-                  color: scheme.primary,
+                  color: loginState.isPending
+                      ? scheme.primary.withValues(alpha: 0.7)
+                      : scheme.primary,
                   borderRadius: BorderRadius.circular(10),
                   child: InkWell(
-                    onTap: () {},
+                    onTap: loginState.isPending
+                        ? null
+                        : () {
+                            viewModel.signIn(
+                              emailController.text,
+                              passwordController.text,
+                            );
+                          },
                     borderRadius: BorderRadius.circular(10),
                     child: SizedBox(
                       height: 46,
                       child: Center(
-                        child: Text(
-                          '登录  →',
-                          style: AppFonts.text(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: scheme.onPrimary,
-                          ),
-                        ),
+                        child: loginState.isPending
+                            ? SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: scheme.onPrimary,
+                                ),
+                              )
+                            : Text(
+                                '登录  →',
+                                style: AppFonts.text(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: scheme.onPrimary,
+                                ),
+                              ),
                       ),
                     ),
                   ),
                 ),
+                if (loginState.hasError) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    '登录失败，请检查邮箱和密码',
+                    textAlign: TextAlign.center,
+                    style: AppFonts.text(fontSize: 13, color: scheme.error),
+                  ),
+                ],
                 const SizedBox(height: 20),
                 Text(
                   '欢迎回来，继续照顾好自己',
@@ -155,17 +178,6 @@ class _LoginFormState extends State<LoginForm> {
         ),
       ],
     );
-  }
-
-  @override
-  void dispose() {
-    _emailFocusNode.removeListener(_sync);
-    _passwordFocusNode.removeListener(_sync);
-    _emailFocusNode.dispose();
-    _passwordFocusNode.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 }
 

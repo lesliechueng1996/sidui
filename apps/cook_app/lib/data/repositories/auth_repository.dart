@@ -1,7 +1,16 @@
 import 'package:cook_app/domain/model/user.dart';
+import 'package:cook_app/utils/http.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../model/auth/sign_in_email.dart';
 import '../services/auth_service.dart';
+
+part 'auth_repository.g.dart';
+
+@riverpod
+AuthRepository authRepository(Ref ref) {
+  return AuthRepository(authService: AuthService(dio: ref.watch(dioProvider)));
+}
 
 class AuthRepository {
   AuthRepository({required this._authService});

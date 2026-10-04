@@ -1,0 +1,38 @@
+---
+description: Riverpod usage in apps/cook_app, and dart analyze after Riverpod changes
+globs: apps/cook_app/**
+alwaysApply: false
+---
+
+# cook_app Riverpod
+
+Use Riverpod for shared dependencies and shared business state. Leave ephemeral UI in the widget. Widgets still talk to the view model; the view model talks to repositories.
+
+## Use a provider
+
+- `@Riverpod(keepAlive: true)` only when disposal drops app-wide state or a connection: `tokenStorage` (cached token and `refreshListenable`), `dio` (`client.close`), `GoRouter` (navigation stack). Compose them with `ref.watch`. Release resources in `ref.onDispose`.
+- A stateless repository such as `authRepository` stays autoDispose. The screen view model `ref.watch`es it and drops with the page.
+- Drive `GoRouter` redirects with `refreshListenable`. Do not `ref.watch` auth state that changes on login; that recreates the router and drops the stack.
+- Widgets that read providers: `ConsumerWidget` or `HookConsumerWidget`. `ref.watch` in `build`. `ref.read` in callbacks.
+
+A class with no lifecycle of its own stays a constructor argument. `AuthService` is created inside `authRepository`, not its own provider.
+
+## Do not use a provider
+
+Form fields, `TextEditingController`, `FocusNode`, obscure toggles, and one-screen animation (`GazeBus`, character stage) stay in `flutter_hooks` or `StatefulWidget`.
+
+## Commands
+
+A button submission (login) is a `Mutation` from `package:hooks_riverpod/experimental/mutation.dart`. Do not use `FutureProvider`, or an `AsyncNotifier` whose only state is loading/error, for that.
+
+Put the mutation on the view model as a `static final`, so `ref.watch` sees a stable listenable. The view model constructor takes the repository. Its provider watches both `authRepositoryProvider` and that mutation, and exposes the mutation state on the view model. The widget watches only the view model provider and calls `viewModel.signIn`. Do not read the repository with `tsx.get` when the constructor already holds it. `Mutation.run` rethrows after recording `MutationError`; call `ignore()` when the form renders that state.
+
+## Verify
+
+After adding or changing Riverpod providers, notifiers, or mutations under `apps/cook_app`, run this from `apps/cook_app` and fix every error and warning before finishing:
+
+```bash
+dart analyze
+```
+
+The Dart MCP analyzer is not a substitute. It does not see missing experimental exports.

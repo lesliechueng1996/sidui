@@ -1,13 +1,21 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'token_storage.g.dart';
 
 const _tokenKey = 'sidui_cookie_token';
 
-class TokenStorage extends ChangeNotifier {
+class TokenStorage {
+  final refreshListenable = ValueNotifier<int>(0);
   final FlutterSecureStorage _storage = const FlutterSecureStorage(
     mOptions: MacOsOptions(usesDataProtectionKeychain: false),
   );
   String? _token;
+
+  void dispose() {
+    refreshListenable.dispose();
+  }
 
   Future<String?> getToken() async {
     if (_token != null) {
@@ -23,14 +31,19 @@ class TokenStorage extends ChangeNotifier {
     }
     await _storage.write(key: _tokenKey, value: token);
     _token = token;
-    notifyListeners();
+    refreshListenable.value++;
   }
 
   Future<void> deleteToken() async {
     await _storage.delete(key: _tokenKey);
     _token = null;
-    notifyListeners();
+    refreshListenable.value++;
   }
 }
 
-final tokenStorage = TokenStorage();
+@Riverpod(keepAlive: true)
+TokenStorage tokenStorage(Ref ref) {
+  final storage = TokenStorage();
+  ref.onDispose(storage.dispose);
+  return storage;
+}
