@@ -1,12 +1,10 @@
 import 'package:cook_app/ui/auth/login/widgets/gaze_bus.dart';
+import 'package:cook_app/ui/core/themes/colors.dart';
 import 'package:cook_app/ui/core/themes/theme.dart';
 import 'package:flutter/material.dart';
 
-const _ink = Color(0xFF20352A);
-const _green = Color(0xFF168553);
-const _muted = Color(0xFF7D8B84);
-const _line = Color(0xFFD9E0DB);
-const _hint = Color(0xFFA3ADA8);
+const _shadowAlpha = 0x14 / 0xFF;
+const _hoverAlpha = 0x0F / 0xFF;
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key, required this.gazeBus, this.showBrand = true});
@@ -49,19 +47,20 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (widget.showBrand) ...const [LoginBrand(), SizedBox(height: 28)],
         DecoratedBox(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: scheme.surface,
             borderRadius: BorderRadius.circular(24),
-            boxShadow: const [
+            boxShadow: [
               BoxShadow(
-                color: Color(0x1420352A),
+                color: scheme.onSurface.withValues(alpha: _shadowAlpha),
                 blurRadius: 40,
-                offset: Offset(0, 18),
+                offset: const Offset(0, 18),
               ),
             ],
           ),
@@ -75,7 +74,7 @@ class _LoginFormState extends State<LoginForm> {
                   style: AppFonts.text(
                     fontSize: 22,
                     fontWeight: FontWeight.w600,
-                    color: _ink,
+                    color: scheme.onSurface,
                     height: 1.25,
                   ),
                 ),
@@ -104,21 +103,23 @@ class _LoginFormState extends State<LoginForm> {
                     style: IconButton.styleFrom(
                       splashFactory: NoSplash.splashFactory,
                       highlightColor: Colors.transparent,
-                      hoverColor: const Color(0x0F20352A),
+                      hoverColor: scheme.onSurface.withValues(
+                        alpha: _hoverAlpha,
+                      ),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     icon: CustomPaint(
                       size: const Size(22, 14),
                       painter: _PasswordEyePainter(
                         concealed: _obscure,
-                        color: _muted,
+                        color: scheme.onSurfaceVariant,
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 22),
                 Material(
-                  color: _green,
+                  color: scheme.primary,
                   borderRadius: BorderRadius.circular(10),
                   child: InkWell(
                     onTap: () {},
@@ -131,7 +132,7 @@ class _LoginFormState extends State<LoginForm> {
                           style: AppFonts.text(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                            color: scheme.onPrimary,
                           ),
                         ),
                       ),
@@ -144,7 +145,7 @@ class _LoginFormState extends State<LoginForm> {
                   textAlign: TextAlign.center,
                   style: AppFonts.text(
                     fontSize: 13,
-                    color: _muted,
+                    color: scheme.onSurfaceVariant,
                     height: 1.4,
                   ),
                 ),
@@ -173,6 +174,7 @@ class LoginBrand extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -186,7 +188,7 @@ class LoginBrand extends StatelessWidget {
               style: AppFonts.text(
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
-                color: _ink,
+                color: scheme.onSurface,
                 height: 1.05,
               ),
             ),
@@ -196,7 +198,7 @@ class LoginBrand extends StatelessWidget {
               style: AppFonts.text(
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
-                color: _muted,
+                color: scheme.onSurfaceVariant,
                 letterSpacing: 1.4,
                 height: 1.1,
               ),
@@ -232,21 +234,25 @@ class _Field extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final focused = focusNode.hasFocus;
+    final scheme = Theme.of(context).colorScheme;
+    final extra = AppExtraColors.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: AppFonts.text(fontSize: 13, color: const Color(0xFF5E6B66)),
+          style: AppFonts.text(fontSize: 13, color: extra.fieldLabel),
         ),
         const SizedBox(height: 8),
         AnimatedContainer(
           duration: const Duration(milliseconds: 160),
           curve: Curves.easeOut,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: scheme.surface,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: focused ? _green : _line),
+            border: Border.all(
+              color: focused ? scheme.primary : scheme.outline,
+            ),
           ),
           child: TextField(
             controller: controller,
@@ -254,12 +260,20 @@ class _Field extends StatelessWidget {
             obscureText: obscureText,
             keyboardType: keyboardType,
             textInputAction: textInputAction,
-            cursorColor: _green,
-            style: AppFonts.text(fontSize: 15, color: _ink, height: 1.3),
+            cursorColor: scheme.primary,
+            style: AppFonts.text(
+              fontSize: 15,
+              color: scheme.onSurface,
+              height: 1.3,
+            ),
             decoration: InputDecoration(
               isDense: true,
               hintText: hint,
-              hintStyle: AppFonts.text(fontSize: 15, color: _hint, height: 1.3),
+              hintStyle: AppFonts.text(
+                fontSize: 15,
+                color: extra.hint,
+                height: 1.3,
+              ),
               border: InputBorder.none,
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,

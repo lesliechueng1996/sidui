@@ -14,9 +14,23 @@ abstract final class AppColors {
   static const blue2 = Color(0xFF8EC5FF);
   static const red1 = Color(0xFFFF2056);
 
+  /// Login and brand text. Greener than [black1].
+  static const ink = Color(0xFF20352A);
+
+  /// Login primary action. Distinct from [green4].
+  static const brandGreen = Color(0xFF168553);
+
+  static const muted = Color(0xFF7D8B84);
+  static const line = Color(0xFFD9E0DB);
+  static const hint = Color(0xFFA3ADA8);
+  static const fieldLabel = Color(0xFF5E6B66);
+
+  /// Character body fill. Not a [ColorScheme] role.
+  static const coral1 = Color(0xFFE36D5C);
+
   static const lightColorScheme = ColorScheme(
     brightness: Brightness.light,
-    primary: green4,
+    primary: brandGreen,
     onPrimary: white1,
     primaryContainer: green1,
     onPrimaryContainer: green4,
@@ -31,8 +45,9 @@ abstract final class AppColors {
     error: red1,
     onError: white1,
     surface: white1,
-    onSurface: black1,
-    onSurfaceVariant: gray1,
+    onSurface: ink,
+    onSurfaceVariant: muted,
+    outline: line,
   );
 }
 
@@ -41,26 +56,48 @@ class AppExtraColors extends ThemeExtension<AppExtraColors> {
   const AppExtraColors({
     required this.primaryMuted,
     required this.primaryEmphasized,
+    required this.hint,
+    required this.fieldLabel,
   });
 
   final Color primaryMuted;
   final Color primaryEmphasized;
+  final Color hint;
+  final Color fieldLabel;
 
   static const light = AppExtraColors(
     primaryMuted: AppColors.green2,
     primaryEmphasized: AppColors.green3,
+    hint: AppColors.hint,
+    fieldLabel: AppColors.fieldLabel,
   );
 
+  static AppExtraColors of(BuildContext context) {
+    final extra = Theme.of(context).extension<AppExtraColors>();
+    assert(
+      extra != null,
+      'AppExtraColors is missing from ThemeData.extensions',
+    );
+    return extra!;
+  }
+
   @override
-  ThemeExtension<AppExtraColors> copyWith() {
+  AppExtraColors copyWith({
+    Color? primaryMuted,
+    Color? primaryEmphasized,
+    Color? hint,
+    Color? fieldLabel,
+  }) {
     return AppExtraColors(
-      primaryMuted: primaryMuted,
-      primaryEmphasized: primaryEmphasized,
+      primaryMuted: primaryMuted ?? this.primaryMuted,
+      primaryEmphasized: primaryEmphasized ?? this.primaryEmphasized,
+      hint: hint ?? this.hint,
+      fieldLabel: fieldLabel ?? this.fieldLabel,
     );
   }
 
   @override
-  ThemeExtension<AppExtraColors> lerp(
+  AppExtraColors lerp(
     covariant ThemeExtension<AppExtraColors>? other,
     double t,
   ) {
@@ -75,6 +112,8 @@ class AppExtraColors extends ThemeExtension<AppExtraColors> {
         other.primaryEmphasized,
         t,
       )!,
+      hint: Color.lerp(hint, other.hint, t)!,
+      fieldLabel: Color.lerp(fieldLabel, other.fieldLabel, t)!,
     );
   }
 }

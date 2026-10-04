@@ -28,7 +28,7 @@ class _Buddy {
 
 const _buddies = [
   _Buddy(
-    color: Color(0xFFE36D5C),
+    color: AppColors.coral1,
     width: 108,
     height: 162,
     compactWidth: 52,
