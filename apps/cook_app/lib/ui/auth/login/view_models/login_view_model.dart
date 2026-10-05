@@ -1,4 +1,5 @@
 import 'package:cook_app/data/repositories/auth_repository.dart';
+import 'package:cook_app/domain/app_error.dart';
 import 'package:hooks_riverpod/experimental/mutation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -16,22 +17,31 @@ LoginViewModel loginViewModel(Ref ref) {
 class LoginViewModel {
   LoginViewModel({
     required this._authRepository,
-    required this.signInState,
+    required this._signInState,
     required this._ref,
   });
 
   static final signInMutation = Mutation<void>();
 
   final AuthRepository _authRepository;
-  final MutationState<void> signInState;
+  final MutationState<void> _signInState;
   final Ref _ref;
 
+  bool get isSigningIn => _signInState.isPending;
+
+  String? get errorMessage {
+    final state = _signInState;
+    if (state is! MutationError) {
+      return null;
+    }
+    final error = state.error;
+    return error is AppError ? error.message : const ServerError().message;
+  }
+
   void signIn(String email, String password) {
-    // `run` records MutationError and rethrows. The form renders that state.
-    signInMutation
-        .run(_ref, (_) async {
-          await _authRepository.signInEmail(email, password);
-        })
-        .ignore();
+    // `run` records MutationError and rethrows. errorMessage reads that state.
+    signInMutation.run(_ref, (_) async {
+      await _authRepository.signInEmail(email, password);
+    }).ignore();
   }
 }

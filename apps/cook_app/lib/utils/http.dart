@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:cook_app/config/app_config.dart';
+import 'package:cook_app/domain/app_error.dart';
 import 'package:cook_app/utils/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -30,7 +33,11 @@ class DioInterceptor extends QueuedInterceptor {
         talker.warning('No token found');
         await _tokenStorage.deleteToken();
         handler.reject(
-          DioException(requestOptions: options, type: DioExceptionType.cancel),
+          DioException(
+            requestOptions: options,
+            type: DioExceptionType.cancel,
+            error: const UnauthorizedError(),
+          ),
         );
         return;
       }
@@ -72,10 +79,13 @@ Dio initDio(TokenStorage storage) {
 
   client.interceptors.add(
     TalkerDioLogger(
-      settings: const TalkerDioLoggerSettings(
+      settings: TalkerDioLoggerSettings(
         printRequestHeaders: true,
+        printRequestData: false,
         printResponseHeaders: true,
         printResponseMessage: true,
+        hiddenHeaders: const {'authorization', 'set-auth-token'},
+        responseDataConverter: _redactResponseData,
       ),
     ),
   );
@@ -88,4 +98,28 @@ Dio dio(Ref ref) {
   final client = initDio(ref.watch(tokenStorageProvider));
   ref.onDispose(client.close);
   return client;
+}
+
+String _redactResponseData(Response<dynamic> response) {
+  try {
+    return const JsonEncoder.withIndent('  ')
+        .convert(_redactTokens(response.data));
+  } catch (_) {
+    return '${response.data}';
+  }
+}
+
+Object? _redactTokens(Object? value) {
+  if (value is Map) {
+    return <String, Object?>{
+      for (final entry in value.entries)
+        entry.key.toString(): entry.key == 'token'
+            ? '***'
+            : _redactTokens(entry.value),
+    };
+  }
+  if (value is List) {
+    return <Object?>[for (final item in value) _redactTokens(item)];
+  }
+  return value;
 }

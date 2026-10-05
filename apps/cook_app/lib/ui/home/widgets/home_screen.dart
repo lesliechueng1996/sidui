@@ -1,4 +1,4 @@
-import 'package:cook_app/data/services/token_storage.dart';
+import 'package:cook_app/data/repositories/auth_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -11,7 +11,7 @@ class HomeScreen extends ConsumerWidget {
       body: Center(
         child: TextButton(
           onPressed: () {
-            ref.read(tokenStorageProvider).deleteToken();
+            ref.read(authRepositoryProvider).signOut();
           },
           child: const Text('Clear Token'),
         ),

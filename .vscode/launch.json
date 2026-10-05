@@ -13,7 +13,6 @@
         "macos",
         "--dart-define-from-file=.env"
       ]
-      
     },
     {
       "type": "bun",

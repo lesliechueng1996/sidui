@@ -25,7 +25,8 @@ class LoginForm extends HookConsumerWidget {
     useListenable(emailFocusNode);
     useListenable(passwordFocusNode);
     final viewModel = ref.watch(loginViewModelProvider);
-    final loginState = viewModel.signInState;
+    final signingIn = viewModel.isSigningIn;
+    final errorMessage = viewModel.errorMessage;
 
     useEffect(() {
       void sync() {
@@ -116,12 +117,12 @@ class LoginForm extends HookConsumerWidget {
                 ),
                 const SizedBox(height: 22),
                 Material(
-                  color: loginState.isPending
+                  color: signingIn
                       ? scheme.primary.withValues(alpha: 0.7)
                       : scheme.primary,
                   borderRadius: BorderRadius.circular(10),
                   child: InkWell(
-                    onTap: loginState.isPending
+                    onTap: signingIn
                         ? null
                         : () {
                             viewModel.signIn(
@@ -133,7 +134,7 @@ class LoginForm extends HookConsumerWidget {
                     child: SizedBox(
                       height: 46,
                       child: Center(
-                        child: loginState.isPending
+                        child: signingIn
                             ? SizedBox(
                                 width: 22,
                                 height: 22,
@@ -154,10 +155,10 @@ class LoginForm extends HookConsumerWidget {
                     ),
                   ),
                 ),
-                if (loginState.hasError) ...[
+                if (errorMessage != null) ...[
                   const SizedBox(height: 12),
                   Text(
-                    '登录失败，请检查邮箱和密码',
+                    errorMessage,
                     textAlign: TextAlign.center,
                     style: AppFonts.text(fontSize: 13, color: scheme.error),
                   ),

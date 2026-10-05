@@ -25,7 +25,7 @@ Form fields, `TextEditingController`, `FocusNode`, obscure toggles, and one-scre
 
 A button submission (login) is a `Mutation` from `package:hooks_riverpod/experimental/mutation.dart`. Do not use `FutureProvider`, or an `AsyncNotifier` whose only state is loading/error, for that.
 
-Put the mutation on the view model as a `static final`, so `ref.watch` sees a stable listenable. The view model constructor takes the repository. Its provider watches both `authRepositoryProvider` and that mutation, and exposes the mutation state on the view model. The widget watches only the view model provider and calls `viewModel.signIn`. Do not read the repository with `tsx.get` when the constructor already holds it. `Mutation.run` rethrows after recording `MutationError`; call `ignore()` when the form renders that state.
+Put the mutation on the view model as a `static final`, so `ref.watch` sees a stable listenable. The view model constructor takes the repository. Its provider watches both `authRepositoryProvider` and that mutation. The widget watches only the view model provider and calls `viewModel.signIn`. It reads `isSigningIn` and `errorMessage` from the view model, and does not import `hooks_riverpod/experimental/mutation.dart`. `errorMessage` is the `AppError.message`, or `ServerError`'s message for any other error. Do not read the repository with `tsx.get` when the constructor already holds it. `Mutation.run` rethrows after recording `MutationError`; call `ignore()` because the view model surfaces that state.
 
 ## Verify
 
