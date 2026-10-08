@@ -27,7 +27,7 @@ UI is MVVM: a feature has one view and one view model. Widgets talk to the view 
 | `routing/` | `GoRouter` setup and route paths. Screens stay in `ui/`. |
 | `main.dart` | Default entry point. Add `main_development.dart` or `main_staging.dart` only when that environment exists. |
 
-Feature folders may nest (`ui/auth/login/`). Existing features: `ui/home`, `ui/auth/login`.
+Feature folders may nest (`ui/auth/login/`). Existing features: `ui/home`, `ui/no_space`, `ui/auth/login`. A screen with its own route and view model is its own feature, even when another screen navigates to it.
 
 ## Tests
 

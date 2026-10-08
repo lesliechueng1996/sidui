@@ -5,7 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../data/services/token_storage.dart';
 import '../ui/auth/login/widgets/login_screen.dart';
 import '../ui/home/widgets/home_screen.dart';
-import '../ui/home/widgets/no_space_screen.dart';
+import '../ui/no_space/widgets/no_space_screen.dart';
 import 'routes.dart';
 
 part 'router.g.dart';

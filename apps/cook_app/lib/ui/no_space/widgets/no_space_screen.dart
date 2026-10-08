@@ -1,5 +1,5 @@
 import 'package:cook_app/ui/core/themes/theme.dart';
-import 'package:cook_app/ui/home/view_models/no_space_view_model.dart';
+import 'package:cook_app/ui/no_space/view_models/no_space_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
