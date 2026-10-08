@@ -59,6 +59,7 @@ abstract class AppTheme {
   static ThemeData lightTheme() => ThemeData(
     brightness: Brightness.light,
     colorScheme: AppColors.lightColorScheme,
+    scaffoldBackgroundColor: AppColors.canvas,
     extensions: [AppExtraColors.light],
     textTheme: _textTheme,
     fontFamily: AppFonts.family,

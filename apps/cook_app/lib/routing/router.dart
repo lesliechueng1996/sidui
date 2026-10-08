@@ -5,6 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../data/services/token_storage.dart';
 import '../ui/auth/login/widgets/login_screen.dart';
 import '../ui/home/widgets/home_screen.dart';
+import '../ui/home/widgets/no_space_screen.dart';
 import 'routes.dart';
 
 part 'router.g.dart';
@@ -24,6 +25,10 @@ GoRouter router(Ref ref) {
       GoRoute(
         path: Routes.home,
         builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: Routes.noSpace,
+        builder: (context, state) => const NoSpaceScreen(),
       ),
     ],
     redirect: (context, state) async {

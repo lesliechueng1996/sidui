@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 abstract final class AppColors {
   static const black1 = Color(0xFF1A1A1A);
   static const white1 = Color(0xFFFFFFFF);
+
+  /// Default page background. Slightly greener than [white1].
+  static const canvas = Color(0xFFF6F8F5);
   static const gray1 = Color(0xFF737373);
   static const green1 = Color(0xFFB9F8CF);
   static const green2 = Color(0xFF5EE9B5);
