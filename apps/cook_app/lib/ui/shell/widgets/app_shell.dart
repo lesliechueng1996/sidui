@@ -55,10 +55,33 @@ class AppShell extends ConsumerWidget {
             userName: data.user.name,
             currentPath: currentPath,
           ),
-          Expanded(child: child),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _BreadcrumbBar(
+                  spaceName: data.activeSpace.name,
+                  pageLabel: _pageLabel(currentPath),
+                ),
+                Expanded(child: child),
+              ],
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  String? _pageLabel(String currentPath) {
+    for (final destination in shellDestinations) {
+      if (destination.path == currentPath) {
+        return destination.label;
+      }
+    }
+    if (currentPath == Routes.settings) {
+      return '设置';
+    }
+    return null;
   }
 
   Widget _mobile(BuildContext context, ShellData data, String currentPath) {
@@ -122,6 +145,64 @@ class AppShell extends ConsumerWidget {
                 },
                 child: const Text('重试'),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BreadcrumbBar extends StatelessWidget {
+  const _BreadcrumbBar({required this.spaceName, required this.pageLabel});
+
+  final String spaceName;
+  final String? pageLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return ColoredBox(
+      color: scheme.surface,
+      child: SizedBox(
+        height: 56,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Row(
+            children: [
+              Flexible(
+                child: Text(
+                  spaceName,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppFonts.text(
+                    fontSize: 14,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              if (pageLabel != null) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    '/',
+                    style: AppFonts.text(
+                      fontSize: 14,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+                Flexible(
+                  child: Text(
+                    pageLabel!,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppFonts.text(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: scheme.onSurface,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
