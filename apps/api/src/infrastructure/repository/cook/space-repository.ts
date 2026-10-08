@@ -1,9 +1,11 @@
 import { spaceMemberRole } from '@api/domain/model/cook/space-member';
+import { defaultCookTags } from '@api/domain/model/cook/tag';
 import type { ListCookSpacesQuery } from '@api/interface/schema/cook/space-schema';
 import {
   and,
   cookSpace,
   cookSpaceMember,
+  cookTag,
   count,
   db,
   desc,
@@ -122,6 +124,16 @@ export class CookSpaceRepository {
         user_id: values.ownerUserId,
         role: spaceMemberRole.OWNER,
       });
+
+      await tx.insert(cookTag).values(
+        defaultCookTags.map((tag) => ({
+          spaceId: created.id,
+          scope: tag.scope,
+          name: tag.name,
+          color: tag.color,
+          sortOrder: tag.sortOrder,
+        })),
+      );
 
       return created;
     });
