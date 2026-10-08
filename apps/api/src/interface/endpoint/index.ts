@@ -1,4 +1,5 @@
 import { appSettingTag } from './app-setting-route';
+import { cookSpaceTag } from './cook/space-route';
 import { cookUserTag } from './cook/user-route';
 import { gameDungeonTag } from './game-dungeon-route';
 import { gameExpansionTag } from './game-expansion-route';
@@ -16,6 +17,7 @@ import { schoolTag } from './school-route';
 import { userTag } from './user-route';
 
 export { appSettingRoute } from './app-setting-route';
+export { cookSpaceRoute } from './cook/space-route';
 export { cookUserRoute } from './cook/user-route';
 export { gameDungeonRoute } from './game-dungeon-route';
 export { gameExpansionRoute } from './game-expansion-route';
@@ -34,6 +36,7 @@ export { userRoute } from './user-route';
 
 export const openApiTags = [
   appSettingTag,
+  cookSpaceTag,
   cookUserTag,
   gameDungeonTag,
   gameExpansionTag,

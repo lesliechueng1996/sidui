@@ -83,7 +83,7 @@ describe('findSpacesByUserId', () => {
     expect(logger.warn).not.toHaveBeenCalled();
   });
 
-  it('maps memberships onto spaces and marks archived spaces inactive', async () => {
+  it('omits archived spaces from the user list', async () => {
     findSpaceMembersByUserId.mockResolvedValue([
       member(),
       member({
@@ -115,14 +115,6 @@ describe('findSpacesByUserId', () => {
           type: 'personal',
           name: 'My kitchen',
           isActive: true,
-        },
-        {
-          spaceId: 'space-2',
-          role: 'admin',
-          joinedAt: archivedAt,
-          type: 'family',
-          name: 'Family kitchen',
-          isActive: false,
         },
       ],
     });

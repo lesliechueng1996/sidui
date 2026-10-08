@@ -34,6 +34,7 @@ import { Route as AuthenticatedGameAssistGuessIdiomIndexRouteImport } from './ro
 import { Route as AuthenticatedGameAssistMinesweeperIndexRouteImport } from './routes/_authenticated/game-assist/minesweeper/index'
 import { Route as AuthenticatedJpLyricsSongIdIndexRouteImport } from './routes/_authenticated/jp-lyrics/$songId/index'
 import { Route as AuthenticatedJpLyricsKanaIndexRouteImport } from './routes/_authenticated/jp-lyrics/kana/index'
+import { Route as AuthenticatedAdminCookSpacesIndexRouteImport } from './routes/_authenticated/admin/cook/spaces/index'
 import { Route as AuthenticatedJpLyricsSongIdEditIndexRouteImport } from './routes/_authenticated/jp-lyrics/$songId/edit/index'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -179,6 +180,12 @@ const AuthenticatedJpLyricsKanaIndexRoute =
     path: '/jp-lyrics/kana/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminCookSpacesIndexRoute =
+  AuthenticatedAdminCookSpacesIndexRouteImport.update({
+    id: '/cook/spaces/',
+    path: '/cook/spaces/',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedJpLyricsSongIdEditIndexRoute =
   AuthenticatedJpLyricsSongIdEditIndexRouteImport.update({
     id: '/jp-lyrics/$songId/edit/',
@@ -211,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/game-assist/minesweeper/': typeof AuthenticatedGameAssistMinesweeperIndexRoute
   '/jp-lyrics/$songId/': typeof AuthenticatedJpLyricsSongIdIndexRoute
   '/jp-lyrics/kana/': typeof AuthenticatedJpLyricsKanaIndexRoute
+  '/admin/cook/spaces/': typeof AuthenticatedAdminCookSpacesIndexRoute
   '/jp-lyrics/$songId/edit/': typeof AuthenticatedJpLyricsSongIdEditIndexRoute
 }
 export interface FileRoutesByTo {
@@ -238,6 +246,7 @@ export interface FileRoutesByTo {
   '/game-assist/minesweeper': typeof AuthenticatedGameAssistMinesweeperIndexRoute
   '/jp-lyrics/$songId': typeof AuthenticatedJpLyricsSongIdIndexRoute
   '/jp-lyrics/kana': typeof AuthenticatedJpLyricsKanaIndexRoute
+  '/admin/cook/spaces': typeof AuthenticatedAdminCookSpacesIndexRoute
   '/jp-lyrics/$songId/edit': typeof AuthenticatedJpLyricsSongIdEditIndexRoute
 }
 export interface FileRoutesById {
@@ -267,6 +276,7 @@ export interface FileRoutesById {
   '/_authenticated/game-assist/minesweeper/': typeof AuthenticatedGameAssistMinesweeperIndexRoute
   '/_authenticated/jp-lyrics/$songId/': typeof AuthenticatedJpLyricsSongIdIndexRoute
   '/_authenticated/jp-lyrics/kana/': typeof AuthenticatedJpLyricsKanaIndexRoute
+  '/_authenticated/admin/cook/spaces/': typeof AuthenticatedAdminCookSpacesIndexRoute
   '/_authenticated/jp-lyrics/$songId/edit/': typeof AuthenticatedJpLyricsSongIdEditIndexRoute
 }
 export interface FileRouteTypes {
@@ -296,6 +306,7 @@ export interface FileRouteTypes {
     | '/game-assist/minesweeper/'
     | '/jp-lyrics/$songId/'
     | '/jp-lyrics/kana/'
+    | '/admin/cook/spaces/'
     | '/jp-lyrics/$songId/edit/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -323,6 +334,7 @@ export interface FileRouteTypes {
     | '/game-assist/minesweeper'
     | '/jp-lyrics/$songId'
     | '/jp-lyrics/kana'
+    | '/admin/cook/spaces'
     | '/jp-lyrics/$songId/edit'
   id:
     | '__root__'
@@ -351,6 +363,7 @@ export interface FileRouteTypes {
     | '/_authenticated/game-assist/minesweeper/'
     | '/_authenticated/jp-lyrics/$songId/'
     | '/_authenticated/jp-lyrics/kana/'
+    | '/_authenticated/admin/cook/spaces/'
     | '/_authenticated/jp-lyrics/$songId/edit/'
   fileRoutesById: FileRoutesById
 }
@@ -537,6 +550,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedJpLyricsKanaIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/cook/spaces/': {
+      id: '/_authenticated/admin/cook/spaces/'
+      path: '/cook/spaces'
+      fullPath: '/admin/cook/spaces/'
+      preLoaderRoute: typeof AuthenticatedAdminCookSpacesIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
     '/_authenticated/jp-lyrics/$songId/edit/': {
       id: '/_authenticated/jp-lyrics/$songId/edit/'
       path: '/jp-lyrics/$songId/edit'
@@ -561,6 +581,7 @@ interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminRaidSignupsIndexRoute: typeof AuthenticatedAdminRaidSignupsIndexRoute
   AuthenticatedAdminSchoolsIndexRoute: typeof AuthenticatedAdminSchoolsIndexRoute
   AuthenticatedAdminUsersIndexRoute: typeof AuthenticatedAdminUsersIndexRoute
+  AuthenticatedAdminCookSpacesIndexRoute: typeof AuthenticatedAdminCookSpacesIndexRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
@@ -586,6 +607,8 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
       AuthenticatedAdminRaidSignupsIndexRoute,
     AuthenticatedAdminSchoolsIndexRoute: AuthenticatedAdminSchoolsIndexRoute,
     AuthenticatedAdminUsersIndexRoute: AuthenticatedAdminUsersIndexRoute,
+    AuthenticatedAdminCookSpacesIndexRoute:
+      AuthenticatedAdminCookSpacesIndexRoute,
   }
 
 const AuthenticatedAdminRouteRouteWithChildren =

@@ -6,6 +6,7 @@ import {
   CastleIcon,
   CircleDollarSignIcon,
   ClipboardListIcon,
+  CookingPotIcon,
   FlameIcon,
   Gamepad2Icon,
   LanguagesIcon,
@@ -121,6 +122,12 @@ export const navItems: NavItem[] = [
     icon: Settings2Icon,
     to: '/admin/app-settings',
     requiredRole: ROLE_ADMIN,
+  },
+  {
+    title: '烹饪',
+    icon: CookingPotIcon,
+    requiredRole: ROLE_ADMIN,
+    children: [{ title: '空间管理', to: '/admin/cook/spaces' }],
   },
   {
     title: '日语歌词',

@@ -37,6 +37,9 @@ export const findSpacesByUserId = async (
       });
       continue;
     }
+    if (space.archivedAt !== null) {
+      continue;
+    }
     if (finishedSpaceIdsSet.has(space.id)) {
       logger.warn(
         'Space {spaceId} already processed, maybe duplicated space member',
@@ -51,7 +54,7 @@ export const findSpacesByUserId = async (
       joinedAt: spaceMember.joinedAt,
       type: space.type as SpaceType,
       name: space.name,
-      isActive: space.archivedAt === null,
+      isActive: true,
     });
   }
 

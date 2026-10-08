@@ -3,6 +3,7 @@ import { initAiSdkTelemetry } from './infrastructure/external/ai/telemetry/init'
 import { initializeLogger, logger } from './infrastructure/logger';
 import {
   appSettingRoute,
+  cookSpaceRoute,
   cookUserRoute,
   gameDungeonRoute,
   gameExpansionRoute,
@@ -39,6 +40,7 @@ const server = app
   .use(raidSignupRoute)
   .use(schoolRoute)
   .use(userRoute)
+  .use(cookSpaceRoute)
   .use(cookUserRoute);
 
 export type App = typeof server;
