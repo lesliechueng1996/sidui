@@ -6,9 +6,12 @@ abstract final class AppColors {
 
   /// Default page background. Slightly greener than [white1].
   static const canvas = Color(0xFFF6F8F5);
+
+  /// Signed-in sidebar. Lighter than [canvas], short of [white1].
+  static const sidebar = Color(0xFFFBFCFB);
   static const gray1 = Color(0xFF737373);
   static const green1 = Color(0xFFB9F8CF);
-  static const green2 = Color(0xFF5EE9B5);
+  static const green2 = Color(0xFF82E1BE);
   static const green3 = Color(0xFF00BC7D);
   static const green4 = Color(0xFF009966);
   static const amber1 = Color(0xFFFFEDD4);
@@ -61,18 +64,21 @@ class AppExtraColors extends ThemeExtension<AppExtraColors> {
     required this.primaryEmphasized,
     required this.hint,
     required this.fieldLabel,
+    required this.sidebar,
   });
 
   final Color primaryMuted;
   final Color primaryEmphasized;
   final Color hint;
   final Color fieldLabel;
+  final Color sidebar;
 
   static const light = AppExtraColors(
     primaryMuted: AppColors.green2,
     primaryEmphasized: AppColors.green3,
     hint: AppColors.hint,
     fieldLabel: AppColors.fieldLabel,
+    sidebar: AppColors.sidebar,
   );
 
   static AppExtraColors of(BuildContext context) {
@@ -90,12 +96,14 @@ class AppExtraColors extends ThemeExtension<AppExtraColors> {
     Color? primaryEmphasized,
     Color? hint,
     Color? fieldLabel,
+    Color? sidebar,
   }) {
     return AppExtraColors(
       primaryMuted: primaryMuted ?? this.primaryMuted,
       primaryEmphasized: primaryEmphasized ?? this.primaryEmphasized,
       hint: hint ?? this.hint,
       fieldLabel: fieldLabel ?? this.fieldLabel,
+      sidebar: sidebar ?? this.sidebar,
     );
   }
 
@@ -117,6 +125,7 @@ class AppExtraColors extends ThemeExtension<AppExtraColors> {
       )!,
       hint: Color.lerp(hint, other.hint, t)!,
       fieldLabel: Color.lerp(fieldLabel, other.fieldLabel, t)!,
+      sidebar: Color.lerp(sidebar, other.sidebar, t)!,
     );
   }
 }

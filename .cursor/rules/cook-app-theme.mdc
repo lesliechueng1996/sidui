@@ -1,0 +1,23 @@
+---
+description: Use ColorScheme and AppExtraColors in cook_app widgets, not palette swatches
+globs: apps/cook_app/**/*.dart
+alwaysApply: false
+---
+
+# cook_app colors
+
+Widgets take color from the theme. `AppColors` swatches (`green1`, `amber1`, `hint`, `brandGreen`, …) exist to build `ColorScheme` and `AppExtraColors`. Do not paint widgets with those swatches.
+
+```dart
+final scheme = Theme.of(context).colorScheme;
+final extra = AppExtraColors.of(context);
+
+// primaryContainer is green1. secondaryContainer is amber1.
+decoration: BoxDecoration(color: scheme.primaryContainer)
+color: extra.hint
+backgroundColor: Theme.of(context).scaffoldBackgroundColor
+```
+
+`AppColors` in a widget is only for a color that has no role, such as the character fill `coral1`. Page background is `scaffoldBackgroundColor`. Sidebar surface is `AppExtraColors.sidebar`.
+
+If a new color is a role (container, accent, label, surface), add it to `ColorScheme` or `AppExtraColors` in `ui/core/themes/colors.dart`, then read it from the theme.

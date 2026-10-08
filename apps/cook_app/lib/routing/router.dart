@@ -1,4 +1,5 @@
 import 'package:cook_app/utils/logger.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -6,6 +7,8 @@ import '../data/services/token_storage.dart';
 import '../ui/auth/login/widgets/login_screen.dart';
 import '../ui/home/widgets/home_screen.dart';
 import '../ui/no_space/widgets/no_space_screen.dart';
+import '../ui/settings/widgets/settings_screen.dart';
+import '../ui/shell/widgets/app_shell.dart';
 import 'routes.dart';
 
 part 'router.g.dart';
@@ -22,9 +25,38 @@ GoRouter router(Ref ref) {
         path: Routes.login,
         builder: (context, state) => const LoginScreen(),
       ),
-      GoRoute(
-        path: Routes.home,
-        builder: (context, state) => const HomeScreen(),
+      ShellRoute(
+        builder: (context, state, child) => AppShell(child: child),
+        routes: [
+          GoRoute(
+            path: Routes.home,
+            builder: (context, state) => const HomeScreen(),
+          ),
+          GoRoute(
+            path: Routes.pantry,
+            builder: (context, state) => const SizedBox.expand(),
+          ),
+          GoRoute(
+            path: Routes.recipes,
+            builder: (context, state) => const SizedBox.expand(),
+          ),
+          GoRoute(
+            path: Routes.meals,
+            builder: (context, state) => const SizedBox.expand(),
+          ),
+          GoRoute(
+            path: Routes.cookware,
+            builder: (context, state) => const SizedBox.expand(),
+          ),
+          GoRoute(
+            path: Routes.weight,
+            builder: (context, state) => const SizedBox.expand(),
+          ),
+          GoRoute(
+            path: Routes.settings,
+            builder: (context, state) => const SettingsScreen(),
+          ),
+        ],
       ),
       GoRoute(
         path: Routes.noSpace,

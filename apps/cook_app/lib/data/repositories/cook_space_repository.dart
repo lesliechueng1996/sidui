@@ -35,7 +35,7 @@ class CookSpaceRepository {
             spaceId: space.spaceId,
             role: space.role,
             joinedAt: space.joinedAt,
-            type: space.type,
+            type: CookSpaceType.fromValue(space.type),
             name: space.name,
             isActive: space.isActive,
           ),

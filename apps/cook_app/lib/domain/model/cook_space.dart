@@ -1,3 +1,16 @@
+enum CookSpaceType {
+  personal,
+  family;
+
+  static CookSpaceType fromValue(String value) {
+    return switch (value) {
+      'personal' => CookSpaceType.personal,
+      'family' => CookSpaceType.family,
+      _ => throw ArgumentError.value(value, 'type', 'Unknown cook space type'),
+    };
+  }
+}
+
 class CookSpace {
   const CookSpace({
     required this.spaceId,
@@ -11,7 +24,7 @@ class CookSpace {
   final String spaceId;
   final String role;
   final String joinedAt;
-  final String type;
+  final CookSpaceType type;
   final String name;
   final bool isActive;
 }

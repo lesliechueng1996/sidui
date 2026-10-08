@@ -1,6 +1,7 @@
 import 'package:cook_app/ui/auth/login/widgets/character_stage.dart';
 import 'package:cook_app/ui/auth/login/widgets/gaze_bus.dart';
 import 'package:cook_app/ui/auth/login/widgets/login_form.dart';
+import 'package:cook_app/ui/core/layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
@@ -22,7 +23,7 @@ class LoginScreen extends HookWidget {
         ),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final isDesktop = constraints.maxWidth >= 900;
+            final isDesktop = constraints.maxWidth >= AppLayout.desktopMinWidth;
             return MouseRegion(
               onEnter: (_) => gazeBus.isPointerInside.value = true,
               onExit: (_) => gazeBus.isPointerInside.value = false,

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'home_view_model.dart';
+part of 'shell_view_model.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -9,43 +9,43 @@ part of 'home_view_model.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(HomeViewModel)
-final homeViewModelProvider = HomeViewModelProvider._();
+@ProviderFor(ShellViewModel)
+final shellViewModelProvider = ShellViewModelProvider._();
 
-final class HomeViewModelProvider
-    extends $AsyncNotifierProvider<HomeViewModel, List<CookSpace>> {
-  HomeViewModelProvider._()
+final class ShellViewModelProvider
+    extends $AsyncNotifierProvider<ShellViewModel, ShellData> {
+  ShellViewModelProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'homeViewModelProvider',
+        name: r'shellViewModelProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$homeViewModelHash();
+  String debugGetCreateSourceHash() => _$shellViewModelHash();
 
   @$internal
   @override
-  HomeViewModel create() => HomeViewModel();
+  ShellViewModel create() => ShellViewModel();
 }
 
-String _$homeViewModelHash() => r'9b3471eb030e0d2da3ab98886bcf81b7df6de3b5';
+String _$shellViewModelHash() => r'4c24a98a7ae7bf22d81b705d884833f37c7648f8';
 
-abstract class _$HomeViewModel extends $AsyncNotifier<List<CookSpace>> {
-  FutureOr<List<CookSpace>> build();
+abstract class _$ShellViewModel extends $AsyncNotifier<ShellData> {
+  FutureOr<ShellData> build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref = this.ref as $Ref<AsyncValue<List<CookSpace>>, List<CookSpace>>;
+    final ref = this.ref as $Ref<AsyncValue<ShellData>, ShellData>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<AsyncValue<List<CookSpace>>, List<CookSpace>>,
-              AsyncValue<List<CookSpace>>,
+              AnyNotifier<AsyncValue<ShellData>, ShellData>,
+              AsyncValue<ShellData>,
               Object?,
               Object?
             >;
