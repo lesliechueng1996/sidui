@@ -28,6 +28,13 @@ class LoginForm extends HookConsumerWidget {
     final signingIn = viewModel.isSigningIn;
     final errorMessage = viewModel.errorMessage;
 
+    void submit() {
+      if (signingIn) {
+        return;
+      }
+      viewModel.signIn(emailController.text, passwordController.text);
+    }
+
     useEffect(() {
       void sync() {
         var next = GazeMode.idle;
@@ -86,6 +93,12 @@ class LoginForm extends HookConsumerWidget {
                   focusNode: emailFocusNode,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
+                  onSubmitted: (_) {
+                    if (passwordController.text.isEmpty) {
+                      return;
+                    }
+                    submit();
+                  },
                   hint: 'leslie@example.com',
                 ),
                 const SizedBox(height: 16),
@@ -95,6 +108,7 @@ class LoginForm extends HookConsumerWidget {
                   focusNode: passwordFocusNode,
                   obscureText: obscure.value,
                   textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => submit(),
                   suffix: IconButton(
                     tooltip: obscure.value ? '显示密码' : '隐藏密码',
                     onPressed: () => obscure.value = !obscure.value,
@@ -122,14 +136,7 @@ class LoginForm extends HookConsumerWidget {
                       : scheme.primary,
                   borderRadius: BorderRadius.circular(10),
                   child: InkWell(
-                    onTap: signingIn
-                        ? null
-                        : () {
-                            viewModel.signIn(
-                              emailController.text,
-                              passwordController.text,
-                            );
-                          },
+                    onTap: signingIn ? null : submit,
                     borderRadius: BorderRadius.circular(10),
                     child: SizedBox(
                       height: 46,
@@ -231,6 +238,7 @@ class _Field extends StatelessWidget {
     this.obscureText = false,
     this.keyboardType,
     this.textInputAction,
+    this.onSubmitted,
     this.hint,
     this.suffix,
   });
@@ -241,6 +249,7 @@ class _Field extends StatelessWidget {
   final bool obscureText;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
+  final ValueChanged<String>? onSubmitted;
   final String? hint;
   final Widget? suffix;
 
@@ -273,6 +282,7 @@ class _Field extends StatelessWidget {
             obscureText: obscureText,
             keyboardType: keyboardType,
             textInputAction: textInputAction,
+            onSubmitted: onSubmitted,
             cursorColor: scheme.primary,
             style: AppFonts.text(
               fontSize: 15,
